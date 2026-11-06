@@ -22,15 +22,19 @@ class RegistrationForm(forms.Form):
         label="Confirm password", strip=False, max_length=128, widget=forms.PasswordInput
     )
     accept_terms = forms.BooleanField(
-        label="I have read the Terms and Privacy Notice.",
-        error_messages={"required": "Please review and accept the Terms and Privacy Notice."},
+        label="I accept the Terms of Service.",
+        error_messages={"required": "Please review and accept the Terms of Service."},
+    )
+    accept_privacy = forms.BooleanField(
+        label="I acknowledge the Privacy Notice.",
+        error_messages={"required": "Please review and acknowledge the Privacy Notice."},
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
             field.widget.attrs["class"] = (
-                "form-check-input" if name == "accept_terms" else "form-control"
+                "form-check-input" if name in {"accept_terms", "accept_privacy"} else "form-control"
             )
 
     def clean_email(self):

@@ -25,6 +25,7 @@ urlpatterns = [
     path("health/ready/", readiness, name="health_ready"),
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls")),
+    path("app/settings/", include("apps.governance.urls")),
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
         "how-it-works/",

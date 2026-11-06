@@ -5,6 +5,7 @@
   <div class="container" style="max-width: 38rem">
     <h1>Create an account</h1>
     <p>Use one email address or one phone number in international E.164 format. New accounts stay pending until you verify that identifier.</p>
+    <p>Review the <a href="{% url 'terms' %}">Terms of Service</a> and <a href="{% url 'privacy' %}">Privacy Notice</a> before continuing.</p>
     <form method="post" novalidate>
       {% csrf_token %}
       {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}

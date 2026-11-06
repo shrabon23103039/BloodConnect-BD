@@ -2,6 +2,7 @@
 
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.shortcuts import redirect, render
@@ -27,6 +28,7 @@ from apps.accounts.verification import (
     get_verification_provider,
     issue_challenge,
 )
+from apps.governance.models import ConsentSource, ConsentType, record_consent
 
 
 @limited_by_ip(scope="register", limit=5, window_seconds=3600)
@@ -45,11 +47,25 @@ def register(request):
         values = form.cleaned_data
         try:
             with transaction.atomic():
-                get_user_model().objects.create_user(
+                user = get_user_model().objects.create_user(
                     email=values.get("email"),
                     phone_e164=values.get("phone_e164"),
                     display_name=values["display_name"],
                     password=values["password1"],
+                )
+                record_consent(
+                    user=user,
+                    consent_type=ConsentType.TERMS_ACCEPTED,
+                    policy_version=settings.TERMS_POLICY_VERSION,
+                    granted=True,
+                    source=ConsentSource.WEB,
+                )
+                record_consent(
+                    user=user,
+                    consent_type=ConsentType.PRIVACY_ACKNOWLEDGED,
+                    policy_version=settings.PRIVACY_POLICY_VERSION,
+                    granted=True,
+                    source=ConsentSource.WEB,
                 )
         except (IntegrityError, ValidationError):
             # A generic response prevents account enumeration by email or phone.

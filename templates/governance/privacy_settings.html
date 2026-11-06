@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Privacy settings · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container narrow-container">
+    <p class="eyebrow">Account</p>
+    <h1>Privacy settings</h1>
+    <p>Each choice is recorded with policy version {{ policy_version }}. You can change these choices at any time.</p>
+    <p>Donor discovery and contact sharing remain off until the related donor profile and contact features are available. A donor must still accept each contact request before any selected contact detail can be disclosed.</p>
+    {% if messages %}{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+        <div class="form-check mb-3">
+          {{ field }}
+          {{ field.label_tag }}
+          {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-brand" type="submit">Save privacy choices</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "apps.accounts.apps.AccountsConfig",
+    "apps.governance.apps.GovernanceConfig",
 ]
+TERMS_POLICY_VERSION = "draft-1"
+PRIVACY_POLICY_VERSION = "draft-1"
 AUTH_USER_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = ["apps.accounts.authentication.IdentifierBackend"]
 

@@ -27,6 +27,7 @@ class AccountAuthFlowTests(TestCase):
             "password1": PASSWORD,
             "password2": PASSWORD,
             "accept_terms": "on",
+            "accept_privacy": "on",
         }
         data.update(overrides)
         return self.client.post(reverse("accounts:register"), data)
@@ -79,6 +80,10 @@ class AccountAuthFlowTests(TestCase):
 
         missing_acceptance = self.post_registration(accept_terms="")
         self.assertEqual(missing_acceptance.status_code, 200)
+        self.assertFalse(User.objects.exists())
+
+        missing_privacy_acknowledgement = self.post_registration(accept_privacy="")
+        self.assertEqual(missing_privacy_acknowledgement.status_code, 200)
         self.assertFalse(User.objects.exists())
 
         oversized = "A" * 129

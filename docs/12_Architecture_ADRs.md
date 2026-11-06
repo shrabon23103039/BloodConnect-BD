@@ -131,6 +131,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** Group names and required Django permission codenames must be provisioned when their features are implemented. Each view/service must combine authentication, feature-specific role checks and ownership checks; these helpers do not replace workflow-specific authorization.
 **Related documents:** `docs/01_PRD.md`, `docs/05_Schema.md`, `docs/07_Security.md`, `docs/10_API_Contract.md`, `docs/06_Plan.md`.
 
+## ADR-016 - Append-only, versioned consent events
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** P2-04 needs separate, versioned and auditable consent choices. The governance schema requires policy version, grant state, capture time, optional withdrawal time and source, while the legal text and retention schedule remain draft items.
+**Decision:** Add a `governance.ConsentRecord` event table. Registration requires and records separate Terms acceptance and Privacy Notice acknowledgement using configurable `TERMS_POLICY_VERSION` and `PRIVACY_POLICY_VERSION` values that default to `draft-1`. Privacy settings record purpose-specific opt-in/out events against the privacy policy version. Events are appended only; the service serializes updates by locking the account row and avoids duplicate events when the latest state/version is unchanged. Privacy choices default to false. Donor discovery, contact disclosure, notifications and generalized location settings are recorded but do not activate features until their dependent workflows enforce them. Current legal policy documents remain drafts pending qualified local review.
+**Reason:** Preserve an auditable history without overwriting prior consent, separate unrelated purposes, and avoid treating consent as proof of a product capability or legal approval.
+**Alternatives:** Store only current booleans (loses history); combine all purposes into one checkbox/event (not purpose-specific); assume a production policy version before legal review (unsupported).
+**Consequences:** Policy owners must increment version settings when text changes and configure approved versions before release. Consent events are retained with the account under a PROTECT relation; account deletion/retention procedures must resolve this dependency. No donor or contact flow may rely on a stored choice until it checks current consent at the point of use.
+**Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/07_Security.md`, `docs/11_Data_Governance.md`, `docs/06_Plan.md`.
+
 ## ADR template
 
 ## ADR template

@@ -237,14 +237,14 @@ Constraints:
 |---|---|---|
 | `id` | UUID | PK |
 | `user_id` | UUID | FK User |
-| `consent_type` | varchar(50) | e.g. donor_discovery, phone_share_after_accept |
+| `consent_type` | varchar(50) | controlled purpose: terms/privacy acknowledgement, donor_discovery, phone/email sharing, notifications, location, organization sharing |
 | `policy_version` | varchar(30) | required |
 | `granted` | boolean | required |
 | `captured_at` | timestamptz | required |
-| `withdrawn_at` | timestamptz | nullable |
+| `withdrawn_at` | timestamptz | nullable; set on an explicit withdrawal event |
 | `source` | varchar(30) | `WEB`, `MOBILE`, `ADMIN` |
 
-Do not overwrite historical consent. Create a new record for changes.
+Do not overwrite historical consent. Create a new record for each grant, refusal or withdrawal. Registration records separate Terms and Privacy acknowledgement versions. Development policy versions default to `draft-1` until reviewed policy revisions are approved. Privacy-setting choices default to denied and are not effective donor-discovery/contact permissions until those dependent features enforce them.
 
 ### 3.11 `audit_auditevent`
 
