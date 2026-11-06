@@ -3,7 +3,7 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 3 — Locations and donor profiles
-- Current task ID: P3-02
+- Current task ID: P3-03
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -99,14 +99,21 @@
   - Files changed: `apps/locations/`, `config/settings/base.py`, `tests/test_location_data.py`, `docs/05_Schema.md`, `docs/12_Architecture_ADRs.md`, `docs/REFERENCES.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
   - Limitation: No real geography snapshot has been loaded. The BBS catalogue reviewed was dated 2016, and official National Portal pages had inconsistent displayed totals; reconcile and approve a current snapshot before profile/discovery use.
 
+## Completed task
+- [x] P3-02 — Implement donor profile model and migrations
+  - Implementation: Added the schema-matched profile model, enum/database constraints, search indexes, owner relation and Division/District/Upazila hierarchy validation. Defaults are unavailable, draft, hidden, in-app only and no contact sharing. Donor role now follows active-account profile existence.
+  - Verification: Six focused donor model tests pass within the full 82-test suite. PostgreSQL `donors.0001` applied; catalog confirms four enum checks, four search indexes and unique user index. Development check, PostgreSQL `migrate --check`, migration consistency, Bandit and diff checks pass.
+  - Files changed: `apps/donors/`, `config/settings/base.py`, `tests/test_donor_profile_model.py`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
+  - Limitations: Profile editing and consent enforcement remain P3-03/P3-04; no real location rows are loaded; no medical eligibility or compatibility logic exists.
+
 ## Next task
-- Task ID: P3-02
-- Exact next action: Implement the donor profile model against `docs/05_Schema.md`, add matching database constraints/indexes and test consent defaults and location references.
-- Dependencies: P2-03 and P3-01 verified; PostgreSQL account/governance/location migrations applied.
+- Task ID: P3-03
+- Exact next action: Implement owner-only donor profile create/update/pause/deactivate, reusing active-account/object permissions and enforcing versioned discoverability/contact consent at write time.
+- Dependencies: P3-02, P2-04 and P3-01 verified; no production geography seed is available, so tests must use synthetic location rows.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks; P2-03 focused permission tests (6/6), full suite (66/66), development check, PostgreSQL migration check, migration consistency, Bandit and diff checks; P2-04 focused consent/auth tests (19/19), full suite (70/70), PostgreSQL governance migration/catalog checks, development check, migration consistency, Bandit and diff checks; P3-01 location tests (6/6), full suite (76/76), PostgreSQL location migration/catalog checks, development check, migration consistency, Bandit and diff checks.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks; P2-03 focused permission tests (6/6), full suite (66/66), development check, PostgreSQL migration check, migration consistency, Bandit and diff checks; P2-04 focused consent/auth tests (19/19), full suite (70/70), PostgreSQL governance migration/catalog checks, development check, migration consistency, Bandit and diff checks; P3-01 location tests (6/6), full suite (76/76), PostgreSQL location migration/catalog checks, development check, migration consistency, Bandit and diff checks; P3-02 donor model tests (6/6), full suite (82/82), PostgreSQL donor migration/catalog checks, development check, migration consistency, Bandit and diff checks.
 - Tests failed: None.
 - Tests not run and why: Live SMTP/SMS verification delivery is not authorized or configured; P2-02 uses an in-memory mock. Cross-process throttle behavior awaits the shared Redis configuration in P5-05.
 

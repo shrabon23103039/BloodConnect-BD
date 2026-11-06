@@ -93,14 +93,14 @@ Import only an offline JSON snapshot with source name/version/URL and reviewer/d
 | `division_id` | UUID | FK Location, PROTECT |
 | `district_id` | UUID | FK Location, PROTECT |
 | `upazila_id` | UUID | FK Location, PROTECT, nullable |
-| `availability_status` | varchar(20) | `UNAVAILABLE`, `AVAILABLE`, `PAUSED` |
+| `availability_status` | varchar(20) | `UNAVAILABLE`, `AVAILABLE`, `PAUSED`; default `UNAVAILABLE` |
 | `public_alias` | varchar(80) | nullable |
 | `visibility_enabled` | boolean | default false until consent |
-| `preferred_contact_method` | varchar(20) | `IN_APP`, `PHONE_AFTER_ACCEPT`, `EMAIL_AFTER_ACCEPT` |
+| `preferred_contact_method` | varchar(20) | `IN_APP`, `PHONE_AFTER_ACCEPT`, `EMAIL_AFTER_ACCEPT`; default `IN_APP` |
 | `share_phone_after_accept` | boolean | default false |
 | `share_email_after_accept` | boolean | default false |
 | `last_donation_date` | date | nullable, self-reported |
-| `profile_status` | varchar(20) | `DRAFT`, `ACTIVE`, `HIDDEN`, `SUSPENDED` |
+| `profile_status` | varchar(20) | `DRAFT`, `ACTIVE`, `HIDDEN`, `SUSPENDED`; default `DRAFT` |
 | `availability_updated_at` | timestamptz | nullable |
 | `created_at` | timestamptz | required |
 | `updated_at` | timestamptz | required |
