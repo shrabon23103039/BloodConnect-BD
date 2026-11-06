@@ -1,12 +1,12 @@
 """Registration, session authentication, password reset and throttling tests."""
 
 import re
-from django.utils import timezone
 
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from django.urls import reverse
 
 from apps.accounts.models import AccountStatus
@@ -177,7 +177,9 @@ class AccountAuthFlowTests(TestCase):
         self.assertRedirects(response, reverse("accounts:password_reset_done"))
         self.assertEqual(len(mail.outbox), 1)
         self.assertNotIn(PASSWORD, mail.outbox[0].body)
-        path_match = re.search(r"http://testserver(/accounts/password-reset/[^\s]+)", mail.outbox[0].body)
+        path_match = re.search(
+            r"http://testserver(/accounts/password-reset/[^\s]+)", mail.outbox[0].body
+        )
         self.assertIsNotNone(path_match)
 
         reset_path = path_match.group(1)
@@ -202,7 +204,10 @@ class AccountAuthFlowTests(TestCase):
 
         self.assertRedirects(response, reverse("accounts:password_reset_done"))
         self.assertEqual(mail.outbox, [])
-        self.assertContains(self.client.get(reverse("accounts:password_reset_done")), "If an active account matches")
+        self.assertContains(
+            self.client.get(reverse("accounts:password_reset_done")),
+            "If an active account matches",
+        )
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_reset_requires_an_active_verified_email(self):
@@ -251,4 +256,3 @@ class AccountAuthFlowTests(TestCase):
         )
         self.assertEqual(limited.status_code, 429)
         self.assertEqual(limited["Retry-After"], "3600")
-

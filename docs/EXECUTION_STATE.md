@@ -69,6 +69,7 @@
   - Verification: `pytest --ds=config.settings.test tests` passed (46 tests, including 14 auth tests); development and production `manage.py check` passed with synthetic PostgreSQL/SMTP configuration; PostgreSQL `manage.py migrate --check` passed; Bandit reported no issues in `apps/accounts/` and `config/`; `git diff --check` passed. Tests verify CSRF, generic responses, phone/email login, pending status, verified-email password reset and token use, throttling, and auth-log redaction.
   - Files changed: `apps/accounts/authentication.py`, `apps/accounts/forms.py`, `apps/accounts/throttling.py`, `apps/accounts/urls.py`, `apps/accounts/views.py`, `config/settings/`, `config/urls.py`, `templates/accounts/`, `templates/base.html`, `templates/pages/home.html`, `tests/test_account_auth_flows.py`, `tests/test_public_pages.py`, `tests/test_settings_profiles.py`, `.env.example`, `docs/09_Deployment.md`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
   - Limitations: new accounts remain pending until P2-02; phone recovery waits for verified-phone delivery in P2-02; versioned acknowledgement history is P2-04. Local-cache throttles are per process until P5-05 configures shared Redis. SMTP delivery was not tested and requires an authorized provider.
+  - Commit: `9a74653` (`feat: implement web account authentication`).
 
 ## In-progress task
 - [ ] P2-02 — Implement verification adapter interface and mock provider
