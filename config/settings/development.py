@@ -26,3 +26,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 if not DATABASE_URL:
     raise ImproperlyConfigured("Set DATABASE_URL to the local PostgreSQL service before running Django.")
 DATABASES = database_config_from_url(DATABASE_URL)
+STORAGES = {
+    **STORAGES,
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}

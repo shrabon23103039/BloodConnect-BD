@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}How it works — BloodConnect BD{% endblock %}
+{% block content %}
+<section class="page-hero"><div class="container narrow-container"><p class="eyebrow">Product information</p><h1>How BloodConnect BD works</h1><p class="page-lede">The goal is to make donor discovery and contact more organized while keeping donor choice and privacy at the centre.</p></div></section>
+<section class="section"><div class="container narrow-container">
+  <ol class="process-list">
+    <li><span class="process-number">1</span><div><h2>Search by blood group and area</h2><p>People will be able to filter by an exact blood-group label and broad location. These are discovery filters only; they do not assess medical compatibility.</p></div></li>
+    <li><span class="process-number">2</span><div><h2>Send a contact request</h2><p>A requester asks to connect. The donor's private contact details remain hidden while the request is pending.</p></div></li>
+    <li><span class="process-number">3</span><div><h2>Let the donor choose</h2><p>The donor can accept or decline. Acceptance may reveal only contact methods the donor explicitly chose to share. It does not mean that a donation occurred.</p></div></li>
+  </ol>
+  <div class="callout callout-info"><strong>Current build status:</strong> this repository is still building the platform foundation. Search, accounts and contact requests are not available yet. No real donor data should be entered.</div>
+  <a class="btn btn-brand" href="{% url 'safety' %}">Read safety guidance</a>
+</div></section>
+{% endblock %}

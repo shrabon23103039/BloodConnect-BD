@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Privacy information — BloodConnect BD{% endblock %}
+{% block content %}
+<section class="page-hero"><div class="container narrow-container"><p class="eyebrow">Privacy</p><h1>Privacy starts with donor choice</h1><p class="page-lede">This is a draft description of the planned MVP data practices, not a final legal privacy notice.</p></div></section>
+<section class="section"><div class="container narrow-container policy-content">
+  <div class="callout callout-warning"><strong>Before public launch:</strong> a qualified local reviewer must approve the lawful basis, retention periods, user rights, processors and contact details for the final notice. Those details are not yet defined in the project documents.</div>
+  <h2>Information the planned service may use</h2><p>To support accounts and coordination, the MVP may process account identifiers, user-provided donor profile details, requested blood group and broad location, availability preferences, contact requests and moderation reports. Donor profile and availability information is self-reported.</p>
+  <h2>What is public</h2><p>Public donor discovery is planned to show only fields the donor consented to make visible, such as a chosen display name, blood group, generalized area and self-reported willingness to receive requests. Phone numbers, email addresses, exact home addresses, precise coordinates, identity documents and private notes must not appear in public results.</p>
+  <h2>When contact information may be shared</h2><p>A recipient must send a contact request. The donor must explicitly accept before the service reveals any contact channel, and it may reveal only the channel the donor chose to share.</p>
+  <h2>Data handling and your choices</h2><p>Account and privacy controls are planned but are not available in this scaffold. Retention, deletion, access-request and complaint procedures must be documented before real personal or health-related information is collected. This build should use synthetic data only; no real donor data should be entered.</p>
+  <h2>Contact</h2><p>A privacy contact address has not been configured. It must be published in the final notice before launch.</p>
+</div></section>
+{% endblock %}

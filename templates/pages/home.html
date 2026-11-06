@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}BloodConnect BD — Find a way to connect{% endblock %}
+{% block content %}
+<section class="hero-section">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-dot"></span> Community-led donor discovery</p>
+      <h1>Make it easier to <span class="text-brand">reach a potential donor.</span></h1>
+      <p class="hero-lede">BloodConnect BD is being built to help people find potential blood donors by blood group and area, then request contact with the donor's consent.</p>
+      <div class="hero-actions">
+        <a class="btn btn-brand btn-lg" href="{% url 'how_it_works' %}">See how it works <span aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-outline-brand btn-lg" href="{% url 'safety' %}">Read the safety guidance</a>
+      </div>
+      <p class="hero-note">Donor discovery and account registration are not available in this scaffold yet.</p>
+    </div>
+    <aside class="hero-card" aria-label="How contact privacy works">
+      <div class="hero-card-icon" aria-hidden="true">&#9829;</div>
+      <p class="card-kicker">Consent comes first</p>
+      <h2>Your details stay private until you choose to connect.</h2>
+      <p>Donor contact information is shared only after the donor accepts a contact request, and only through the contact methods they chose to share.</p>
+      <a href="{% url 'privacy' %}" class="text-link">How privacy works <span aria-hidden="true">&rarr;</span></a>
+      <div class="card-decoration" aria-hidden="true"></div>
+    </aside>
+  </div>
+</section>
+
+<section class="section section-steps" id="how-it-works">
+  <div class="container">
+    <div class="section-heading">
+      <p class="eyebrow">A clear, consent-led process</p>
+      <h2>Three steps to start a conversation</h2>
+      <p>BloodConnect BD helps people coordinate contact. It does not arrange or guarantee a donation.</p>
+    </div>
+    <div class="row g-4 steps-grid">
+      <div class="col-md-4"><article class="step-card"><span class="step-number">01</span><h3>Find potential donors</h3><p>When discovery launches, filter by the exact blood group and a broad area. Results will show only public, consented profile details.</p></article></div>
+      <div class="col-md-4"><article class="step-card"><span class="step-number">02</span><h3>Request contact</h3><p>Send a contact request with relevant context. A request does not reveal a donor's private phone number or email.</p></article></div>
+      <div class="col-md-4"><article class="step-card"><span class="step-number">03</span><h3>The donor decides</h3><p>The donor can accept or decline. After acceptance, only the contact methods they chose to share may be shown.</p></article></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-safety">
+  <div class="container safety-panel">
+    <div class="safety-symbol" aria-hidden="true">!</div>
+    <div>
+      <p class="eyebrow">Important to know</p>
+      <h2>Potential contacts, not medical advice</h2>
+      <p>Results are potential contacts only. Medical suitability and compatibility must be assessed by an authorized healthcare professional. Donor availability is self-reported and does not guarantee a response.</p>
+      <a class="text-link" href="{% url 'safety' %}">Read all safety guidance <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

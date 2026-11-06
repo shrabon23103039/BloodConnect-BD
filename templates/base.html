@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#9f1d20">
+  <meta name="description" content="BloodConnect BD helps people discover potential blood donors and request contact with donor consent.">
+  <title>{% block title %}BloodConnect BD{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <nav class="navbar navbar-expand-lg" aria-label="Main navigation">
+      <div class="container">
+        <a class="navbar-brand brand-mark" href="{% url 'home' %}">
+          <span class="brand-icon" aria-hidden="true">B</span>
+          <span>BloodConnect <span class="brand-country">BD</span></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-navigation" aria-controls="site-navigation" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="site-navigation">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link" href="{% url 'how_it_works' %}">How it works</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'safety' %}">Safety</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'privacy' %}">Privacy</a></li>
+            <li class="nav-item ms-lg-2"><span class="btn btn-outline-brand btn-sm disabled" aria-disabled="true">Donor discovery is coming soon</span></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-layout">
+      <div>
+        <a class="footer-brand" href="{% url 'home' %}">BloodConnect BD</a>
+        <p class="footer-note">A donor discovery and contact coordination project. Not a blood bank or medical service.</p>
+      </div>
+      <nav aria-label="Footer navigation" class="footer-links">
+        <a href="{% url 'how_it_works' %}">How it works</a>
+        <a href="{% url 'privacy' %}">Privacy</a>
+        <a href="{% url 'terms' %}">Terms (draft)</a>
+        <a href="{% url 'safety' %}">Help and safety</a>
+        <a href="{% url 'contact' %}">Contact</a>
+      </nav>
+      <p class="footer-copyright">&copy; {% now "Y" %} BloodConnect BD</p>
+    </div>
+  </footer>
+  <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}" defer></script>
+</body>
+</html>

@@ -10,7 +10,7 @@
 | Backend language | Python 3.14.10 (selected runtime patch; update within the 3.14 series after security review) |
 | Web framework | Django 5.2 LTS line; proposed pin `5.2.19` |
 | API | Django REST Framework proposed pin `3.18.3` |
-| Web UI | Django Templates + Bootstrap 5.3.x |
+| Web UI | Django Templates + locally served Bootstrap 5.3.8 (MIT) |
 | Database | PostgreSQL 16+ |
 | Database driver | psycopg 3.3.8 (binary extra for the local academic environment; production packaging review remains required) |
 | Cache/broker | Redis 7.x |
@@ -19,7 +19,7 @@
 | API schema | drf-spectacular 0.30.0 |
 | Web server | Nginx |
 | WSGI server | Gunicorn 26.2.0 (see ADR-010; 23.x is no longer security-supported upstream) |
-| Static files | WhiteNoise 6.12.0 or object storage/CDN |
+| Static files | Project-local assets collected and served with WhiteNoise 6.12.0 |
 | Maps | Leaflet 1.9.4 + OpenStreetMap tiles under provider terms |
 | Tests | pytest, pytest-django, Django TestCase, Playwright |
 | Load tests | Locust |

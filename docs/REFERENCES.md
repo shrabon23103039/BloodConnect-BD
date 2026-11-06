@@ -28,6 +28,9 @@ This document lists primary references used to establish the proposed technical 
 8. Anthropic Claude Code memory / project instructions documentation (check current navigation):
    https://docs.anthropic.com/en/docs/claude-code/memory
 
+9. Bootstrap 5.3.8 compiled assets, integrity and license information:
+   https://getbootstrap.com/docs/5.3/getting-started/download/
+
 ## Context engineering and specification-driven development
 
 The package uses a practical four-layer context structure:

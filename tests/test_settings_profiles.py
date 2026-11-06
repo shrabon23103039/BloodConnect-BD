@@ -108,4 +108,4 @@ def test_database_url_errors_do_not_echo_credentials():
 
 def test_test_profile_uses_isolated_database():
     assert settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3"
-    assert settings.DATABASES["default"]["NAME"] == ":memory:"
+    assert settings.DATABASES["default"]["NAME"].startswith("file:memorydb_default")

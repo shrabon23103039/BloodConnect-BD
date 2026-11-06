@@ -81,7 +81,7 @@ The dependency versions in `04_TRD.md` are the proposed baseline. Before install
 
 ### Current repository state
 
-The repository now contains the Django project, separated settings, and hash-pinned runtime/development dependencies. Public pages, domain models, migrations, Docker Compose services, and product flows remain incomplete; consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Do not treat the scaffold as a completed application.
+The repository now contains the Django project, separated settings, hash-pinned dependencies, PostgreSQL configuration, and public information pages. Domain models, migrations, Docker Compose services, and user account/donor flows remain incomplete; consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Public privacy and terms pages are drafts. Do not treat the scaffold as a completed application.
 
 ### Prerequisites
 
