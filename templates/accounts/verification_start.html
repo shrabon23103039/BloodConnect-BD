@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Request verification code · BloodConnect BD{% endblock %}
+{% block content %}<section class="section"><div class="container" style="max-width: 34rem">
+  <h1>Request a verification code</h1>
+  <p>Enter the email or phone number used for the account. For privacy, the response is the same whether an eligible pending account exists or not.</p>
+  {% if sent %}<div class="alert alert-info" role="status">If the account is pending, a verification code has been requested. Enter it on the verification page.</div>{% endif %}
+  <form method="post">{% csrf_token %}
+    {% for field in form %}<div class="mb-3">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
+    <button class="btn btn-brand" type="submit">Send or resend code</button>
+  </form>
+  <p class="mt-3">Verification delivery is currently a local mock. No SMS or email provider is configured.</p>
+</div></section>{% endblock %}

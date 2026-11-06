@@ -2,9 +2,10 @@
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 from apps.accounts.managers import UserManager
 from apps.accounts.models import AccountStatus, User, phone_e164_validator
@@ -76,19 +77,6 @@ class IdentifierAuthenticationForm(AuthenticationForm):
         self.fields["username"].widget.attrs["class"] = "form-control"
         self.fields["password"].widget.attrs["class"] = "form-control"
 
-
-class AccountPasswordResetForm(PasswordResetForm):
-    """Find only active email accounts without relying on a DB `is_active` field."""
-
-    def get_users(self, email):
-        normalized_email = UserManager.normalize_email_identifier(email)
-        users = User.objects.filter(
-            email=normalized_email,
-            account_status=AccountStatus.ACTIVE,
-            email_verified_at__isnull=False,
-        )
-        return (user for user in users if user.has_usable_password())
-
     def clean(self):
         identifier = self.cleaned_data.get("username", "").strip()
         password = self.cleaned_data.get("password")
@@ -102,3 +90,91 @@ class AccountPasswordResetForm(PasswordResetForm):
                 raise self.get_invalid_login_error()
             self.confirm_login_allowed(self.user_cache)
         return self.cleaned_data
+
+
+class AccountPasswordResetForm(PasswordResetForm):
+    """Find only active email accounts without relying on a DB `is_active` field."""
+
+    def get_users(self, email):
+        normalized_email = UserManager.normalize_email_identifier(email)
+        users = User.objects.filter(
+            email=normalized_email,
+            account_status=AccountStatus.ACTIVE,
+            email_verified_at__isnull=False,
+        )
+        return (user for user in users if user.has_usable_password())
+
+
+def normalize_verification_identifier(identifier: str) -> str:
+    identifier = identifier.strip()
+    if "@" in identifier:
+        validate_email(identifier)
+        return UserManager.normalize_email_identifier(identifier)
+    phone_e164_validator(identifier)
+    return UserManager.normalize_phone_identifier(identifier)
+
+
+class VerificationIdentifierForm(forms.Form):
+    identifier = forms.CharField(max_length=254, label="Email or phone")
+
+    def clean_identifier(self):
+        return normalize_verification_identifier(self.cleaned_data["identifier"])
+
+
+class PhoneResetIdentifierForm(forms.Form):
+    phone_e164 = forms.CharField(max_length=16, label="Phone (E.164)")
+
+    def clean_phone_e164(self):
+        phone = UserManager.normalize_phone_identifier(self.cleaned_data["phone_e164"])
+        phone_e164_validator(phone)
+        return phone
+
+
+class VerificationCodeForm(forms.Form):
+    identifier = forms.CharField(max_length=254, label="Email or phone")
+    code = forms.RegexField(
+        regex=r"^[0-9]{6}$",
+        max_length=6,
+        min_length=6,
+        error_messages={"invalid": "Enter the six-digit code."},
+    )
+
+    def clean_identifier(self):
+        return normalize_verification_identifier(self.cleaned_data["identifier"])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["identifier"].widget.attrs["class"] = "form-control"
+        self.fields["code"].widget.attrs.update(
+            {"class": "form-control", "inputmode": "numeric", "autocomplete": "one-time-code"}
+        )
+
+
+class PhoneResetCodeForm(forms.Form):
+    phone_e164 = forms.CharField(max_length=16, label="Phone (E.164)")
+    code = forms.RegexField(
+        regex=r"^[0-9]{6}$",
+        max_length=6,
+        min_length=6,
+        error_messages={"invalid": "Enter the six-digit code."},
+    )
+
+    def clean_phone_e164(self):
+        phone = UserManager.normalize_phone_identifier(self.cleaned_data["phone_e164"])
+        phone_e164_validator(phone)
+        return phone
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs["class"] = "form-control"
+        self.fields["code"].widget.attrs.update(
+            {"inputmode": "numeric", "autocomplete": "one-time-code"}
+        )
+
+
+class PhoneResetSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs["class"] = "form-control"

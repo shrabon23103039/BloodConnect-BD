@@ -44,7 +44,8 @@ class AccountAuthFlowTests(TestCase):
             user.email_verified_at = timezone.now()
             user.save(update_fields=["account_status", "email_verified_at", "updated_at"])
         else:
-            user.save(update_fields=["account_status", "updated_at"])
+            user.phone_verified_at = timezone.now()
+            user.save(update_fields=["account_status", "phone_verified_at", "updated_at"])
         return user
 
     def test_register_email_creates_pending_account_without_logging_in(self):
@@ -96,6 +97,14 @@ class AccountAuthFlowTests(TestCase):
 
         self.assertRedirects(response, reverse("accounts:registration_submitted"))
         self.assertEqual(User.objects.count(), 1)
+
+    @override_settings(ALLOW_MOCK_VERIFICATION=False)
+    def test_registration_fails_closed_when_no_verification_provider_exists(self):
+        response = self.post_registration()
+
+        self.assertEqual(response.status_code, 503)
+        self.assertContains(response, "No account was created", status_code=503)
+        self.assertFalse(User.objects.exists())
 
     def test_login_accepts_normalized_email_and_phone_only_when_active(self):
         email_user = self.create_active_user()

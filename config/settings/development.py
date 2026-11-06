@@ -8,6 +8,7 @@ from config.database import database_config_from_url
 from .base import *  # noqa: F403
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").strip().lower() in {"1", "true", "yes"}
+ALLOW_MOCK_VERIFICATION = True
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY", "django-insecure-local-development-only-not-for-production"
 )

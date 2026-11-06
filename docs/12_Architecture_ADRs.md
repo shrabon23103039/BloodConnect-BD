@@ -109,6 +109,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** Phone-only password recovery depends on verified phone delivery in P2-02. Registration acknowledgement history is recorded in P2-04. Until P5-05 configures a shared Redis cache, development throttling is process-local and is not a multi-worker production control. Production SMTP credentials/provider approval are required before password reset delivery can operate.
 **Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/07_Security.md`, `docs/09_Deployment.md`, `docs/11_Data_Governance.md`, `docs/06_Plan.md`.
 
+## ADR-014 - One-time account verification codes
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** P2-02 requires email/phone verification, single-use codes, expiry, resend throttling and a mock provider without authorized production delivery services.
+**Decision:** Generate six-digit codes with the standard cryptographic random source. Expire them after 10 minutes, accept at most five attempts per challenge, enforce a 60-second resend cooldown and at most three sends per account/purpose/hour, and throttle challenge sends to five per IP/hour and code submissions to ten per IP/hour. Store only an HMAC digest using Django's secret key; never store/log submitted or delivered codes in the database or application logs. Invalidate any previous outstanding challenge when issuing a new one. Development/tests use an in-memory mock delivery adapter; production fails closed until a real authorized adapter exists. Verification activates only the user's existing email or phone identifier.
+**Reason:** These bounded defaults provide meaningful resistance to guessing and resend abuse while keeping the implementation small and testable. The HMAC prevents a database-only compromise from enabling trivial offline enumeration of six-digit codes.
+**Alternatives:** Store plaintext or unsalted hashes (rejected); allow unlimited resend/guessing (rejected); send codes to console/logs (rejected); activate accounts before verification or claim production provider access (rejected).
+**Consequences:** The mock cannot deliver to real users, so production registration/verification remains unavailable until a provider is authorized and implemented. Shared IP throttles become effective across workers when P5-05 configures Redis; per-challenge attempt limits and per-account resend history are database-backed immediately. Purge challenge rows more than 24 hours past expiry with `manage.py purge_verification_challenges`, and schedule that command during deployment. Phone password recovery can use the same challenge service after successful verification.
+**Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/07_Security.md`, `docs/08_Testing.md`, `docs/11_Data_Governance.md`, `docs/06_Plan.md`.
+
 ## ADR template
 
 ## ADR template

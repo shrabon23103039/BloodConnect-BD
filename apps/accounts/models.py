@@ -7,6 +7,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models import F, Q
 from django.db.models.functions import Lower
 from django.utils import timezone
 
@@ -18,6 +19,16 @@ class AccountStatus(models.TextChoices):
     ACTIVE = "ACTIVE", "Active"
     SUSPENDED = "SUSPENDED", "Suspended"
     DEACTIVATED = "DEACTIVATED", "Deactivated"
+
+
+class VerificationPurpose(models.TextChoices):
+    ACCOUNT = "ACCOUNT", "Account verification"
+    PASSWORD_RESET = "PASSWORD_RESET", "Password reset"
+
+
+class VerificationChannel(models.TextChoices):
+    EMAIL = "EMAIL", "Email"
+    PHONE = "PHONE", "Phone"
 
 
 phone_e164_validator = RegexValidator(
@@ -101,3 +112,38 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.display_name
+
+
+class VerificationChallenge(models.Model):
+    """Hashed, short-lived verification material; never stores the code itself."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="verification_challenges",
+    )
+    purpose = models.CharField(max_length=20, choices=VerificationPurpose.choices)
+    channel = models.CharField(max_length=10, choices=VerificationChannel.choices)
+    code_digest = models.CharField(max_length=64)
+    failed_attempts = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "purpose", "created_at"]),
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["expires_at"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(expires_at__gt=F("created_at")),
+                name="accounts_challenge_expiry_after_create",
+            ),
+            models.CheckConstraint(
+                condition=Q(failed_attempts__lte=5),
+                name="accounts_challenge_attempt_limit",
+            ),
+        ]

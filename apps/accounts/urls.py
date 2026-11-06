@@ -10,6 +10,8 @@ app_name = "accounts"
 urlpatterns = [
     path("register/", views.register, name="register"),
     path("register/submitted/", views.registration_submitted, name="registration_submitted"),
+    path("verify/request/", views.verification_start, name="verification_start"),
+    path("verify/", views.verify_account, name="verify"),
     path("login/", views.ThrottledLoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(next_page=reverse_lazy("home")), name="logout"),
     path("password-reset/", views.ThrottledPasswordResetView.as_view(), name="password_reset"),
@@ -19,6 +21,17 @@ urlpatterns = [
             template_name="accounts/password_reset_done.html"
         ),
         name="password_reset_done",
+    ),
+    path("password-reset/phone/", views.phone_password_reset, name="phone_password_reset"),
+    path(
+        "password-reset/phone/verify/",
+        views.phone_password_reset_verify,
+        name="phone_password_reset_verify",
+    ),
+    path(
+        "password-reset/phone/confirm/",
+        views.phone_password_reset_confirm,
+        name="phone_password_reset_confirm",
     ),
     path(
         "password-reset/<uidb64>/<token>/",

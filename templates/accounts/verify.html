@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Verify account · BloodConnect BD{% endblock %}
+{% block content %}<section class="section"><div class="container" style="max-width: 34rem">
+  <h1>Verify account</h1>
+  <p>Enter the same email or phone used to request a code, then enter the six-digit code. Codes expire after ten minutes and can be used once.</p>
+  {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+  <form method="post">{% csrf_token %}
+    {% for field in form %}<div class="mb-3">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
+    <button class="btn btn-brand" type="submit">Verify account</button>
+  </form>
+  <p class="mt-3"><a href="{% url 'accounts:verification_start' %}">Request or resend a code</a></p>
+</div></section>{% endblock %}

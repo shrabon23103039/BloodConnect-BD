@@ -3,7 +3,8 @@
 {% block content %}
 <section class="section"><div class="container" style="max-width: 38rem">
   <h1>Registration request received</h1>
-  <p>If the details can be used for an account, verification instructions will be provided when the verification service is available. New accounts cannot sign in until verified.</p>
+  <p>If the details can be used for an account, request a verification code to continue. This page does not reveal whether an account already exists.</p>
+  <p><a class="btn btn-brand" href="{% url 'accounts:verification_start' %}">Continue to verification</a></p>
   <p><a href="{% url 'home' %}">Return home</a></p>
 </div></section>
 {% endblock %}

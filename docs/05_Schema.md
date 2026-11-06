@@ -290,6 +290,24 @@ Verification is limited to organization identity/authorization scope. It does no
 
 Unique `(organization_id, user_id)`.
 
+### 3.14 `accounts_verificationchallenge`
+
+Short-lived challenge metadata for verifying an account identifier or confirming a phone password-reset request. The destination is resolved from the related account and is not copied into this table.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | UUID | PK |
+| `user_id` | UUID | FK User, CASCADE |
+| `purpose` | varchar(20) | `ACCOUNT`, `PASSWORD_RESET` |
+| `channel` | varchar(10) | `EMAIL`, `PHONE` |
+| `code_digest` | varchar(64) | keyed HMAC digest; never plaintext |
+| `failed_attempts` | smallint | 0 through 5 |
+| `created_at` | timestamptz | required |
+| `expires_at` | timestamptz | greater than `created_at`; 10-minute lifetime |
+| `consumed_at` | timestamptz | nullable; terminal after use/invalidation |
+
+Indexes: `(user_id, purpose, created_at)`, `(created_at)` and `(expires_at)`. A resend invalidates the previous outstanding challenge. Challenge delivery destination and code are not persisted in the database. Run `manage.py purge_verification_challenges` at least daily to remove challenge metadata more than 24 hours past expiry.
+
 ## 4. Authentication and authorization flow
 
 ### Web

@@ -3,7 +3,7 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 2 — Accounts and authorization
-- Current task ID: P2-02
+- Current task ID: P2-03
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -72,22 +72,29 @@
   - Commit: `9a74653` (`feat: implement web account authentication`).
 
 ## In-progress task
-- [ ] P2-02 — Implement verification adapter interface and mock provider
+- [x] P2-02 — Implement verification adapter interface and mock provider
+  - Implementation: Added database-backed verification challenges with UUIDs, keyed HMAC code digests, 10-minute expiry, five-attempt cap and one-time consumption. A provider protocol separates delivery from verification; the development/test mock stores messages only in bounded process memory and never logs OTPs. Account codes activate the existing email/phone identifier. Phone reset uses the same challenge service and a five-minute session grant. A purge command removes records over 24 hours expired.
+  - Verification: Full suite passed (60 tests, including 13 verification tests); PostgreSQL migrations `accounts.0002` and `0003` applied; catalog confirms constraints/indexes; development `manage.py check`, PostgreSQL `migrate --check`, purge command, Bandit and `git diff --check` passed. Tests cover expiry, replay, attempts, cooldown/send caps, IP throttling, generic responses, log redaction, phone reset, retention cleanup and fail-closed registration without a delivery provider.
+  - Files changed: `apps/accounts/models.py`, `apps/accounts/migrations/0002_verificationchallenge.py`, `apps/accounts/migrations/0003_verificationchallenge_accounts_ve_expires_fb4ecf_idx.py`, `apps/accounts/verification.py`, `apps/accounts/forms.py`, `apps/accounts/views.py`, `apps/accounts/urls.py`, `apps/accounts/management/commands/purge_verification_challenges.py`, `config/settings/`, `templates/accounts/`, `tests/test_account_verification.py`, `tests/test_account_auth_flows.py`, `docs/05_Schema.md`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
+  - Limitations: mock delivery does not send real messages; production signup/verification remains unavailable until an authorized provider is implemented. IP throttles remain process-local until P5-05 configures Redis. P9 deployment must schedule the purge command.
+
+## In-progress task
+- [~] P2-03 — Implement roles and server-side permission classes
   - Dependencies: P2-01 verified.
-  - Work completed: Reviewed verification states and one-time/expiry/resend requirements in PRD, app flow, security and governance specs.
-  - Remaining: Implement provider adapter seam and development mock; choose expiry and resend limits, store challenge material safely, connect registration activation/login recovery, and test replay/expiry/throttling.
-  - Risks: No external email/SMS authorization exists; keep delivery mock/local and do not send real OTP messages.
+  - Work completed: Reviewed role, object-level access and admin requirements in the schema, API contract and security specification.
+  - Remaining: Define the smallest supported role representation and permission policies, implement server-side checks, and test denied cross-user access without adding a new role framework dependency.
+  - Risks: Role names/privilege boundaries are not fully specified; preserve least privilege and record the selected policy in an ADR before implementing.
 
 ## Next task
-- Task ID: P2-02
-- Exact next action: Implement an OTP verification adapter interface and local mock with hashed, expiring, single-use challenges and resend throttling; record expiry and rate policies in an ADR before coding.
-- Dependencies: P2-01 verified; P1-06 PostgreSQL migrations applied.
+- Task ID: P2-03 completion
+- Exact next action: Inspect user/admin flows and define role semantics against `01_PRD.md`, `05_Schema.md`, `07_Security.md` and `10_API_Contract.md`, record the policy in an ADR, then add server-side permission checks and tests.
+- Dependencies: P2-01 and P2-02 verified; PostgreSQL account/verification migrations applied.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks.
 - Tests failed: None.
-- Tests not run and why: Live SMTP/SMS delivery is not authorized or configured; P2-01 verifies the in-memory email flow. Phone OTP tests will use only a mock provider.
+- Tests not run and why: Live SMTP/SMS verification delivery is not authorized or configured; P2-02 uses an in-memory mock. Cross-process throttle behavior awaits the shared Redis configuration in P5-05.
 
 ## Decisions
 - Decision: Ignore `.env` and `.env.*` while explicitly allowing `.env.example`; exclude local DB files, media, virtual environments, caches and build/test artifacts.
@@ -99,6 +106,9 @@
 - Decision: Use Django session auth, a custom email/phone identifier backend, verified-email password reset, HMAC-keyed IP throttles (login 10/minute, registration and reset 5/hour), local in-memory development email, and environment-configured production SMTP.
 - Reason: Preserve pending-until-verified account policy, avoid new dependencies, prevent account enumeration and keep reset tokens out of terminal logs. Record consent acknowledgement in the versioned consent task.
 - Related ADR/document: ADR-012 and ADR-013 in `docs/12_Architecture_ADRs.md`; P2-02 phone verification and P2-04 consent history remain dependencies.
+- Decision: Use six-digit OTP codes with keyed HMAC digests, ten-minute expiry, five attempts, 60-second resend cooldown, three sends/account/purpose/hour, five send requests/IP/hour, ten verification attempts/IP/hour, and 24-hour post-expiry metadata cleanup. Use only an in-memory mock provider until a real integration is authorized.
+- Reason: Bound guessing and resend abuse, avoid storing/logging OTPs, and keep account activation tied to proof of control over its existing identifier.
+- Related ADR/document: ADR-014 in `docs/12_Architecture_ADRs.md`; scheduled cleanup and shared Redis throttles are P9/P5 follow-up work.
 
 ## Blockers requiring owner input
 - None.
