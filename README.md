@@ -81,7 +81,7 @@ The dependency versions in `04_TRD.md` are the proposed baseline. Before install
 
 ### Current repository state
 
-The repository now contains the Django project, separated settings, hash-pinned dependencies, PostgreSQL configuration, and public information pages. Domain models, migrations, Docker Compose services, and user account/donor flows remain incomplete; consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Public privacy and terms pages are drafts. Do not treat the scaffold as a completed application.
+The repository contains the Django project, separated settings, hash-pinned dependencies, PostgreSQL configuration, public information pages, a custom account model, and verified web registration/session authentication/password-reset flows. New accounts remain pending until the verification task is implemented. Donor profiles and discovery, blood/contact requests, moderation, API workflows, Docker Compose services and release deployment remain incomplete; consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Public privacy and terms pages are drafts. Do not treat the current implementation as a completed application.
 
 ### Prerequisites
 
@@ -115,7 +115,7 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-The Django settings read environment variables from the process; they do not parse `.env` directly. Compose will load `.env` for local services after P9-01. For direct local commands, export `DATABASE_URL` for your PostgreSQL instance in the shell first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database.
+The Django settings read environment variables from the process; they do not parse `.env` directly. Compose will load `.env` for local services after P9-01. For direct local commands, load the required values from `.env` into your shell process first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database. Development password-reset email is held by Django's in-memory email backend; no message is sent externally or printed to terminal logs.
 
 Install the reviewed, hash-pinned development set with:
 

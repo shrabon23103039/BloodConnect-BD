@@ -98,6 +98,19 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** Registration and authentication services must select one identifier and verify ownership before activation. Phone-only authentication requires the custom backend planned in P2-01; Django's default email username alone is not sufficient for phone login.
 **Related documents:** `docs/01_PRD.md`, `docs/05_Schema.md`, `docs/06_Plan.md`.
 
+## ADR-013 - Web authentication and account abuse controls
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** P2-01 must provide web registration, session login/logout and password reset while the account schema permits one email or phone identifier and new accounts stay pending until verification. Exact authentication throttles were not specified.
+**Decision:** Use Django session authentication with a custom backend that accepts the normalized email or E.164 phone identifier. Pending, suspended and deactivated accounts cannot authenticate. Registration requires one identifier, a validated password and explicit Terms/Privacy acknowledgement, but returns a generic confirmation to avoid account enumeration. Logout is POST/CSRF protected. Password reset uses Django's one-time token flow and is sent only to an active account's verified email. Local development uses Django's in-memory email backend so reset tokens are not printed to terminal logs; production requires SMTP host/user/password supplied through environment variables and TLS or SSL. Apply fixed-window cache throttles per remote IP: 10 login attempts/minute, 5 registration attempts/hour, and 5 password-reset attempts/hour. Derive cache keys using HMAC so raw IP addresses are not stored.
+**Reason:** Reuse Django's supported session and password-reset security behavior, preserve the one-identifier account policy, and prevent authentication/contact details from being disclosed by generic errors or logs. Explicit, conservative thresholds make the plan testable until operational data justifies review.
+**Alternatives:** Add a third-party authentication/throttle package (unnecessary dependency); enable accounts before verification (violates ADR-012); send reset tokens to console (risks token exposure); disclose duplicate/unknown identifiers (enables enumeration).
+**Consequences:** Phone-only password recovery depends on verified phone delivery in P2-02. Registration acknowledgement history is recorded in P2-04. Until P5-05 configures a shared Redis cache, development throttling is process-local and is not a multi-worker production control. Production SMTP credentials/provider approval are required before password reset delivery can operate.
+**Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/07_Security.md`, `docs/09_Deployment.md`, `docs/11_Data_Governance.md`, `docs/06_Plan.md`.
+
+## ADR template
+
 ## ADR template
 
 ### ADR-NNN — Title

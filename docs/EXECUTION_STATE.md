@@ -3,7 +3,7 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 2 — Accounts and authorization
-- Current task ID: P2-01
+- Current task ID: P2-02
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -63,23 +63,30 @@
   - Remaining: None for P1-06. The local `.env` is ignored by Git and stores the generated development URL; no credential was printed. No unrelated container was stopped or removed.
   - Commit: `500b3f3` (`feat: add custom account identity model`); verification recorded in this checkpoint.
 
+## Completed task
+- [x] P2-01 — Implement registration, login, logout and password reset
+  - Implementation: Added public registration and account pages; accepts exactly one normalized email or E.164 phone; active accounts can sign in through Django sessions using either identifier. Generic registration/login/reset messages reduce account enumeration. Logout is POST/CSRF protected. Verified-email password reset uses Django's one-time token flow. IP throttles use HMAC-derived keys. Local email uses Django's in-memory backend; production SMTP configuration is environment-driven and fails closed without credentials.
+  - Verification: `pytest --ds=config.settings.test tests` passed (46 tests, including 14 auth tests); development and production `manage.py check` passed with synthetic PostgreSQL/SMTP configuration; PostgreSQL `manage.py migrate --check` passed; Bandit reported no issues in `apps/accounts/` and `config/`; `git diff --check` passed. Tests verify CSRF, generic responses, phone/email login, pending status, verified-email password reset and token use, throttling, and auth-log redaction.
+  - Files changed: `apps/accounts/authentication.py`, `apps/accounts/forms.py`, `apps/accounts/throttling.py`, `apps/accounts/urls.py`, `apps/accounts/views.py`, `config/settings/`, `config/urls.py`, `templates/accounts/`, `templates/base.html`, `templates/pages/home.html`, `tests/test_account_auth_flows.py`, `tests/test_public_pages.py`, `tests/test_settings_profiles.py`, `.env.example`, `docs/09_Deployment.md`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
+  - Limitations: new accounts remain pending until P2-02; phone recovery waits for verified-phone delivery in P2-02; versioned acknowledgement history is P2-04. Local-cache throttles are per process until P5-05 configures shared Redis. SMTP delivery was not tested and requires an authorized provider.
+
 ## In-progress task
-- [~] P2-01 — Implement registration, login, logout and password reset
-  - Dependencies: P1-06 verified.
-  - Work completed: Read auth and privacy requirements; selected Django session auth and built-in password reset flow, with a phone-aware authentication backend, generic failure messages, rate limits and development-console email. New accounts remain pending until P2-02 verification.
-  - Remaining: Implement routes/forms/templates, tests, run full checks, inspect diff and record results.
-  - Risks: Email reset is the current recovery path; phone verification/activation is P2-02. No email/SMS provider is configured.
+- [ ] P2-02 — Implement verification adapter interface and mock provider
+  - Dependencies: P2-01 verified.
+  - Work completed: Reviewed verification states and one-time/expiry/resend requirements in PRD, app flow, security and governance specs.
+  - Remaining: Implement provider adapter seam and development mock; choose expiry and resend limits, store challenge material safely, connect registration activation/login recovery, and test replay/expiry/throttling.
+  - Risks: No external email/SMS authorization exists; keep delivery mock/local and do not send real OTP messages.
 
 ## Next task
-- Task ID: P2-01 completion
-- Exact next action: Implement server-rendered authentication flows and tests under `apps/accounts/`, add the approved routes/templates, then run focused/full pytest and Django/security checks.
-- Dependencies: P1-06 PostgreSQL migration verification completed against the existing PostgreSQL 17.11 container.
+- Task ID: P2-02
+- Exact next action: Implement an OTP verification adapter interface and local mock with hashed, expiring, single-use challenges and resend throttling; record expiry and rate policies in an ADR before coding.
+- Dependencies: P2-01 verified; P1-06 PostgreSQL migrations applied.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite migration, migration consistency check and Bandit scan.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks.
 - Tests failed: None.
-- Tests not run and why: No remaining P1-06 verification is outstanding. P2-01 tests are in progress.
+- Tests not run and why: Live SMTP/SMS delivery is not authorized or configured; P2-01 verifies the in-memory email flow. Phone OTP tests will use only a mock provider.
 
 ## Decisions
 - Decision: Ignore `.env` and `.env.*` while explicitly allowing `.env.example`; exclude local DB files, media, virtual environments, caches and build/test artifacts.
@@ -88,6 +95,9 @@
 - Decision: Use Python 3.14.10 with Django 5.2.19, DRF 3.18.3, direct packages pinned in `requirements/*.in`, and universal uv-generated hash locks; move Gunicorn to the current supported release line.
 - Reason: Python 3.13.18 is source-only; Django 5.2 supports Python 3.14. Upstream marks Gunicorn 23.0.0 unsupported. pip-tools artifact hashing timed out, while uv completed universal lock resolution in seconds.
 - Related ADR/document: ADR-010 and ADR-011 in `docs/12_Architecture_ADRs.md`; official release/security sources in `docs/REFERENCES.md`.
+- Decision: Use Django session auth, a custom email/phone identifier backend, verified-email password reset, HMAC-keyed IP throttles (login 10/minute, registration and reset 5/hour), local in-memory development email, and environment-configured production SMTP.
+- Reason: Preserve pending-until-verified account policy, avoid new dependencies, prevent account enumeration and keep reset tokens out of terminal logs. Record consent acknowledgement in the versioned consent task.
+- Related ADR/document: ADR-012 and ADR-013 in `docs/12_Architecture_ADRs.md`; P2-02 phone verification and P2-04 consent history remain dependencies.
 
 ## Blockers requiring owner input
 - None.

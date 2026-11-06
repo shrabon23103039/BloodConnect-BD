@@ -37,6 +37,15 @@ DATABASES = database_config_from_url(DATABASE_URL)
 if DATABASES["default"]["OPTIONS"].get("sslmode") not in {"require", "verify-ca", "verify-full"}:
     raise ImproperlyConfigured("Production DATABASE_URL must require PostgreSQL TLS with sslmode.")
 
+if not EMAIL_HOST or not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    raise ImproperlyConfigured(
+        "EMAIL_HOST, EMAIL_HOST_USER and EMAIL_HOST_PASSWORD must be set in production."
+    )
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ImproperlyConfigured("Configure SMTP with TLS or SSL, not both.")
+if not EMAIL_USE_TLS and not EMAIL_USE_SSL:
+    raise ImproperlyConfigured("Production SMTP must use TLS or SSL.")
+
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

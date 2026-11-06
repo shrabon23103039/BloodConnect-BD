@@ -32,12 +32,13 @@ class PublicPageTests(TestCase):
         self.assertContains(response, "must not appear in public results")
         self.assertContains(response, "no real donor data should be entered")
 
-    def test_home_does_not_claim_search_or_registration_is_live(self):
+    def test_home_discloses_registration_and_search_status(self):
         response = self.client.get(reverse("home"))
 
-        self.assertContains(response, "Donor discovery and account registration are not available")
+        self.assertContains(response, "Account registration is available")
+        self.assertContains(response, "Donor discovery is still being built")
+        self.assertContains(response, reverse("accounts:register"))
         self.assertNotContains(response, 'href="/donors/"')
-        self.assertNotContains(response, 'href="/accounts/register/"')
 
     def test_site_styles_include_mobile_layout_and_reduced_motion(self):
         with open("static/css/site.css", encoding="utf-8") as stylesheet:

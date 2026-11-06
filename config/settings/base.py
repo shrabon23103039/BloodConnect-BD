@@ -11,6 +11,21 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 DEBUG = False
 ALLOWED_HOSTS: list[str] = []
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT") or "587")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = (os.environ.get("EMAIL_USE_TLS") or "true").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -23,6 +38,7 @@ INSTALLED_APPS = [
     "apps.accounts.apps.AccountsConfig",
 ]
 AUTH_USER_MODEL = "accounts.User"
+AUTHENTICATION_BACKENDS = ["apps.accounts.authentication.IdentifierBackend"]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

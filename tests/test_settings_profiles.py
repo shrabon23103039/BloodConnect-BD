@@ -43,6 +43,10 @@ def test_production_profile_accepts_synthetic_secure_environment():
             "DJANGO_ALLOWED_HOSTS": "bloodconnect.example.test",
             "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
             "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect?sslmode=require",
+            "EMAIL_HOST": "smtp.example.test",
+            "EMAIL_HOST_USER": "synthetic-user",
+            "EMAIL_HOST_PASSWORD": "synthetic-password",
+            "EMAIL_USE_TLS": "true",
         }
     )
 
@@ -62,6 +66,35 @@ def test_production_profile_accepts_synthetic_secure_environment():
     )
 
     assert result.returncode == 0, result.stderr
+
+
+def test_production_profile_rejects_plaintext_smtp():
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.production",
+            "DJANGO_SECRET_KEY": "synthetic-test-only-secret-value",
+            "DJANGO_ALLOWED_HOSTS": "bloodconnect.example.test",
+            "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect?sslmode=require",
+            "EMAIL_HOST": "smtp.example.test",
+            "EMAIL_HOST_USER": "synthetic-user",
+            "EMAIL_HOST_PASSWORD": "synthetic-password",
+            "EMAIL_USE_TLS": "false",
+            "EMAIL_USE_SSL": "false",
+        }
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-c", "import django; django.setup()"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+
+    assert result.returncode != 0
+    assert "Production SMTP must use TLS or SSL." in result.stderr
 
 
 def test_database_url_configures_postgres_without_leaking_credentials():
