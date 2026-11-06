@@ -2,8 +2,8 @@
 
 ## Current status
 - Overall: In progress
-- Current phase: Phase 2 — Accounts and authorization
-- Current task ID: P2-04
+- Current phase: Phase 3 — Locations and donor profiles
+- Current task ID: P3-02
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -92,14 +92,21 @@
   - Files changed: `apps/governance/`, `apps/accounts/forms.py`, `apps/accounts/views.py`, `config/settings/base.py`, `config/urls.py`, `templates/accounts/register.html`, `templates/governance/privacy_settings.html`, `templates/pages/privacy.html`, `templates/base.html`, `tests/test_consent_privacy.py`, `tests/test_account_auth_flows.py`, `docs/05_Schema.md`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
   - Limitations: Terms/Privacy text and policy versions remain drafts pending legal review; retention/deletion policy is unresolved. Choices do not expose data until future donor/contact flows enforce them.
 
+## Completed task
+- [x] P3-01 — Create location models and reviewed Bangladesh geography seed process
+  - Implementation: Added UUID location hierarchy (Division > District > Upazila), parent-level validation, case-insensitive uniqueness, source/version fields and a transactional offline JSON import command. Import requires explicit review confirmation plus source URL/version/reviewer/date metadata, validates all paths before writes and prints the snapshot SHA-256. ADR-017 records why no API or unreviewed snapshot is used.
+  - Verification: Six focused tests pass within the 76-test suite. PostgreSQL `locations.0001` applied; catalog confirms three checks, root and child uniqueness indexes and lookup index. Development check, PostgreSQL `migrate --check`, migration consistency, Bandit and diff checks pass.
+  - Files changed: `apps/locations/`, `config/settings/base.py`, `tests/test_location_data.py`, `docs/05_Schema.md`, `docs/12_Architecture_ADRs.md`, `docs/REFERENCES.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
+  - Limitation: No real geography snapshot has been loaded. The BBS catalogue reviewed was dated 2016, and official National Portal pages had inconsistent displayed totals; reconcile and approve a current snapshot before profile/discovery use.
+
 ## Next task
-- Task ID: P3-01
-- Exact next action: Inspect approved sources and schema requirements for Bangladesh administrative geography; implement location models and a reviewed, versioned seed process without inventing official API access.
-- Dependencies: P2-01 and P2-02 verified; PostgreSQL account/verification migrations applied.
+- Task ID: P3-02
+- Exact next action: Implement the donor profile model against `docs/05_Schema.md`, add matching database constraints/indexes and test consent defaults and location references.
+- Dependencies: P2-03 and P3-01 verified; PostgreSQL account/governance/location migrations applied.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks; P2-03 focused permission tests (6/6), full suite (66/66), development check, PostgreSQL migration check, migration consistency, Bandit and diff checks; P2-04 focused consent/auth tests (19/19), full suite (70/70), PostgreSQL governance migration/catalog checks, development check, migration consistency, Bandit and diff checks.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks; P2-03 focused permission tests (6/6), full suite (66/66), development check, PostgreSQL migration check, migration consistency, Bandit and diff checks; P2-04 focused consent/auth tests (19/19), full suite (70/70), PostgreSQL governance migration/catalog checks, development check, migration consistency, Bandit and diff checks; P3-01 location tests (6/6), full suite (76/76), PostgreSQL location migration/catalog checks, development check, migration consistency, Bandit and diff checks.
 - Tests failed: None.
 - Tests not run and why: Live SMTP/SMS verification delivery is not authorized or configured; P2-02 uses an in-memory mock. Cross-process throttle behavior awaits the shared Redis configuration in P5-05.
 

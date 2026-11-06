@@ -142,6 +142,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** Policy owners must increment version settings when text changes and configure approved versions before release. Consent events are retained with the account under a PROTECT relation; account deletion/retention procedures must resolve this dependency. No donor or contact flow may rely on a stored choice until it checks current consent at the point of use.
 **Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/07_Security.md`, `docs/11_Data_Governance.md`, `docs/06_Plan.md`.
 
+## ADR-017 - Offline, provenance-checked administrative geography
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** P3-01 requires Division/District/Upazila hierarchy with source and version stored per row. The BBS Geo Code page is official but currently lists a 2016 publication; the National Portal pages are maintained government references, but their displayed Upazila totals differ across current pages. DGHS location APIs describe authenticated access and do not grant this project access.
+**Decision:** Store locations in a self-referential hierarchy and load only a frozen JSON snapshot that includes source name, source version/date, source URL and human review metadata. The importer is offline, validates every parent path and the hierarchy, and refuses input without explicit review confirmation. No government endpoint is called. Do not ship/populate an official seed until the dataset's current names/counts and parent assignments have been reconciled and reviewed; synthetic fixtures are test-only.
+**Reason:** Keep runtime independent of government services and prevent a stale or inconsistent list from being presented as current official data.
+**Alternatives:** Call BBS/DGHS endpoints at runtime (no authorization/credentials); assume the 2016 workbook is current (not evidenced); use an unverified third-party dataset (provenance and hierarchy not assured).
+**Consequences:** The schema and importer can be verified with synthetic fixtures, but a complete real administrative seed remains a data-curation/review prerequisite before discovery can use it. Reconcile with an up-to-date BBS Geo Code publication and current Bangladesh National Portal listings before approving a version.
+**Related documents:** `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/REFERENCES.md`, `docs/09_Deployment.md`.
+
 ## ADR template
 
 ## ADR template

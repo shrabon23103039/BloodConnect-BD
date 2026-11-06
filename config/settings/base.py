@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "apps.accounts.apps.AccountsConfig",
     "apps.governance.apps.GovernanceConfig",
+    "apps.locations.apps.LocationsConfig",
 ]
 TERMS_POLICY_VERSION = "draft-1"
 PRIVACY_POLICY_VERSION = "draft-1"

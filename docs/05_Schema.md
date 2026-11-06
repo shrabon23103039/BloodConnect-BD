@@ -20,6 +20,7 @@
 
 ```text
 User 1---0..1 DonorProfile
+Location 1---* Location (division -> district -> upazila)
 User 1---* BloodRequest
 User 1---* ContactRequest (recipient)
 DonorProfile 1---* ContactRequest (donor)
@@ -77,7 +78,10 @@ Indexes/constraints:
 
 Indexes:
 - `(level, parent_id, is_active)`
-- unique normalized name within parent and level.
+- unique case-insensitive English name within parent and level, including division roots.
+- Check: divisions have no parent; districts and upazilas have a parent. Model and import validation enforce parent level.
+
+Import only an offline JSON snapshot with source name/version/URL and reviewer/date metadata. `manage.py load_locations --file <snapshot.json> --reviewed` validates the complete hierarchy before writing and records source name/version on every row. It prints the input SHA-256 for provenance. No official dataset is bundled until the selected version has been reconciled and reviewed; test fixtures are synthetic.
 
 ### 3.3 `donors_donorprofile`
 

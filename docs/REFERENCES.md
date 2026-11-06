@@ -47,8 +47,12 @@ The user-provided phrase "Spec-Driven Development with Claude Code" is treated a
 
 - DGHS Bangladesh Core FHIR Implementation Guide: https://fhir.dghs.gov.bd/core/
 - Bangladesh FHIR sandbox: https://sandbox.fhir.dghs.gov.bd/fhir
+- Bangladesh Bureau of Statistics Geo Code catalogue (page states it was updated in 2016): https://bbs.portal.gov.bd/pages/static-pages/6922dce2933eb65569e128ee
+- Bangladesh National Portal District list: https://bangladesh.gov.bd/views/district-list
+- Bangladesh National Portal Upazila list: https://bangladesh.gov.bd/views/upazila-list/Upazilla-List/
+- DGHS Shared Health Record Location Registry documentation (describes an authenticated API and references BBS Geo Code): https://en.info.shr.dghs.gov.bd/technical-support/location-registry/
 
-These resources do not imply that BloodConnect BD has authorization to access production health systems. Any production integration requires formal approval, API documentation, credentials, data-sharing basis and security review.
+These resources do not imply that BloodConnect BD has authorization to access production health systems or an API. The BBS page currently references a 2016 catalogue and National Portal page counts are not consistent across pages; reconcile and review an immutable dataset before loading it. Any production integration requires formal approval, API documentation, credentials, data-sharing basis and security review.
 
 ## Version notes
 
