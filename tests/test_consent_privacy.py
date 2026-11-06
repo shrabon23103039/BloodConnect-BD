@@ -69,16 +69,16 @@ class PrivacySettingsTests(TestCase):
         self.client.force_login(self.user)
         self.assertEqual(self.client.get(self.url).status_code, 200)
 
-        self.post_settings(donor_discovery="on", phone_share_after_accept="on")
+        self.post_settings(donor_discovery="on", email_share_after_accept="on")
         records = list(ConsentRecord.objects.filter(user=self.user))
-        self.assertEqual(len(records), 5)
+        self.assertEqual(len(records), 4)
         self.assertTrue(all(record.policy_version == "privacy-v2" for record in records))
         self.assertTrue(all(record.source == ConsentSource.WEB for record in records))
         self.assertTrue(current_consent_state(self.user)[ConsentType.DONOR_DISCOVERY])
-        self.assertTrue(current_consent_state(self.user)[ConsentType.PHONE_SHARE_AFTER_ACCEPT])
+        self.assertTrue(current_consent_state(self.user)[ConsentType.EMAIL_SHARE_AFTER_ACCEPT])
 
-        self.post_settings(donor_discovery="on", phone_share_after_accept="on")
-        self.assertEqual(ConsentRecord.objects.filter(user=self.user).count(), 5)
+        self.post_settings(donor_discovery="on", email_share_after_accept="on")
+        self.assertEqual(ConsentRecord.objects.filter(user=self.user).count(), 4)
 
         self.post_settings()
         history = ConsentRecord.objects.filter(

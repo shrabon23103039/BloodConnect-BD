@@ -31,10 +31,13 @@ def privacy_settings(request):
     initial = {name: current.get(consent_type, False) for name, consent_type in SETTING_TYPES.items()}
     form = PrivacySettingsForm(
         request.POST if request.method == "POST" else None,
+        user=request.user,
         initial=initial,
     )
     if request.method == "POST" and form.is_valid():
         for field_name, consent_type in SETTING_TYPES.items():
+            if field_name not in form.fields:
+                continue
             record_consent(
                 user=request.user,
                 consent_type=consent_type,

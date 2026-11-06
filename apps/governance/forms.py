@@ -23,7 +23,11 @@ class PrivacySettingsForm(forms.Form):
         label="Allow generalized area display on a future map",
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        if not user.phone_e164 or not user.phone_verified_at:
+            self.fields.pop("phone_share_after_accept")
+        if not user.email or not user.email_verified_at:
+            self.fields.pop("email_share_after_accept")
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-check-input"
