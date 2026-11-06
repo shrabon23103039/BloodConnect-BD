@@ -164,6 +164,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** The request's `expires_at` remains explicit and can be adjusted by its owner while editable. The expiration command must be scheduled in a deployment environment before stale requests can be cleaned up automatically. The service uses bounded batches so a large due queue does not become one long transaction.
 **Related documents:** `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/09_Deployment.md`.
 
+## ADR-019 - In-app-only requester responses
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** S-09 in `docs/02_AppFlow.md` requested a contact preference, but `requests_bloodrequest` has no preference field and the MVP contact workflow does not define recipient contact disclosure or consent.
+**Decision:** Blood requests are answered through the in-app contact-request workflow only. Do not collect or disclose the requester's phone/email through a request form or public listing. Remove the undefined preference field from S-09 and state the in-app-only behavior explicitly.
+**Reason:** This uses the supported coordination channel and prevents exposing account identifiers without a documented consent and authorization flow.
+**Alternatives:** Add an undocumented schema field and guess whether a requester preference permits contact disclosure (unsafe and unsupported); add arbitrary contact options without a corresponding workflow (misleading).
+**Consequences:** Request screens explain that replies are coordinated in app. A later product change that enables direct requester contact must define a schema, consent, authorization and disclosure policy through a new reviewed decision.
+**Related documents:** `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/07_Security.md`, `docs/11_Data_Governance.md`.
+
 ## ADR template
 
 ## ADR template

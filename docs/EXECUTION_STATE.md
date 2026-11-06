@@ -3,8 +3,8 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 4 - Blood requests and discovery
-- Current task ID: P4-02
-- Last updated: 2026-11-06
+- Current task ID: P4-03
+- Last updated: 2026-11-07
 - Git branch: master
 
 ## Completed tasks
@@ -127,10 +127,17 @@
   - Files changed: `apps/requests/`, `config/settings/base.py`, `tests/test_blood_requests.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
   - Limitation: Automatic expiration requires scheduling the command in deployment (P5/P9). It processes up to 500 due records per run.
 
+## Completed task
+- [x] P4-02 - Implement request create/edit/cancel/close screens
+  - Implementation: Added requester-only request list, create/draft/publish, detail/edit, cancellation and requester-reported fulfillment routes/templates. Mutations use POST and P4-01 services. Replies are in-app-only per ADR-019; requester contact information is not disclosed.
+  - Verification: Six focused web-flow tests and seven lifecycle tests pass; full suite passed (105/105). Development check, PostgreSQL `migrate --check`, migration consistency, Bandit and `git diff --check` passed.
+  - Files changed: `apps/requests/forms.py`, `apps/requests/views.py`, `apps/requests/urls.py`, `apps/requests/services.py`, `config/urls.py`, `templates/requests/`, `templates/base.html`, `tests/test_blood_request_flows.py`, `docs/02_AppFlow.md`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
+  - Limitations: Contact-request summaries await P5 workflows. Location tests use synthetic fixtures because the reviewed official geography snapshot is not loaded.
+
 ## Next task
-- Task ID: P4-02
-- Exact next action: Implement requester-owned create/edit/publish/cancel/fulfill screens and UI state/error cases from `docs/02_AppFlow.md`.
-- Dependencies: P4-01 verified. Use synthetic locations in tests because no reviewed official geography snapshot is loaded.
+- Task ID: P4-03
+- Exact next action: Implement blood-group and location donor search, paginated results with an allowlisted public card that excludes private account/profile fields; test filtering, consent/discoverability and bounded queries.
+- Dependencies: P3-04 and P4-01 verified. Use synthetic location/profile rows while the official geography snapshot remains unavailable.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.

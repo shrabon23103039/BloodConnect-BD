@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{% if creating %}Create{% else %}Edit{% endif %} blood request · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container narrow-container">
+  <p class="eyebrow">Requester coordination</p>
+  <h1>{% if creating %}Create a blood request{% else %}Edit blood request{% endif %}</h1>
+  <p>Blood group, units and urgency help people understand your request; they do not provide medical guidance, confirm inventory, or guarantee a response. Facility details are user-entered and do not imply affiliation.</p>
+  <p>Replies are coordinated in app. Your phone number and email are not shown on this request.</p>
+  {% if messages %}{% for message in messages %}<div class="alert alert-info" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  {% if not form.fields.division.queryset.exists %}<div class="alert alert-info" role="status">Location selection is temporarily unavailable while the reviewed Bangladesh location list is being prepared.</div>{% endif %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}
+      <div class="mb-3 {% if field.field.widget.input_type == 'checkbox' %}form-check{% endif %}">
+        {{ field.label_tag }}{{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% if field.name == 'units_requested' %}<div class="form-text">Informational only; this platform does not collect or provide blood.</div>{% endif %}
+        {% if field.name == 'urgency' %}<div class="form-text">Urgency is self-reported and does not provide medical triage.</div>{% endif %}
+        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-outline-brand" type="submit" name="action" value="draft">Save draft</button>
+      <button class="btn btn-brand" type="submit" name="action" value="publish">{% if creating %}Publish request{% else %}Save and publish{% endif %}</button>
+      <a class="btn btn-link" href="{% if creating %}{% url 'requests:list' %}{% else %}{% url 'requests:detail' form.instance.pk %}{% endif %}">Cancel</a>
+    </div>
+  </form>
+</div></section>
+{% endblock %}

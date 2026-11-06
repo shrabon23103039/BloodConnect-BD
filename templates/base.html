@@ -29,6 +29,7 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'privacy' %}">Privacy</a></li>
             {% if user.is_authenticated %}
               <li class="nav-item"><a class="nav-link" href="{% url 'donors:profile' %}">Donor profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'requests:list' %}">My requests</a></li>
               <li class="nav-item"><a class="nav-link" href="{% url 'governance:privacy_settings' %}">Privacy settings</a></li>
               <li class="nav-item"><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="nav-link border-0 bg-transparent" type="submit">Sign out</button></form></li>
             {% else %}

@@ -104,7 +104,7 @@ Rules: use UUID/public identifier; do not disclose internal database IDs.
 
 ### S-09 Create blood request
 Route: `/app/requests/new/`
-Fields: requested blood-group label, units (integer, informational only), required date/time, division/district/upazila, facility name/location (free text with clear validation; no implication of affiliation), urgency, description, contact preference.
+Fields: requested blood-group label, units (integer, informational only), required date/time, division/district/upazila, facility name/location (free text with clear validation; no implication of affiliation), urgency, description. Replies are coordinated in app only; requester phone/email are not shared through a blood request.
 Actions: Publish request, save draft if supported, cancel.
 States: validation error, duplicate warning, success.
 Rules: no medical recommendation, no blood inventory claim, no guarantee of response.

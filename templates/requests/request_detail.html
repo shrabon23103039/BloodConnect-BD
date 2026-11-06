@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Blood request · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container narrow-container">
+  <p class="eyebrow">Private request details</p>
+  <h1>{{ blood_request.get_blood_group_display }} request</h1>
+  {% if messages %}{% for message in messages %}<div class="alert alert-info" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  <p><strong>Status:</strong> {{ blood_request.get_status_display }}</p>
+  <dl class="row">
+    <dt class="col-sm-4">Units requested</dt><dd class="col-sm-8">{{ blood_request.units_requested }} (informational only)</dd>
+    <dt class="col-sm-4">Required</dt><dd class="col-sm-8">{{ blood_request.required_at|date:"M j, Y, H:i" }}</dd>
+    <dt class="col-sm-4">Location</dt><dd class="col-sm-8">{{ blood_request.upazila.name_en|default:blood_request.district.name_en }}, {{ blood_request.division.name_en }}</dd>
+    <dt class="col-sm-4">Urgency</dt><dd class="col-sm-8">{{ blood_request.get_urgency_display }} (self-reported)</dd>
+    {% if blood_request.facility_name %}<dt class="col-sm-4">Facility name</dt><dd class="col-sm-8">{{ blood_request.facility_name }}</dd>{% endif %}
+    {% if blood_request.facility_address %}<dt class="col-sm-4">Facility details</dt><dd class="col-sm-8">{{ blood_request.facility_address }}</dd>{% endif %}
+    {% if blood_request.description %}<dt class="col-sm-4">Description</dt><dd class="col-sm-8">{{ blood_request.description|linebreaksbr }}</dd>{% endif %}
+    <dt class="col-sm-4">Expires</dt><dd class="col-sm-8">{{ blood_request.expires_at|date:"M j, Y, H:i" }}</dd>
+  </dl>
+  <p>Request details are not a medical recommendation or guarantee. Responses are coordinated in app; your phone and email remain private.</p>
+  <div class="d-flex flex-wrap gap-2">
+    {% if blood_request.status == 'DRAFT' or blood_request.status == 'OPEN' %}<a class="btn btn-outline-brand" href="{% url 'requests:edit' blood_request.pk %}">Edit</a>{% endif %}
+    {% if blood_request.status == 'OPEN' %}
+      <form method="post" action="{% url 'requests:transition' blood_request.pk 'CANCELLED' %}">{% csrf_token %}<button class="btn btn-outline-danger" type="submit">Cancel request</button></form>
+      <form method="post" action="{% url 'requests:transition' blood_request.pk 'FULFILLED' %}">{% csrf_token %}<button class="btn btn-outline-brand" type="submit">Mark outcome reported</button></form>
+    {% endif %}
+    <a class="btn btn-link" href="{% url 'requests:list' %}">My requests</a>
+  </div>
+</div></section>
+{% endblock %}

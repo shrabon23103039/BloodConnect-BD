@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My blood requests · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container narrow-container">
+  <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+    <div><p class="eyebrow">Coordination</p><h1>My blood requests</h1></div>
+    <a class="btn btn-brand" href="{% url 'requests:create' %}">Create request</a>
+  </div>
+  <p>Requests share self-reported coordination details. Units and urgency do not represent inventory or medical advice.</p>
+  {% if messages %}{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}{% endif %}
+  {% if blood_requests %}<div class="list-group mt-4">
+    {% for item in blood_requests %}
+      <a class="list-group-item list-group-item-action" href="{% url 'requests:detail' item.pk %}">
+        <div class="d-flex justify-content-between gap-2"><strong>{{ item.get_blood_group_display }} · {{ item.district.name_en }}</strong><span>{{ item.get_status_display }}</span></div>
+        <small>Required {{ item.required_at|date:"M j, Y, H:i" }} · {{ item.get_urgency_display }} urgency</small>
+      </a>
+    {% endfor %}
+  </div>{% else %}<div class="alert alert-info mt-4">You have not created a request yet.</div>{% endif %}
+</div></section>
+{% endblock %}

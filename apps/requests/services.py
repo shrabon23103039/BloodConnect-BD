@@ -93,8 +93,13 @@ def transition_blood_request(*, user, blood_request_id, target_status, now=None)
     now = now or timezone.now()
     if request.status == target_status:
         return request
-    if request.status != BloodRequestStatus.OPEN:
-        raise ValidationError("Only open requests can be closed or expired.")
+    if request.status == BloodRequestStatus.DRAFT and target_status == BloodRequestStatus.OPEN:
+        _validate_publish(request, now=now)
+        request.status = BloodRequestStatus.OPEN
+        request.save(update_fields=["status", "updated_at"])
+        return request
+    elif request.status != BloodRequestStatus.OPEN:
+        raise ValidationError("This request state transition is not allowed.")
     if target_status == BloodRequestStatus.EXPIRED:
         if request.expires_at > now:
             raise ValidationError("A request can expire only after its expiry time.")
