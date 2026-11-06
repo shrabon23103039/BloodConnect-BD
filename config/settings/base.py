@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.governance.apps.GovernanceConfig",
     "apps.locations.apps.LocationsConfig",
     "apps.donors.apps.DonorsConfig",
+    "apps.requests.apps.RequestsConfig",
 ]
 TERMS_POLICY_VERSION = "draft-1"
 PRIVACY_POLICY_VERSION = "draft-1"

@@ -181,9 +181,12 @@ Optional PRD items are not committed MVP acceptance gates: generalized map view 
 
 ## Phase 4 — Blood requests and discovery
 
-- [ ] P4-01 Implement blood request model and lifecycle service.
+- [x] P4-01 Implement blood request model and lifecycle service. **VERIFIED 2026-11-06.**
   - Depends on: P2-03, P3-01.
   - Acceptance: valid transitions, expiry and owner permissions tested.
+  - Evidence: Added schema-matched UUID request model, hierarchy validation, database enum/positive-unit/expiry constraints, documented indexes, owner-scoped transactional create/edit/transition services, and an idempotent bounded expiration service/management command. Seven focused lifecycle tests and full suite (99 tests) pass. PostgreSQL `requests.0001` applied and catalog confirmed request table, checks, FKs and three indexes. Development `check`, PostgreSQL `migrate --check`, migration consistency, expiration command, Bandit and `git diff --check` pass.
+  - Files: `apps/requests/`, `config/settings/base.py`, `tests/test_blood_requests.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
+  - Decision/limitation: ADR-018 defines expiry at `required_at` by default; requests publish only when required/expiry times are future. Automatic expiration needs deployment scheduling, deferred to P5/P9. Fulfillment is requester-reported coordination status, not clinical verification.
 - [ ] P4-02 Implement request create/edit/cancel/close screens.
   - Depends on: P4-01.
   - Acceptance: UI state/error cases match `02_AppFlow.md`.

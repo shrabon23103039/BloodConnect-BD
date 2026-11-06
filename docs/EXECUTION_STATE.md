@@ -2,8 +2,8 @@
 
 ## Current status
 - Overall: In progress
-- Current phase: Phase 3 — Locations and donor profiles
-- Current task ID: P4-01
+- Current phase: Phase 4 - Blood requests and discovery
+- Current task ID: P4-02
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -120,10 +120,17 @@
   - Files changed: `apps/donors/models.py`, `apps/donors/forms.py`, `apps/donors/services.py`, `apps/donors/views.py`, `apps/governance/models.py`, `tests/test_donor_discovery_policy.py`, `tests/test_donor_profile_flows.py`, `tests/test_consent_privacy.py`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`, `README.md`.
   - Limitations: Public search/result serialization is P4-03. No official location snapshot is loaded.
 
+## Completed task
+- [x] P4-01 - Implement blood request model and lifecycle service
+  - Implementation: Added `requests_bloodrequest` schema, location hierarchy validation, constraints/indexes, active-owner creation/edit/transition services, and `expire_blood_requests` command. Status changes are transactional/owner scoped; due expiration uses bounded idempotent batches. ADR-018 records the expiry default and interpretation of fulfillment.
+  - Verification: Seven focused tests and full suite (99/99) passed. PostgreSQL migration applied; catalog confirmed request table, constraints, foreign keys and indexes. Development check, PostgreSQL migration check, migration consistency, expiration command (0 due rows), Bandit and diff check passed.
+  - Files changed: `apps/requests/`, `config/settings/base.py`, `tests/test_blood_requests.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
+  - Limitation: Automatic expiration requires scheduling the command in deployment (P5/P9). It processes up to 500 due records per run.
+
 ## Next task
-- Task ID: P4-01
-- Exact next action: Implement blood request model and lifecycle service from `docs/05_Schema.md`, including valid state transitions, expiry, owner checks and tests.
-- Dependencies: P2-03 and P3-01 verified; use synthetic location rows because the approved geography seed is not yet available.
+- Task ID: P4-02
+- Exact next action: Implement requester-owned create/edit/publish/cancel/fulfill screens and UI state/error cases from `docs/02_AppFlow.md`.
+- Dependencies: P4-01 verified. Use synthetic locations in tests because no reviewed official geography snapshot is loaded.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.

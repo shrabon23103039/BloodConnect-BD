@@ -153,6 +153,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** The schema and importer can be verified with synthetic fixtures, but a complete real administrative seed remains a data-curation/review prerequisite before discovery can use it. Reconcile with an up-to-date BBS Geo Code publication and current Bangladesh National Portal listings before approving a version.
 **Related documents:** `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/REFERENCES.md`, `docs/09_Deployment.md`.
 
+## ADR-018 - Blood request expiry and lifecycle enforcement
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** P4-01 specifies required and expiry timestamps plus the states `DRAFT`, `OPEN`, `FULFILLED`, `CANCELLED` and `EXPIRED`, but does not specify an expiry default or how automatic expiry runs.
+**Decision:** Default a newly created request's expiry to its required-at time; allow publishing only when both timestamps are in the future and expiry is not before required-at. Owners may edit drafts/open requests, publish drafts, and transition open requests to `FULFILLED` or `CANCELLED`. Expiration is an automated transition for due open requests, performed by an idempotent bounded management service/command; deployment scheduling is configured with background jobs in P5/P9. Closed states are terminal. `FULFILLED` records the requester's coordination report and is not clinical verification.
+**Reason:** The required-at timestamp is the only documented event that naturally bounds the request lifetime. The rules preserve the specified state machine, avoid unbounded public requests, and keep clinical conclusions outside the platform.
+**Alternatives:** Invent a fixed number-of-days time-to-live (unsupported by requirements); allow past-due requests to publish (stale listing risk); treat donor contact acceptance as fulfillment (not authorized by the state machine).
+**Consequences:** The request's `expires_at` remains explicit and can be adjusted by its owner while editable. The expiration command must be scheduled in a deployment environment before stale requests can be cleaned up automatically. The service uses bounded batches so a large due queue does not become one long transaction.
+**Related documents:** `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/09_Deployment.md`.
+
 ## ADR template
 
 ## ADR template
