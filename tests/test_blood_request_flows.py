@@ -122,4 +122,3 @@ class BloodRequestWebFlowTests(TestCase):
         response = self.client.get(reverse("requests:list"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(list(response.context["blood_requests"].values_list("requester_id", flat=True)), [self.user.pk])
-
