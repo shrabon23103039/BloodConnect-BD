@@ -79,20 +79,20 @@
   - Limitations: mock delivery does not send real messages; production signup/verification remains unavailable until an authorized provider is implemented. IP throttles remain process-local until P5-05 configures Redis. P9 deployment must schedule the purge command.
 
 ## In-progress task
-- [~] P2-03 — Implement roles and server-side permission classes
-  - Dependencies: P2-01 verified.
-  - Work completed: Reviewed role, object-level access and admin requirements in the schema, API contract and security specification.
-  - Remaining: Define the smallest supported role representation and permission policies, implement server-side checks, and test denied cross-user access without adding a new role framework dependency.
-  - Risks: Role names/privilege boundaries are not fully specified; preserve least privilege and record the selected policy in an ADR before implementing.
+- [x] P2-03 — Implement roles and server-side permission classes
+  - Implementation: Added DRF permissions for active accounts, explicit roles and exact object ownership. Uses built-in Django groups; staff does not imply moderator, superuser maps only to superadmin, donor role will follow profile existence, and ownership has no implicit staff/superuser bypass. ADR-015 records the policy.
+  - Verification: Six focused permission tests and full suite (66 tests) pass. Tests deny anonymous/inactive/cross-user access and distinguish explicit moderator group membership from staff status. Development check, PostgreSQL `migrate --check`, `makemigrations --check --dry-run`, Bandit and diff checks pass.
+  - Files changed: `apps/accounts/permissions.py`, `tests/test_account_permissions.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
+  - Limitations: Donor profile and organization roles are not yet available; moderator permission provisioning belongs to moderation workflows.
 
 ## Next task
-- Task ID: P2-03 completion
-- Exact next action: Inspect user/admin flows and define role semantics against `01_PRD.md`, `05_Schema.md`, `07_Security.md` and `10_API_Contract.md`, record the policy in an ADR, then add server-side permission checks and tests.
+- Task ID: P2-04
+- Exact next action: Implement versioned consent acknowledgements and privacy settings, including auditable consent changes and tests.
 - Dependencies: P2-01 and P2-02 verified; PostgreSQL account/verification migrations applied.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite and PostgreSQL migrations, PostgreSQL migration inspection, migration consistency check and Bandit scan; P2-01 full suite (46/46), dev/prod Django checks, PostgreSQL migration check, Bandit and diff checks; P2-02 full suite (60/60), PostgreSQL verification migrations/catalog, development check, migration consistency, cleanup command, Bandit and diff checks; P2-03 focused permission tests (6/6), full suite (66/66), development check, PostgreSQL migration check, migration consistency, Bandit and diff checks.
 - Tests failed: None.
 - Tests not run and why: Live SMTP/SMS verification delivery is not authorized or configured; P2-02 uses an in-memory mock. Cross-process throttle behavior awaits the shared Redis configuration in P5-05.
 

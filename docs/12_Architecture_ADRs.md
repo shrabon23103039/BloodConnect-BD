@@ -120,6 +120,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** The mock cannot deliver to real users, so production registration/verification remains unavailable until a provider is authorized and implemented. Shared IP throttles become effective across workers when P5-05 configures Redis; per-challenge attempt limits and per-account resend history are database-backed immediately. Purge challenge rows more than 24 hours past expiry with `manage.py purge_verification_challenges`, and schedule that command during deployment. Phone password recovery can use the same challenge service after successful verification.
 **Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/07_Security.md`, `docs/08_Testing.md`, `docs/11_Data_Governance.md`, `docs/06_Plan.md`.
 
+## ADR-015 - Minimal account roles and object ownership
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** P2-03 requires server-side role and object authorization without introducing an application-specific role framework. The PRD defines authenticated users, donors, moderators, superadmins and future organization users; the schema already includes Django group and per-user permission relations.
+**Decision:** Treat an authenticated account as a user with `account_status=ACTIVE`. Use Django's built-in `Group` membership to assign `MODERATOR` and future named roles, and Django permissions for fine-grained moderation actions. Donor authority will be derived from the donor profile relationship when P3-02 exists, rather than a manually assigned group. Only `is_superuser` denotes `SUPERADMIN`; `is_staff` alone grants no application role or moderation permission. Organization access remains unavailable until its scoped feature exists. Provide reusable DRF permission classes for active accounts, explicit roles and object ownership. Ownership is exact identity equality against the object's `user` or `owner`; privileged access requires a separate permission check and is not an implicit owner bypass.
+**Reason:** Reuse the relations already included by `PermissionsMixin`, keep role assignment auditable through Django auth, and prevent a Django admin flag or role label from bypassing object ownership.
+**Alternatives:** Add a custom role model/dependency (duplicate of built-in groups); treat all staff as moderators (overbroad); let moderators bypass ownership checks (violates least privilege); assign donor role manually (can drift from profile state).
+**Consequences:** Group names and required Django permission codenames must be provisioned when their features are implemented. Each view/service must combine authentication, feature-specific role checks and ownership checks; these helpers do not replace workflow-specific authorization.
+**Related documents:** `docs/01_PRD.md`, `docs/05_Schema.md`, `docs/07_Security.md`, `docs/10_API_Contract.md`, `docs/06_Plan.md`.
+
 ## ADR template
 
 ## ADR template
