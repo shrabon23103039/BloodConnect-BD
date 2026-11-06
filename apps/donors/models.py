@@ -5,10 +5,39 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.utils import timezone
 
+from apps.accounts.models import AccountStatus
 from apps.locations.models import Location, LocationLevel
+
+
+class DonorProfileQuerySet(models.QuerySet):
+    def discoverable(self):
+        """Return profiles meeting current visibility, availability and consent gates."""
+        from apps.governance.models import ConsentRecord, ConsentType
+
+        latest_discovery_consent = (
+            ConsentRecord.objects.filter(
+                user_id=OuterRef("user_id"),
+                consent_type=ConsentType.DONOR_DISCOVERY,
+            )
+            .order_by("-captured_at", "-id")
+            .values("granted")[:1]
+        )
+        return (
+            self.filter(
+                user__account_status=AccountStatus.ACTIVE,
+                profile_status=DonorProfileStatus.ACTIVE,
+                availability_status=AvailabilityStatus.AVAILABLE,
+                visibility_enabled=True,
+                division__is_active=True,
+                district__is_active=True,
+            )
+            .filter(Q(upazila__isnull=True) | Q(upazila__is_active=True))
+            .annotate(current_discovery_consent=Subquery(latest_discovery_consent))
+            .filter(current_discovery_consent=True)
+        )
 
 
 class BloodGroup(models.TextChoices):
@@ -89,6 +118,8 @@ class DonorProfile(models.Model):
     availability_updated_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = DonorProfileQuerySet.as_manager()
 
     class Meta:
         indexes = [

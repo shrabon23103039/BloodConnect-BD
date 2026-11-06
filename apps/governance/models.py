@@ -1,6 +1,7 @@
 """Append-only account consent history."""
 
 import uuid
+from datetime import timedelta
 
 from django.conf import settings
 from django.db import models, transaction
@@ -92,6 +93,8 @@ def record_consent(*, user, consent_type, policy_version, granted, source=Consen
         if latest and latest.granted == granted and latest.policy_version == policy_version:
             return latest, False
         now = timezone.now()
+        if latest and now <= latest.captured_at:
+            now = latest.captured_at + timedelta(microseconds=1)
         was_granted = bool(latest and latest.granted)
         record = ConsentRecord.objects.create(
             user=user,

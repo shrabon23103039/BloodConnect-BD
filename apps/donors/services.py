@@ -82,6 +82,25 @@ def save_donor_profile(*, user, profile, values, consent_fields):
     ):
         setattr(profile, field, values[field])
 
+    previous_availability = profile.availability_status
+    if "availability_status" in values:
+        profile.availability_status = values["availability_status"]
+        if profile.availability_status != previous_availability:
+            profile.availability_updated_at = timezone.now()
+
+    if "visibility_enabled" in consent_fields:
+        profile.visibility_enabled = bool(values.get("visibility_enabled"))
+        if profile.profile_status != DonorProfileStatus.SUSPENDED:
+            profile.profile_status = (
+                DonorProfileStatus.ACTIVE
+                if profile.visibility_enabled
+                else (
+                    DonorProfileStatus.HIDDEN
+                    if profile.profile_status == DonorProfileStatus.ACTIVE
+                    else profile.profile_status
+                )
+            )
+
     for field, consent_type, identifier, verified_at in (
         (
             "share_phone_after_accept",
@@ -107,6 +126,7 @@ def save_donor_profile(*, user, profile, values, consent_fields):
     for field, consent_type in (
         ("share_phone_after_accept", ConsentType.PHONE_SHARE_AFTER_ACCEPT),
         ("share_email_after_accept", ConsentType.EMAIL_SHARE_AFTER_ACCEPT),
+        ("visibility_enabled", ConsentType.DONOR_DISCOVERY),
     ):
         if field in consent_fields:
             record_consent(
@@ -139,7 +159,8 @@ def deactivate_donor_profile(*, user, profile):
         profile = DonorProfile.objects.select_for_update().get(pk=profile.pk, user=locked_user)
     except DonorProfile.DoesNotExist as error:
         raise PermissionDenied("You may only deactivate your own donor profile.") from error
-    profile.profile_status = DonorProfileStatus.HIDDEN
+    if profile.profile_status != DonorProfileStatus.SUSPENDED:
+        profile.profile_status = DonorProfileStatus.HIDDEN
     profile.visibility_enabled = False
     profile.availability_status = AvailabilityStatus.UNAVAILABLE
     profile.availability_updated_at = timezone.now()

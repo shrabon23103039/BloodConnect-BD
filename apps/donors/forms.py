@@ -2,6 +2,7 @@ from django import forms
 
 from apps.donors.models import (
     DonorProfile,
+    DonorProfileStatus,
     PreferredContactMethod,
 )
 from apps.governance.models import ConsentType, current_consent_state
@@ -16,6 +17,8 @@ class DonorProfileForm(forms.ModelForm):
             "division",
             "district",
             "upazila",
+            "availability_status",
+            "visibility_enabled",
             "public_alias",
             "preferred_contact_method",
             "share_phone_after_accept",
@@ -51,6 +54,20 @@ class DonorProfileForm(forms.ModelForm):
         available_methods = [(PreferredContactMethod.IN_APP, "In app")]
         self.share_fields = set()
         consent_state = current_consent_state(user)
+        if not self.is_bound:
+            stored_visibility = getattr(self.instance, "visibility_enabled", False)
+            self.initial["visibility_enabled"] = (
+                stored_visibility and consent_state.get(ConsentType.DONOR_DISCOVERY, False)
+                if self.instance.pk and not self.instance._state.adding
+                else consent_state.get(ConsentType.DONOR_DISCOVERY, False)
+            )
+        if (
+            self.instance.pk
+            and not self.instance._state.adding
+            and self.instance.profile_status == DonorProfileStatus.SUSPENDED
+        ):
+            self.fields.pop("availability_status")
+            self.fields.pop("visibility_enabled")
         if user.phone_e164 and user.phone_verified_at:
             available_methods.append((PreferredContactMethod.PHONE_AFTER_ACCEPT, "Phone after acceptance"))
             self.share_fields.add("share_phone_after_accept")
@@ -74,7 +91,13 @@ class DonorProfileForm(forms.ModelForm):
         self.fields["preferred_contact_method"].choices = available_methods
 
         for field in self.fields.values():
-            field.widget.attrs["class"] = "form-select" if isinstance(field, forms.ModelChoiceField) else "form-control"
+            if field.widget.input_type == "checkbox":
+                css_class = "form-check-input"
+            elif isinstance(field, forms.ChoiceField):
+                css_class = "form-select"
+            else:
+                css_class = "form-control"
+            field.widget.attrs["class"] = css_class
         for name in self.share_fields:
             self.fields[name].widget.attrs["class"] = "form-check-input"
 

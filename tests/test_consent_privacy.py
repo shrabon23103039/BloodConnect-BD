@@ -1,14 +1,16 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
-
 from apps.accounts.models import AccountStatus
 from apps.governance.models import (
     ConsentRecord,
     ConsentSource,
     ConsentType,
     current_consent_state,
+    record_consent,
 )
 
 User = get_user_model()
@@ -103,3 +105,28 @@ class PrivacySettingsTests(TestCase):
             record.delete()
 
         self.assertFalse(ConsentRecord.objects.filter(policy_version="changed").exists())
+
+    def test_consent_events_keep_order_when_recorded_with_same_clock_time(self):
+        fixed_time = timezone.now()
+        with patch("apps.governance.models.timezone.now", return_value=fixed_time):
+            ConsentRecord.objects.create(
+                user=self.user,
+                consent_type=ConsentType.DONOR_DISCOVERY,
+                policy_version="privacy-v1",
+                granted=True,
+                captured_at=fixed_time,
+                source=ConsentSource.WEB,
+            )
+            record_consent(
+                user=self.user,
+                consent_type=ConsentType.DONOR_DISCOVERY,
+                policy_version="privacy-v1",
+                granted=False,
+            )
+
+        history = ConsentRecord.objects.filter(
+            user=self.user,
+            consent_type=ConsentType.DONOR_DISCOVERY,
+        ).order_by("captured_at")
+        self.assertLess(history.first().captured_at, history.last().captured_at)
+        self.assertFalse(current_consent_state(self.user)[ConsentType.DONOR_DISCOVERY])

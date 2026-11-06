@@ -57,6 +57,7 @@ class DonorProfileFlowTests(TestCase):
             "division": str(self.division.pk),
             "district": str(self.district.pk),
             "upazila": str(self.upazila.pk),
+            "availability_status": AvailabilityStatus.UNAVAILABLE,
             "public_alias": "Kind Donor",
             "preferred_contact_method": PreferredContactMethod.EMAIL_AFTER_ACCEPT,
             "share_email_after_accept": "on",
@@ -192,6 +193,22 @@ class DonorProfileFlowTests(TestCase):
             consent_type=ConsentType.DONOR_DISCOVERY,
         ).latest("captured_at")
         self.assertFalse(latest_discovery.granted)
+
+    def test_deactivation_does_not_clear_moderator_suspension(self):
+        profile = DonorProfile.objects.create(
+            user=self.user,
+            blood_group=BloodGroup.O_POSITIVE,
+            division=self.division,
+            district=self.district,
+            profile_status=DonorProfileStatus.SUSPENDED,
+            visibility_enabled=False,
+        )
+
+        deactivate_donor_profile(user=self.user, profile=profile)
+
+        profile.refresh_from_db()
+        self.assertEqual(profile.profile_status, DonorProfileStatus.SUSPENDED)
+        self.assertEqual(profile.availability_status, AvailabilityStatus.UNAVAILABLE)
 
     def test_profile_editor_requires_authentication(self):
         self.client.logout()

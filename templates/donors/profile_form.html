@@ -6,6 +6,7 @@
     <p class="eyebrow">Self-reported profile</p>
     <h1>Donor profile</h1>
     <p>Profile information is self-reported. Blood group and donation history are not used to assess medical eligibility or compatibility. An authorized healthcare professional must make those decisions.</p>
+    <p>Your profile appears in discovery only while it is visible, active, available, your account is active, and your current discovery consent is granted. Visibility and availability choices can be changed here at any time.</p>
     {% if messages %}{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}{% endif %}
     {% if not form.fields.division.queryset.exists %}
       <div class="alert alert-info" role="status">Location selection is temporarily unavailable while the reviewed Bangladesh location list is being prepared. No profile has been created.</div>
@@ -20,6 +21,7 @@
           {% if field.name == 'share_phone_after_accept' or field.name == 'share_email_after_accept' %}
             <div class="form-text">This is optional. The selected verified channel is shared only after you explicitly accept a contact request.</div>
           {% endif %}
+          {% if field.name == 'visibility_enabled' %}<div class="form-text">Visibility requires your current donor-discovery consent. Turning it off withdraws that consent.</div>{% endif %}
           {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
         </div>
       {% endfor %}

@@ -44,7 +44,8 @@ def donor_profile_editor(request):
                 user=request.user,
                 profile=form.save(commit=False),
                 values=form.cleaned_data,
-                consent_fields=form.share_fields,
+                consent_fields=form.share_fields
+                | ({"visibility_enabled"} if "visibility_enabled" in form.fields else set()),
             )
             messages.success(request, "Your donor profile has been saved as a self-reported profile.")
             return redirect("donors:profile")
