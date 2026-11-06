@@ -39,15 +39,17 @@ For every task:
   - Acceptance: secrets, virtualenv, caches, media and local DB files ignored.
   - Evidence: `git init` created the repository on branch `master`. `git check-ignore` checks passed for `.env`, `.env.local`, `.venv/pyvenv.cfg`, `db.sqlite3`, `media/example.jpg` and `__pycache__/module.pyc`; `.env.example` was confirmed not ignored.
   - Files: `.gitignore`, `docs/EXECUTION_STATE.md`, `docs/06_Plan.md`.
-- [ ] P0-03 Create README and contribution/development instructions.
+- [x] P0-03 Create README and contribution/development instructions. **VERIFIED 2026-11-06 (documentation acceptance).**
   - Depends on: P0-02.
   - Acceptance: setup commands and environment variables documented.
+  - Evidence: README documents prerequisites, Windows/macOS/Linux virtualenv commands, environment setup, dependency installation, service startup, Django migration/run commands and test command, with explicit notes that commands requiring future project tasks are not yet runnable. `.env.example` lists all names from `09_Deployment.md` and contains no values. `CONTRIBUTING.md` records task, test, privacy and ADR workflow. A PowerShell assertion verified the environment names are complete and blank and the README references exist.
+  - Files: `README.md`, `CONTRIBUTING.md`, `.env.example`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
 
 ### P0 inspection disposition
 
 - Completed: P0-01, limited to presence and manual consistency review of the context pack. This does not mean any product feature is implemented.
 - Completed: P0-02. Git initialized and ignore patterns verified.
-- Not started: P0-03. It is now dependency-ready. A README exists, but it does not provide development/setup instructions and there is no contribution guide.
+- Completed: P0-03. Setup, environment variable names and contribution workflow are documented; application-dependent commands are explicitly staged for later tasks.
 - No application implementation task is complete. All feature and release tasks below remain NOT_STARTED unless explicitly marked otherwise.
 
 ### Implementation readiness, risks and planning gaps
@@ -265,8 +267,9 @@ Optional PRD items are not committed MVP acceptance gates: generalized map view 
 
 | Date | Task ID | Status | Files changed | Commands run | Actual result | Remaining issues |
 |---|---|---|---|---|---|---|
-| 2026-11-06 | P0-01 | VERIFIED | `docs/06_Plan.md` (planning record only) | `rg --files`; initial `git status --short`; `Get-Content -Raw` on agent instructions, README, all `docs/*` and Cursor project rules | All required docs exist and were read; manual review found architecture and safety boundaries aligned. Repository initially contained documentation/guardrails only; no application tests were run. | P0-02 completed and P0-03 is next. |
-| 2026-11-06 | P0-02 | VERIFIED | `.gitignore`, `docs/EXECUTION_STATE.md`, `docs/06_Plan.md` | `git init`; `git check-ignore` assertions for secret, venv, cache, media and DB examples; `.env.example` allowlist check; `git status --short --branch` | Git initialized on `master`; all ignore assertions passed and `.env.example` remains trackable. Python runtime probe unavailable; it does not affect P0-02 acceptance. | P0-03 is dependency-ready. No application code or tests exist yet. |
+| 2026-11-06 | P0-01 | VERIFIED | `docs/06_Plan.md` (planning record only) | `rg --files`; initial `git status --short`; `Get-Content -Raw` on agent instructions, README, all `docs/*` and Cursor project rules | All required docs exist and were read; manual review found architecture and safety boundaries aligned. Repository initially contained documentation/guardrails only; no application tests were run. | P0-02 completed. |
+| 2026-11-06 | P0-02 | VERIFIED | `.gitignore`, `docs/EXECUTION_STATE.md`, `docs/06_Plan.md` | `git init`; `git check-ignore` assertions for secret, venv, cache, media and DB examples; `.env.example` allowlist check; `git status --short --branch` | Git initialized on `master`; all ignore assertions passed and `.env.example` remains trackable. Commit: `a368617`. Python runtime probe unavailable; it does not affect P0-02 acceptance. | P0-03 completed. No application code or tests exist yet. |
+| 2026-11-06 | P0-03 | VERIFIED | `README.md`, `CONTRIBUTING.md`, `.env.example`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md` | PowerShell assertions for all environment names from `09_Deployment.md`, blank example values, and README setup references | Setup sequence and env names documented. Commands dependent on future P1/P9 files are clearly labelled as future; no claim that a running application exists. | P1-01 is next; Python is unavailable on this host and must be provisioned or a compatible container runtime used for verification. |
 
 ## 4. Update template
 

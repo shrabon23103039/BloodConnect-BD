@@ -1,0 +1,21 @@
+---
+description: Always-applied product, architecture, security and workflow constraints for BloodConnect BD.
+globs:
+alwaysApply: true
+---
+
+# BloodConnect BD Project Guardrails
+
+Before implementation, read `CLAUDE.md`, `README.md`, and `docs/01_PRD.md` through `docs/06_Plan.md`. Read supporting docs relevant to the task.
+
+- Use `docs/06_Plan.md` as the task queue. Respect dependencies.
+- After every completed step, update `docs/06_Plan.md` with status, files, commands, actual results and remaining work.
+- Do not mark a task VERIFIED without reproducible test evidence.
+- Use a modular Django monolith, PostgreSQL, Django templates + Bootstrap, and DRF `/api/v1/`.
+- Django ORM is the only application database access path. Never expose PostgreSQL directly to clients.
+- Donor contact information and precise location remain private until an explicit donor acceptance workflow permits disclosure.
+- The platform only discovers potential donors and coordinates contact. It never determines medical eligibility or transfusion compatibility and never collects, tests, stores, sells or transfuses blood.
+- Government, hospital and blood-bank integrations require documented authorization and credentials. Use mock adapters otherwise.
+- Never hardcode secrets or use real personal/health data in fixtures or logs.
+- Enforce server-side authorization, CSRF, input validation, rate limits and safe upload handling.
+- Document architecture changes in `docs/12_Architecture_ADRs.md` before implementing them.

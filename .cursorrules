@@ -1,0 +1,26 @@
+# BloodConnect BD — Cursor Rules (legacy compatibility)
+
+This root file is retained for tools that still read `.cursorrules`. Cursor's current recommended project-rule mechanism is `.cursor/rules/*.mdc`; see `.cursor/rules/project-guardrails.mdc`.
+
+Before any code change:
+- Read `CLAUDE.md`, `AGENTS.md`, `README.md`, and `docs/01_PRD.md` through `docs/06_Plan.md`.
+- Read relevant supporting specifications.
+- Select a task from `docs/06_Plan.md` and verify its dependencies.
+- Plan, implement, test, inspect the diff, and update the plan with evidence.
+
+Product constraints:
+- P2P donor discovery and coordination only; not a blood bank or medical service.
+- No medical eligibility, compatibility or transfusion decisions.
+- Donor contact details are private until the donor accepts a contact request.
+- No assumed government/hospital API access.
+- No unsupported scale, compliance, clinical or security claims.
+
+Technical constraints:
+- Modular Django monolith; PostgreSQL; Django templates + Bootstrap; DRF `/api/v1/`.
+- Django ORM only; no direct client-to-database access.
+- Server-side authorization for every private operation.
+- No secrets in source control.
+- Add tests for state transitions, permissions and privacy.
+- Record architecture changes in `docs/12_Architecture_ADRs.md`.
+
+Always update `docs/06_Plan.md` after each completed task. Do not mark work verified without test evidence.

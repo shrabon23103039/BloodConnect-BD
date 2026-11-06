@@ -3,7 +3,7 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 0 — Repository and context baseline
-- Current task ID: P0-03
+- Current task ID: P1-01
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -15,25 +15,29 @@
 - [x] P0-02 — Initialize Git repository and `.gitignore`
   - Implementation: Initialized Git and added ignore patterns for secrets, Python environments/caches, local databases, local media, logs and generated build/test output. `.env.example` remains trackable.
   - Verification: `git check-ignore` assertions passed for representative secret, environment, database, media and cache paths; `.env.example` was not ignored.
+  - Commit: `a368617` (`chore: initialize repository baseline`).
+- [x] P0-03 — Create README and contribution/development instructions
+  - Implementation: Added staged setup commands, environment variable template, and contribution workflow. Commands requiring Django, lock, or Compose files are labelled by the task that will create them.
+  - Verification: PowerShell assertions confirmed every variable documented in `docs/09_Deployment.md` is present in `.env.example` with a blank value and the README contains the setup references.
   - Commit: Pending after staging/review.
 
 ## In-progress task
-- [ ] P0-03 — Create development and contribution instructions
+- [ ] P1-01 — Verify Python/Django/DRF compatibility and pin exact dependency versions
   - Files changed: None yet.
-  - Work completed: Existing README and project environment inspected.
-  - Remaining work: Document accurate setup commands/environment variables and contribution workflow without claiming the application can run before P1 scaffolding.
-  - Risks: Python is unavailable in this execution environment; instructions must distinguish current repository setup from application startup available after P1 scaffolding.
+  - Work completed: Read the TRD version policy and checked available host tools; Python is unavailable, while Docker CLI is present.
+  - Remaining work: Verify official version/support/security information, select supported pins, generate a complete lock and report.
+  - Risks: Need determine whether Docker daemon/network can provide a verification environment; do not install based on unverified pins.
 
 ## Next task
-- Task ID: P1-01
-- Exact next action: Verify supported Python/Django/DRF compatibility and security advisories; resolve and pin dependencies.
-- Dependencies: P0-03 must be verified first.
+- Task ID: P1-02
+- Exact next action: Create Django project and environment-specific settings against the reviewed dependency lock.
+- Dependencies: P1-01 must be verified first.
 
 ## Verification
-- Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `python --version`; `git status --short --branch`.
-- Tests passed: P0-02 ignore assertions passed.
+- Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `python --version`; `git status --short --branch`; environment-template/README assertions.
+- Tests passed: P0-02 ignore assertions and P0-03 documentation assertions passed.
 - Tests failed: None.
-- Tests not run and why: No application source or test suite exists yet; P0-02 is repository setup. Python is unavailable (`python` resolves to a Microsoft Store execution alias).
+- Tests not run and why: No application source or test suite exists yet. Python is unavailable (`python` resolves to a Microsoft Store execution alias).
 
 ## Decisions
 - Decision: Ignore `.env` and `.env.*` while explicitly allowing `.env.example`; exclude local DB files, media, virtual environments, caches and build/test artifacts.
