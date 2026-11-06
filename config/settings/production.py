@@ -2,6 +2,9 @@
 
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+
+from config.database import database_config_from_url
 from .base import *  # noqa: F403
 
 DEBUG = False
@@ -26,6 +29,13 @@ if not CSRF_TRUSTED_ORIGINS:
     raise RuntimeError("DJANGO_CSRF_TRUSTED_ORIGINS must contain HTTPS origins in production.")
 if any(not origin.startswith("https://") for origin in CSRF_TRUSTED_ORIGINS):
     raise RuntimeError("Production CSRF trusted origins must use HTTPS.")
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+if not DATABASE_URL:
+    raise ImproperlyConfigured("DATABASE_URL must be set in production.")
+DATABASES = database_config_from_url(DATABASE_URL)
+if DATABASES["default"]["OPTIONS"].get("sslmode") not in {"require", "verify-ca", "verify-full"}:
+    raise ImproperlyConfigured("Production DATABASE_URL must require PostgreSQL TLS with sslmode.")
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True

@@ -115,6 +115,8 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
+The Django settings read environment variables from the process; they do not parse `.env` directly. Compose will load `.env` for local services after P9-01. For direct local commands, export `DATABASE_URL` for your PostgreSQL instance in the shell first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database.
+
 Install the reviewed, hash-pinned development set with:
 
 ```sh

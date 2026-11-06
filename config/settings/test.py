@@ -1,7 +1,10 @@
 """Isolated settings for automated tests."""
 
-from .development import *  # noqa: F403
+import secrets
+
+from .base import *  # noqa: F403
 
 DEBUG = False
-SECRET_KEY = "test-only-secret-key-not-for-deployment"
+SECRET_KEY = secrets.token_urlsafe(48)
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}

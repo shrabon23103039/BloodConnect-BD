@@ -3,6 +3,8 @@
 import os
 from pathlib import Path
 
+from config.database import database_config_from_url
+
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
@@ -47,15 +49,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# SQLite is a temporary bootstrap default. P1-03 replaces it with PostgreSQL
-# configuration before domain models or migrations are introduced.
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

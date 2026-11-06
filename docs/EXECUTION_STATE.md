@@ -3,7 +3,7 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 1 — Runtime, database and configuration
-- Current task ID: P1-03
+- Current task ID: P1-04
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -21,29 +21,37 @@
   - Verification: PowerShell assertions confirmed every variable documented in `docs/09_Deployment.md` is present in `.env.example` with a blank value and the README contains the setup references.
   - Commit: `11f4e19` (`docs: add development setup and contribution guide`), which also records the original context pack in Git.
 
-## Completed task
+## Completed tasks
 - [x] P1-01 — Verify Python/Django/DRF compatibility and pin exact dependency versions
   - Implementation: Installed Python 3.14.10; reviewed official compatibility/security information; selected compatible direct pins and recorded ADR-010/011; added universal hash locks. uv 0.13.7 was selected after pip-tools timed out while hashing platform wheels; regeneration commands are documented in the TRD.
   - Verification: uv resolved 36 runtime and 101 development distributions; `uv pip sync` installed the dev lock; pip `--require-hashes` dry-run passed; `pip check` found no broken requirements; `pip-audit --strict` found no known vulnerabilities.
   - Files changed: `.python-version`, `README.md`, `docs/04_TRD.md`, `docs/06_Plan.md`, `docs/12_Architecture_ADRs.md`, `docs/REFERENCES.md`, `requirements/base.in`, `requirements/dev.in`, `requirements/base.lock`, `requirements/dev.lock`, `requirements/LOCK_REPORT.md`.
+  - Commit: `567ca14` (`feat: bootstrap Django runtime and settings`; includes P1-01 and P1-02).
 
-## Completed task
+## Completed tasks
 - [x] P1-02 — Create Django project and environment-specific settings
   - Implementation: Added the `config` project package, split shared/development/test/production settings, and set development defaults in `manage.py` with production defaults for ASGI/WSGI. Production settings require a secret, explicit hosts and HTTPS CSRF origins, disable DEBUG, and set secure cookie/HTTPS controls. No migration or domain model was created.
   - Verification: `pytest --ds=config.settings.test tests/test_settings_profiles.py` passed (2 tests); `python manage.py check` passed under default development settings and under explicitly selected development settings. Tests verify isolated test settings and production fail-closed behavior.
   - Files changed: `manage.py`, `config/`, `tests/`, `README.md`, `docs/06_Plan.md`.
-  - Limitation: SQLite is explicitly temporary until P1-03 supplies PostgreSQL configuration.
+  - Commit: `567ca14` (`feat: bootstrap Django runtime and settings`). No migrations were created.
+
+## Completed tasks
+- [x] P1-03 — Configure PostgreSQL and psycopg
+  - Implementation: Added a standard-library PostgreSQL URL parser with an explicit query-option allowlist and credential-safe errors. Development and production require PostgreSQL URLs; production additionally requires database TLS. The test profile alone uses in-memory SQLite. README now explains shell environment values and the `.env` behavior.
+  - Verification: `pytest --ds=config.settings.test tests` passed (7 tests); development and production `manage.py check` passed using synthetic PostgreSQL URLs; `python -m bandit -q -r config` reported no issues.
+  - Files changed: `config/database.py`, `config/settings/`, `tests/test_settings_profiles.py`, `README.md`, `docs/06_Plan.md`.
+  - Limitation: no PostgreSQL service is installed/listening and Docker daemon is unavailable, so no live connection was attempted. No migrations were run; first migration remains deferred to P1-06.
 
 ## Next task
-- Task ID: P1-03
-- Exact next action: Replace the temporary SQLite bootstrap setting with validated PostgreSQL/psycopg URL configuration; do not run initial migrations until P1-06 creates the custom user model.
-- Dependencies: P1-02 verified.
+- Task ID: P1-04
+- Exact next action: Build the responsive Django template shell and public landing, product, privacy and safety pages using the documented copy and contact/privacy boundaries.
+- Dependencies: P1-02 verified; P1-03 configuration verified.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 focused settings tests (2/2) and development Django checks.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan.
 - Tests failed: None.
-- Tests not run and why: Product-flow tests do not exist yet. P1-02 added and ran focused environment-settings tests.
+- Tests not run and why: No product-flow tests or live PostgreSQL service yet. P1-03 intentionally deferred migrations until P1-06.
 
 ## Decisions
 - Decision: Ignore `.env` and `.env.*` while explicitly allowing `.env.example`; exclude local DB files, media, virtual environments, caches and build/test artifacts.
