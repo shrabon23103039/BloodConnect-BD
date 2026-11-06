@@ -54,12 +54,12 @@ For every task:
 
 ### Implementation readiness, risks and planning gaps
 
-- Current task: **P1-06**, custom user model implemented, pending migration verification against PostgreSQL. P0-01 through P0-03 and P1-01 through P1-05 are verified. P2 tasks are not eligible until P1-06 is verified.
+- Current task: **P2-01**, registration/login/logout/password reset. P0-01 through P0-03 and P1-01 through P1-06 are verified.
 - Continue P1 tasks in dependency order. P1-04 public landing/product, privacy and safety content is implemented; its legal notices remain draft/review items.
 - Planning gap: broad MVP requirements for report/privacy settings and operational dashboard are mapped to tasks, but the page-level routes/forms, consent version policy, retention periods, rate-limit thresholds, request/contact expiry policy, and reviewed Bangladesh geography source are not fully decided. Resolve the relevant choices from existing docs during each task; if they require product/architecture choices not covered there, record an ADR/document update before coding.
 - Dependency/version risk: P1-01 verified compatible exact pins, universal hash locks and package advisories. Linux production installation still needs CI/deployment verification.
 - Privacy/release risk: donor contact disclosure, object-level access, synthetic-only data, legal/healthcare review, backup restore, and production secret handling are release blockers. The documentation is not evidence that these controls exist.
-- Verification blocker: no PostgreSQL service is installed/listening, Docker daemon is unavailable, and this Windows user is not an administrator. P1-06 model/unit tests and SQLite migration pass, but PostgreSQL migration acceptance remains unverified; dependent P2 work must wait.
+- Development database: P1-06 was verified against the existing Docker Desktop PostgreSQL 17.11 Supabase service using a dedicated `bcbd_dev` role/database, persistent Docker volume and ignored local `.env`; no existing containers were stopped or removed. This environment is local development only.
 - External-service risk: email, SMS, maps, identity, government and institutional capabilities have no authorized production access established. MVP must remain functional with mock/no-op adapters where applicable.
 - Schedule risk: the seven-calendar-day target is aspirational. The formal baseline is 16 weeks, and neither schedule is evidence of completed work.
 
@@ -118,16 +118,16 @@ Optional PRD items are not committed MVP acceptance gates: generalized map view 
   - Acceptance: no secrets/PII in logs; health states distinguish dependencies.
   - Evidence: nine tests cover dependency-specific ready/not-ready states, dependency-free liveness, non-cacheability, query/credential redaction, generated request IDs and safe request metadata. Full suite passes (21 tests); Django check passes; Bandit reports no issues in `config/`.
   - Files: `config/health.py`, `config/logging.py`, `config/middleware.py`, `config/database.py`, `config/settings/base.py`, `config/urls.py`, `tests/test_health_logging.py`, `docs/04_TRD.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
-- [?] P1-06 Create custom User model before first production migration. **IMPLEMENTED_UNVERIFIED 2026-11-06.**
+- [x] P1-06 Create custom User model before first production migration. **VERIFIED 2026-11-06.**
   - Depends on: P1-03.
   - Acceptance: model is configured as `AUTH_USER_MODEL` before any initial migration; email/phone identity policy and account status tests pass. Run the first migration smoke test only after this task.
   - Verified locally: custom model is configured before migration, exactly one normalized email or E.164 phone is required, account-status/authentication tests pass, migrations are up to date, and `manage.py migrate --settings=config.settings.test` passes on in-memory SQLite.
-  - Blocked verification: run `accounts.0001_initial` against the approved PostgreSQL 16+ service before proceeding to P2-01. This host has no local PostgreSQL service and Docker Engine is unavailable.
+  - PostgreSQL verification: Docker Engine `29.9.2`; existing PostgreSQL `17.11` container reported healthy and had a persistent named volume. Created isolated `bcbd_dev` login and `bloodconnect_bd_dev` database on that service; local `.env` is gitignored and contains the generated development URL. Django connected as `bcbd_dev`; `manage.py migrate --noinput --settings=config.settings.development` applied all migrations including `accounts.0001_initial`; `showmigrations` reports it applied; PostgreSQL catalog confirms the exact-one-identifier check, unique identifier indexes and case-insensitive email index. `manage.py check` and migration consistency check pass; full pytest suite passes (31/31). No unrelated container was stopped or removed.
   - Files: `apps/accounts/`, `config/settings/base.py`, `tests/test_accounts_user.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
 
 ## Phase 2 — Accounts and authorization
 
-- [ ] P2-01 Implement registration, login, logout and password reset.
+- [~] P2-01 Implement registration, login, logout and password reset. **IN_PROGRESS 2026-11-06.**
   - Depends on: P1-06.
   - Acceptance: auth flows, validation and rate-limit tests pass.
 - [ ] P2-02 Implement verification adapter interface and mock provider.
