@@ -61,6 +61,7 @@
   - Verification: `pytest --ds=config.settings.test tests` passed (31 tests, including 10 account tests); `manage.py check` passed in test and production settings; `makemigrations --check --dry-run` reported no changes; `migrate --noinput --settings=config.settings.test` passed on SQLite; Bandit reported no issues.
   - Files changed: `apps/accounts/`, `config/settings/base.py`, `tests/test_accounts_user.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`.
   - Remaining: Run `accounts.0001_initial` against PostgreSQL 16+ before marking P1-06 verified or starting P2-01.
+  - Commit: `500b3f3` (`feat: add custom account identity model`; implementation remains unverified against PostgreSQL).
 
 ## Next task
 - Task ID: P1-06 verification
