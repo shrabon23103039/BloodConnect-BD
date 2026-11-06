@@ -40,6 +40,7 @@ def database_config_from_url(database_url: str) -> dict[str, dict[str, object]]:
             not options["connect_timeout"].isdigit() or int(options["connect_timeout"]) < 1
         ):
             raise ValueError
+        options.setdefault("connect_timeout", "3")
     except (ValueError, UnicodeError):
         raise ImproperlyConfigured(
             "DATABASE_URL must be a valid PostgreSQL URL with a database name and supported options."

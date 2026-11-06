@@ -45,15 +45,23 @@
   - Verification: `pytest --ds=config.settings.test tests` passed (12 tests); development `manage.py check` passed; production `collectstatic --noinput` post-processed 726 assets; `python -m bandit -q -r config` reported no issues.
   - Files changed: `config/urls.py`, `config/settings/`, `templates/`, `static/`, `tests/test_public_pages.py`, `docs/04_TRD.md`, `docs/REFERENCES.md`, `docs/06_Plan.md`.
   - Limitation: Playwright viewport checks are planned for P8; legal/privacy notices are drafts pending qualified local review. Donor discovery and account creation are not available.
+  - Commit: `a4a4ecd` (`feat: add public product and safety pages`).
+
+## Completed task
+- [x] P1-05 — Add health/readiness endpoints and structured logging
+  - Implementation: Added dependency-free liveness and DB/Redis readiness endpoints with separate status values and non-cacheable responses. Request middleware emits server-generated correlation IDs. JSON formatter logs only allowlisted metadata and omits URL paths, query strings, message bodies and exception text.
+  - Verification: `pytest --ds=config.settings.test tests` passed (21 tests); development `manage.py check` passed; `python -m bandit -q -r config` reported no issues. Tests verify liveness independent of dependencies, status separation, safe timeouts, correlation IDs and redaction.
+  - Files changed: `config/health.py`, `config/logging.py`, `config/middleware.py`, `config/database.py`, `config/settings/base.py`, `config/urls.py`, `tests/test_health_logging.py`, `docs/04_TRD.md`, `docs/06_Plan.md`.
+  - Limitation: live DB/Redis behavior cannot be exercised on this host; readiness correctly reports not ready when dependencies are missing.
 
 ## Next task
-- Task ID: P1-05
-- Exact next action: Add privacy-safe liveness/readiness endpoints and structured logging, including tests that assert secrets and personal data are redacted.
-- Dependencies: P1-02 verified.
+- Task ID: P1-06
+- Exact next action: Create `apps.accounts` custom user model and identity/status tests, set `AUTH_USER_MODEL` before any migrations, then run the first migration smoke test against PostgreSQL.
+- Dependencies: P1-03 verified; PostgreSQL must be provisioned before migration verification.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan.
 - Tests failed: None.
 - Tests not run and why: No product-flow tests or live PostgreSQL service yet. P1-03 intentionally deferred migrations until P1-06.
 

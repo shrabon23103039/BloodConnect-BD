@@ -224,11 +224,11 @@ Optimization order:
 
 ## 12. Observability
 
-- Structured application logs.
-- Request correlation ID.
+- JSON structured request logs with an allowlist that omits URL paths, query strings, message text and exception tracebacks.
+- Server-generated request correlation ID returned as `X-Request-ID`.
 - Error monitoring with PII scrubbing.
 - Metrics: request count, latency, status codes, queue depth, task failures, DB pool saturation.
-- Health endpoints: liveness and readiness.
+- Health endpoints: dependency-free `/health/live/` and dependency-aware `/health/ready/` (database and Redis reported separately; response is non-cacheable).
 - Audit events for privileged and sensitive operations.
 - Alerts for error spikes, queue backlog, failed backups and resource saturation.
 

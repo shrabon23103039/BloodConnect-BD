@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from config.database import database_config_from_url
+from config.logging import LOGGING
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "config.middleware.RequestLoggingMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

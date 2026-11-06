@@ -18,7 +18,11 @@ from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
 
+from config.health import liveness, readiness
+
 urlpatterns = [
+    path("health/live/", liveness, name="health_live"),
+    path("health/ready/", readiness, name="health_ready"),
     path("admin/", admin.site.urls),
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
