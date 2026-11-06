@@ -2,8 +2,8 @@
 
 ## Current status
 - Overall: In progress
-- Current phase: Phase 0 — Repository and context baseline
-- Current task ID: P1-01
+- Current phase: Phase 1 — Runtime, database and configuration
+- Current task ID: P1-03
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -19,30 +19,39 @@
 - [x] P0-03 — Create README and contribution/development instructions
   - Implementation: Added staged setup commands, environment variable template, and contribution workflow. Commands requiring Django, lock, or Compose files are labelled by the task that will create them.
   - Verification: PowerShell assertions confirmed every variable documented in `docs/09_Deployment.md` is present in `.env.example` with a blank value and the README contains the setup references.
-  - Commit: Pending after staging/review.
+  - Commit: `11f4e19` (`docs: add development setup and contribution guide`), which also records the original context pack in Git.
 
-## In-progress task
-- [ ] P1-01 — Verify Python/Django/DRF compatibility and pin exact dependency versions
-  - Files changed: None yet.
-  - Work completed: Read the TRD version policy and checked available host tools; Python is unavailable, while Docker CLI is present.
-  - Remaining work: Verify official version/support/security information, select supported pins, generate a complete lock and report.
-  - Risks: Need determine whether Docker daemon/network can provide a verification environment; do not install based on unverified pins.
+## Completed task
+- [x] P1-01 — Verify Python/Django/DRF compatibility and pin exact dependency versions
+  - Implementation: Installed Python 3.14.10; reviewed official compatibility/security information; selected compatible direct pins and recorded ADR-010/011; added universal hash locks. uv 0.13.7 was selected after pip-tools timed out while hashing platform wheels; regeneration commands are documented in the TRD.
+  - Verification: uv resolved 36 runtime and 101 development distributions; `uv pip sync` installed the dev lock; pip `--require-hashes` dry-run passed; `pip check` found no broken requirements; `pip-audit --strict` found no known vulnerabilities.
+  - Files changed: `.python-version`, `README.md`, `docs/04_TRD.md`, `docs/06_Plan.md`, `docs/12_Architecture_ADRs.md`, `docs/REFERENCES.md`, `requirements/base.in`, `requirements/dev.in`, `requirements/base.lock`, `requirements/dev.lock`, `requirements/LOCK_REPORT.md`.
+
+## Completed task
+- [x] P1-02 — Create Django project and environment-specific settings
+  - Implementation: Added the `config` project package, split shared/development/test/production settings, and set development defaults in `manage.py` with production defaults for ASGI/WSGI. Production settings require a secret, explicit hosts and HTTPS CSRF origins, disable DEBUG, and set secure cookie/HTTPS controls. No migration or domain model was created.
+  - Verification: `pytest --ds=config.settings.test tests/test_settings_profiles.py` passed (2 tests); `python manage.py check` passed under default development settings and under explicitly selected development settings. Tests verify isolated test settings and production fail-closed behavior.
+  - Files changed: `manage.py`, `config/`, `tests/`, `README.md`, `docs/06_Plan.md`.
+  - Limitation: SQLite is explicitly temporary until P1-03 supplies PostgreSQL configuration.
 
 ## Next task
-- Task ID: P1-02
-- Exact next action: Create Django project and environment-specific settings against the reviewed dependency lock.
-- Dependencies: P1-01 must be verified first.
+- Task ID: P1-03
+- Exact next action: Replace the temporary SQLite bootstrap setting with validated PostgreSQL/psycopg URL configuration; do not run initial migrations until P1-06 creates the custom user model.
+- Dependencies: P1-02 verified.
 
 ## Verification
-- Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `python --version`; `git status --short --branch`; environment-template/README assertions.
-- Tests passed: P0-02 ignore assertions and P0-03 documentation assertions passed.
+- Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 focused settings tests (2/2) and development Django checks.
 - Tests failed: None.
-- Tests not run and why: No application source or test suite exists yet. Python is unavailable (`python` resolves to a Microsoft Store execution alias).
+- Tests not run and why: Product-flow tests do not exist yet. P1-02 added and ran focused environment-settings tests.
 
 ## Decisions
 - Decision: Ignore `.env` and `.env.*` while explicitly allowing `.env.example`; exclude local DB files, media, virtual environments, caches and build/test artifacts.
 - Reason: Match P0-02 acceptance and avoid committing secrets or local user data.
 - Related ADR/document: `docs/06_Plan.md`, `docs/07_Security.md`, `docs/09_Deployment.md`.
+- Decision: Use Python 3.14.10 with Django 5.2.19, DRF 3.18.3, direct packages pinned in `requirements/*.in`, and universal uv-generated hash locks; move Gunicorn to the current supported release line.
+- Reason: Python 3.13.18 is source-only; Django 5.2 supports Python 3.14. Upstream marks Gunicorn 23.0.0 unsupported. pip-tools artifact hashing timed out, while uv completed universal lock resolution in seconds.
+- Related ADR/document: ADR-010 and ADR-011 in `docs/12_Architecture_ADRs.md`; official release/security sources in `docs/REFERENCES.md`.
 
 ## Blockers requiring owner input
 - None.

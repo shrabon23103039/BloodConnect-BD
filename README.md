@@ -81,12 +81,12 @@ The dependency versions in `04_TRD.md` are the proposed baseline. Before install
 
 ### Current repository state
 
-This checkout is at the repository-baseline stage. The Django project, dependency lock, `manage.py`, Docker Compose services, and test suite have not been created yet. The commands below show the agreed setup sequence; commands that depend on a later plan task are labelled and become runnable when that task is completed. Do not treat this documentation pack as a running application.
+The repository now contains the Django project, separated settings, and hash-pinned runtime/development dependencies. Public pages, domain models, migrations, Docker Compose services, and product flows remain incomplete; consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Do not treat the scaffold as a completed application.
 
 ### Prerequisites
 
 - Git.
-- Python 3.13.x, per `docs/04_TRD.md` (verify the selected patch during P1-01).
+- Python 3.14.10, per `docs/04_TRD.md` and `.python-version`.
 - Docker Desktop or Docker Engine with the Compose plugin for local PostgreSQL/Redis services (Compose setup is P9-01).
 
 ### Bootstrap commands
@@ -94,14 +94,14 @@ This checkout is at the repository-baseline stage. The Django project, dependenc
 From the repository root, create and activate a virtual environment:
 
 ```powershell
-py -3.13 -m venv .venv
+py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
 On macOS/Linux, use:
 
 ```sh
-python3.13 -m venv .venv
+python3.14 -m venv .venv
 source .venv/bin/activate
 ```
 
@@ -115,11 +115,13 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-After P1-01 creates the reviewed, hash-pinned dependency lock, install from it with:
+Install the reviewed, hash-pinned development set with:
 
 ```sh
-python -m pip install --require-hashes -r requirements/requirements.lock
+python -m pip install --require-hashes -r requirements/dev.lock
 ```
+
+Production images should install only the runtime set with `python -m pip install --require-hashes -r requirements/base.lock`.
 
 After P9-01 adds the Compose file, start local PostgreSQL and Redis with:
 
@@ -127,7 +129,14 @@ After P9-01 adds the Compose file, start local PostgreSQL and Redis with:
 docker compose up -d db redis
 ```
 
-After P1-02/P1-06 create the Django project and custom user model, apply migrations and run the development server:
+For current scaffold checks, run:
+
+```sh
+python manage.py check
+pytest --ds=config.settings.test
+```
+
+After P1-06 creates the custom user model and initial migration, apply migrations and run the development server:
 
 ```sh
 python manage.py migrate

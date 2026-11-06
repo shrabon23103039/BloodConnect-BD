@@ -65,6 +65,28 @@ Record important decisions here. New decisions should be appended, not silently 
 **Reason:** Credentials, authorization and provider availability are uncertain.  
 **Consequences:** Mock adapters in development; production integration disabled until approved.
 
+## ADR-010 — Use a security-supported Gunicorn release
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** The TRD proposed Gunicorn 23.x. Upstream's security policy marks 23.0.0 unsupported, while the current supported release line is 26.x.
+**Decision:** Pin the latest published and supported Gunicorn release verified for the lock (26.2.0 at review time); keep Gunicorn as the WSGI server behind Nginx.
+**Reason:** A pinned release that upstream no longer security supports is not an acceptable production baseline. The version update preserves the approved deployment architecture.
+**Alternatives:** Keep 23.0.0 and accept unsupported security maintenance (rejected); switch WSGI server (unnecessary architecture change).
+**Consequences:** Review upstream support before future upgrades; Gunicorn is used on supported POSIX deployment platforms and omitted from Windows environments by a platform marker.
+**Related documents:** `docs/04_TRD.md`, `requirements/LOCK_REPORT.md`.
+
+## ADR-011 — Target an installable, supported Python patch line
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** The TRD selected Python 3.13.x. Python 3.13.18 is a source-only security release, and Python 3.13.17 was the last 3.13 release with Windows binary installers. This project is developed in a Windows environment. Django 5.2 added support for Python 3.14 in 5.2.8.
+**Decision:** Use the Python 3.14 line and pin Python 3.14.10 for the current reproducible baseline.
+**Reason:** Python 3.14.10 is the current official security-fixed patch with Windows installation support, and the selected Django LTS line supports Python 3.14.
+**Alternatives:** Keep Python 3.13.17 and miss security fixes available in 3.13.18 (rejected); build the source-only 3.13.18 manually on Windows (unnecessarily complex); change Django to 6.x to use Python 3.15 (unnecessary architecture/version-line change).
+**Consequences:** Runtime patch updates within Python 3.14 must be reviewed and reflected in `.python-version`, setup instructions, CI, and the lock report.
+**Related documents:** `docs/04_TRD.md`, `docs/REFERENCES.md`, `requirements/LOCK_REPORT.md`.
+
 ## ADR template
 
 ### ADR-NNN — Title

@@ -10,19 +10,22 @@ This document lists primary references used to establish the proposed technical 
 2. Django 5.2 release series and supported Python versions:  
    https://docs.djangoproject.com/en/5.2/releases/5.2/
 
-3. Django deployment checklist:  
+3. Python 3.14.10 release and security fixes:
+   https://www.python.org/downloads/release/python-31410/
+
+4. Django deployment checklist:
    https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-4. Django REST Framework release notes:  
+5. Django REST Framework release notes:
    https://www.django-rest-framework.org/community/release-notes/
 
-5. Cursor rules documentation:  
+6. Cursor rules documentation:
    https://docs.cursor.com/context/rules-for-ai
 
-6. Anthropic Claude Code documentation:  
+7. Anthropic Claude Code documentation:
    https://docs.anthropic.com/en/docs/claude-code/overview
 
-7. Anthropic Claude Code memory / project instructions documentation (check current navigation):  
+8. Anthropic Claude Code memory / project instructions documentation (check current navigation):
    https://docs.anthropic.com/en/docs/claude-code/memory
 
 ## Context engineering and specification-driven development

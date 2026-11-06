@@ -50,16 +50,14 @@ For every task:
 - Completed: P0-01, limited to presence and manual consistency review of the context pack. This does not mean any product feature is implemented.
 - Completed: P0-02. Git initialized and ignore patterns verified.
 - Completed: P0-03. Setup, environment variable names and contribution workflow are documented; application-dependent commands are explicitly staged for later tasks.
-- No application implementation task is complete. All feature and release tasks below remain NOT_STARTED unless explicitly marked otherwise.
+- Runtime/scaffolding tasks P1-01 and P1-02 are verified. No user-facing feature, domain flow, release or deployment task is complete.
 
 ### Implementation readiness, risks and planning gaps
 
-- First implementation task: **P0-02**, initialize Git and add a `.gitignore`; prerequisites are met by P0-01. Keep this limited to repository hygiene, and verify that secrets, virtual environments, caches, media and local database artifacts are ignored before proceeding.
-- Next: P0-03, add runnable development setup and contribution instructions to the existing README/docs. Resolve P0-03 before dependency installation or Django scaffolding.
-- Then execute P1-01 onward in dependency order. Before the first migration, create/configure the custom user model. P1-03 validates DB configuration; P1-06 owns the first migration smoke test.
-- Planning gap: P1-04 currently promises a responsive base layout but the PRD/app flow also require public landing, product, privacy and safety content. Include these pages and their safety copy in P1-04 acceptance or create a scoped plan task before implementation.
+- First implementation task now eligible: **P1-03**, configure and validate PostgreSQL/psycopg settings. P0-01 through P0-03 and P1-01/P1-02 are verified. Keep migrations deferred until P1-06 creates the custom user model.
+- Continue P1 tasks in dependency order. P1-04 acceptance already includes the required public landing/product, privacy and safety content.
 - Planning gap: broad MVP requirements for report/privacy settings and operational dashboard are mapped to tasks, but the page-level routes/forms, consent version policy, retention periods, rate-limit thresholds, request/contact expiry policy, and reviewed Bangladesh geography source are not fully decided. Resolve the relevant choices from existing docs during each task; if they require product/architecture choices not covered there, record an ADR/document update before coding.
-- Dependency/version risk: the TRD contains proposed version pins, not a resolved lock. P1-01 must verify compatible supported versions and current advisories, then record a complete lock and report before installing the stack.
+- Dependency/version risk: P1-01 verified compatible exact pins, universal hash locks and package advisories. Linux production installation still needs CI/deployment verification.
 - Privacy/release risk: donor contact disclosure, object-level access, synthetic-only data, legal/healthcare review, backup restore, and production secret handling are release blockers. The documentation is not evidence that these controls exist.
 - External-service risk: email, SMS, maps, identity, government and institutional capabilities have no authorized production access established. MVP must remain functional with mock/no-op adapters where applicable.
 - Schedule risk: the seven-calendar-day target is aspirational. The formal baseline is 16 weeks, and neither schedule is evidence of completed work.
@@ -95,12 +93,14 @@ Optional PRD items are not committed MVP acceptance gates: generalized map view 
 
 ## Phase 1 — Runtime, database and configuration
 
-- [ ] P1-01 Verify Python/Django/DRF compatibility and pin exact dependency versions.
+- [x] P1-01 Verify Python/Django/DRF compatibility and pin exact dependency versions. **VERIFIED 2026-11-06.**
   - Depends on: P0-03.
   - Acceptance: resolved lock file committed; security advisories checked.
-- [ ] P1-02 Create Django project and environment-specific settings.
+- [x] P1-02 Create Django project and environment-specific settings. **VERIFIED 2026-11-06.**
   - Depends on: P1-01.
   - Acceptance: development/test settings separate from production.
+  - Evidence: `pytest --ds=config.settings.test tests/test_settings_profiles.py` passed (2 tests); default development and explicit development `manage.py check` both pass; test profile asserts DEBUG disabled and test-only password hashing; a subprocess confirms production refuses to load without its required secret.
+  - Files: `manage.py`, `config/`, `tests/`, `README.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md`.
 - [ ] P1-03 Configure PostgreSQL and psycopg.
   - Depends on: P1-02.
   - Acceptance: connection configuration is validated; defer the first migration smoke test until P1-06 has created the custom user model.
@@ -268,8 +268,10 @@ Optional PRD items are not committed MVP acceptance gates: generalized map view 
 | Date | Task ID | Status | Files changed | Commands run | Actual result | Remaining issues |
 |---|---|---|---|---|---|---|
 | 2026-11-06 | P0-01 | VERIFIED | `docs/06_Plan.md` (planning record only) | `rg --files`; initial `git status --short`; `Get-Content -Raw` on agent instructions, README, all `docs/*` and Cursor project rules | All required docs exist and were read; manual review found architecture and safety boundaries aligned. Repository initially contained documentation/guardrails only; no application tests were run. | P0-02 completed. |
-| 2026-11-06 | P0-02 | VERIFIED | `.gitignore`, `docs/EXECUTION_STATE.md`, `docs/06_Plan.md` | `git init`; `git check-ignore` assertions for secret, venv, cache, media and DB examples; `.env.example` allowlist check; `git status --short --branch` | Git initialized on `master`; all ignore assertions passed and `.env.example` remains trackable. Commit: `a368617`. Python runtime probe unavailable; it does not affect P0-02 acceptance. | P0-03 completed. No application code or tests exist yet. |
-| 2026-11-06 | P0-03 | VERIFIED | `README.md`, `CONTRIBUTING.md`, `.env.example`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md` | PowerShell assertions for all environment names from `09_Deployment.md`, blank example values, and README setup references | Setup sequence and env names documented. Commands dependent on future P1/P9 files are clearly labelled as future; no claim that a running application exists. | P1-01 is next; Python is unavailable on this host and must be provisioned or a compatible container runtime used for verification. |
+| 2026-11-06 | P0-02 | VERIFIED | `.gitignore`, `docs/EXECUTION_STATE.md`, `docs/06_Plan.md` | `git init`; `git check-ignore` assertions for secret, venv, cache, media and DB examples; `.env.example` allowlist check; `git status --short --branch` | Git initialized on `master`; all ignore assertions passed and `.env.example` remains trackable. Commit: `a368617`. | P0-03 is complete. |
+| 2026-11-06 | P0-03 | VERIFIED | `README.md`, `CONTRIBUTING.md`, `.env.example`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md` | PowerShell assertions for deployment environment names, blank example values and README setup references | Setup sequence and environment names documented. Commands dependent on future P1/P9 files are labelled as future; no claim of a running application. Commit: `11f4e19`. | P1-01 and P1-02 are complete. |
+| 2026-11-06 | P1-01 | VERIFIED | `.python-version`, `README.md`, `docs/04_TRD.md`, `docs/06_Plan.md`, `docs/12_Architecture_ADRs.md`, `docs/REFERENCES.md`, `requirements/*`, `docs/EXECUTION_STATE.md` | `py -3.14 --version`; `winget install Python.Python.3.14`; official Python/Django/DRF/Gunicorn docs and PyPI metadata review; uv 0.13.7 universal hash compile; `uv pip sync`; `python -m pip install --dry-run --require-hashes -r requirements/dev.lock`; `python -m pip check`; `pip-audit --strict` | Python 3.14.10 verified; universal base/dev locks contain 36/101 distributions. pip hash dry-run and dependency check passed; pip-audit reported no known vulnerabilities. uv used after pip-tools timed out hashing hundreds of published artifacts; generator choice documented. | P1-02 is next. Verify Linux production install during CI/deployment tasks. |
+| 2026-11-06 | P1-02 | VERIFIED | `manage.py`, `config/`, `tests/`, `README.md`, `docs/06_Plan.md`, `docs/EXECUTION_STATE.md` | `pytest --ds=config.settings.test tests/test_settings_profiles.py`; `python manage.py check`; `DJANGO_SETTINGS_MODULE=config.settings.development python manage.py check` | Django project scaffold created with separate shared, development, test and production settings. Both checks passed; profile tests passed (2/2), including production fail-closed behavior. No migrations were created. | P1-03 is next; settings currently use a clearly marked SQLite bootstrap default until PostgreSQL URL configuration is implemented. |
 
 ## 4. Update template
 

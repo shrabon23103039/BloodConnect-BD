@@ -7,19 +7,19 @@
 
 | Area | Decision |
 |---|---|
-| Backend language | Python 3.13.x |
+| Backend language | Python 3.14.10 (selected runtime patch; update within the 3.14 series after security review) |
 | Web framework | Django 5.2 LTS line; proposed pin `5.2.19` |
 | API | Django REST Framework proposed pin `3.18.3` |
 | Web UI | Django Templates + Bootstrap 5.3.x |
 | Database | PostgreSQL 16+ |
-| Database driver | psycopg 3.x |
+| Database driver | psycopg 3.3.8 (binary extra for the local academic environment; production packaging review remains required) |
 | Cache/broker | Redis 7.x |
-| Background jobs | Celery 5.x |
-| API filtering | django-filter 25.x |
-| API schema | drf-spectacular 0.28.x or later compatible patch |
+| Background jobs | Celery 5.7.0 |
+| API filtering | django-filter 26.2 |
+| API schema | drf-spectacular 0.30.0 |
 | Web server | Nginx |
-| WSGI server | Gunicorn 23.x |
-| Static files | WhiteNoise 6.x or object storage/CDN |
+| WSGI server | Gunicorn 26.2.0 (see ADR-010; 23.x is no longer security-supported upstream) |
+| Static files | WhiteNoise 6.12.0 or object storage/CDN |
 | Maps | Leaflet 1.9.4 + OpenStreetMap tiles under provider terms |
 | Tests | pytest, pytest-django, Django TestCase, Playwright |
 | Load tests | Locust |
@@ -29,15 +29,17 @@
 
 ### Version pin policy
 
-The Django 5.2 series is selected as an LTS line. The proposed baseline pins are Django `5.2.19` and DRF `3.18.3`; verify package availability, release notes, Python compatibility and security advisories at project bootstrap. DRF 3.18.x drops support for older Django branches, so keep the supported Django line aligned.
+The Django 5.2 series is selected as an LTS line. The selected baseline pins are Django `5.2.19` and DRF `3.18.3`; official release notes and package metadata were checked on 2026-11-06. Django 5.2 supports Python 3.14 (added in 5.2.8), and DRF 3.18.3 supports Django 5.2. Django 5.2.19 contains fixes for the security issues disclosed in 5.2.18, and DRF 3.18.3 includes the 3.18.2 security fixes. Keep the supported Django line aligned with DRF.
 
 Other dependency versions above are compatibility targets, not a substitute for a resolved lock file. At bootstrap:
 1. Verify current stable patch releases and security status.
-2. Install compatible direct dependencies.
-3. Generate a complete lock file (including transitive dependencies and hashes where supported).
+2. Install compatible direct dependencies recorded in `requirements/base.in` and `requirements/dev.in`.
+3. Use the pinned uv lock compiler to generate universal `requirements/base.lock` and `requirements/dev.lock` files (including transitive dependencies and hashes for supported target platforms).
 4. Commit the lock file.
-5. Record the exact resolved versions in `requirements/LOCK_REPORT.md`.
+5. Record the exact resolved versions and verification evidence in `requirements/LOCK_REPORT.md`.
 6. Do not float production dependencies.
+
+Lock generation uses uv `0.13.7` with `uv pip compile --universal --generate-hashes --python-version 3.14`; pip-tools is not used because its hash resolver downloaded every platform artifact serially and timed out while resolving psycopg-binary.
 
 Do not use Django development server in production.
 
