@@ -3,7 +3,7 @@
 ## Current status
 - Overall: In progress
 - Current phase: Phase 1 — Runtime, database and configuration
-- Current task ID: P1-05
+- Current task ID: P1-06
 - Last updated: 2026-11-06
 - Git branch: master
 
@@ -53,17 +53,25 @@
   - Verification: `pytest --ds=config.settings.test tests` passed (21 tests); development `manage.py check` passed; `python -m bandit -q -r config` reported no issues. Tests verify liveness independent of dependencies, status separation, safe timeouts, correlation IDs and redaction.
   - Files changed: `config/health.py`, `config/logging.py`, `config/middleware.py`, `config/database.py`, `config/settings/base.py`, `config/urls.py`, `tests/test_health_logging.py`, `docs/04_TRD.md`, `docs/06_Plan.md`.
   - Limitation: live DB/Redis behavior cannot be exercised on this host; readiness correctly reports not ready when dependencies are missing.
+  - Commit: `5e3467d` (`feat: add health checks and privacy-safe logs`).
+
+## In-progress task
+- [?] P1-06 — Create custom User model before the first production migration
+  - Implementation: Added `apps.accounts.User` with UUID key, exactly one normalized email or E.164 phone identifier, case-insensitive email uniqueness, identifier/status constraints, hashed-password manager, verification timestamps, and `PENDING`/`ACTIVE`/`SUSPENDED`/`DEACTIVATED` status behavior. Set `AUTH_USER_MODEL` before generating `accounts.0001_initial`; ADR-012 records the selected identity policy.
+  - Verification: `pytest --ds=config.settings.test tests` passed (31 tests, including 10 account tests); `manage.py check` passed in test and production settings; `makemigrations --check --dry-run` reported no changes; `migrate --noinput --settings=config.settings.test` passed on SQLite; Bandit reported no issues.
+  - Files changed: `apps/accounts/`, `config/settings/base.py`, `tests/test_accounts_user.py`, `docs/12_Architecture_ADRs.md`, `docs/06_Plan.md`.
+  - Remaining: Run `accounts.0001_initial` against PostgreSQL 16+ before marking P1-06 verified or starting P2-01.
 
 ## Next task
-- Task ID: P1-06
-- Exact next action: Create `apps.accounts` custom user model and identity/status tests, set `AUTH_USER_MODEL` before any migrations, then run the first migration smoke test against PostgreSQL.
-- Dependencies: P1-03 verified; PostgreSQL must be provisioned before migration verification.
+- Task ID: P1-06 verification
+- Exact next action: Start/provision PostgreSQL 16+ (or provide an isolated PostgreSQL `DATABASE_URL`) and run Django checks plus `migrate` against it. Then continue to P2-01.
+- Blocked by: This host has no PostgreSQL service or listener, Docker daemon is unavailable, and the current Windows user lacks administrator rights.
 
 ## Verification
 - Commands run: Initial repository inventory; `git init`; `git check-ignore` assertions; `winget install/show Python.Python.3.14`; `py -3.14 --version`; package compatibility queries; uv universal lock generation; `uv pip sync`; pip hash dry-run; `pip check`; `pip-audit --strict`.
-- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan.
+- Tests passed: P0-02 ignore assertions; P0-03 environment documentation assertions; P1-01 hash lock dry-run, dependency consistency and vulnerability audit; P1-02 settings tests (2/2) and development Django checks; P1-03 configuration tests (7/7), dev/prod Django checks and Bandit configuration scan; P1-04 full suite (12/12), development Django check, production static collection and Bandit configuration scan; P1-05 full suite (21/21), development Django check and Bandit configuration scan; P1-06 full suite (31/31), test/production Django checks, SQLite migration, migration consistency check and Bandit scan.
 - Tests failed: None.
-- Tests not run and why: No product-flow tests or live PostgreSQL service yet. P1-03 intentionally deferred migrations until P1-06.
+- Tests not run and why: PostgreSQL migration smoke test is blocked because no database service or Docker daemon is available. P2 product-flow tests depend on verified P1-06.
 
 ## Decisions
 - Decision: Ignore `.env` and `.env.*` while explicitly allowing `.env.example`; exclude local DB files, media, virtual environments, caches and build/test artifacts.
@@ -74,7 +82,7 @@
 - Related ADR/document: ADR-010 and ADR-011 in `docs/12_Architecture_ADRs.md`; official release/security sources in `docs/REFERENCES.md`.
 
 ## Blockers requiring owner input
-- None.
+- Provide or start an isolated PostgreSQL 16+ service and a development `DATABASE_URL` so P1-06 can verify `accounts.0001_initial` on the approved database engine. This environment has no local server, Docker daemon, or administrator rights.
 
 ## Resume instructions
 - Re-read project instructions and this checkpoint.

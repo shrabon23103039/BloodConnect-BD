@@ -87,6 +87,17 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** Runtime patch updates within Python 3.14 must be reviewed and reflected in `.python-version`, setup instructions, CI, and the lock report.
 **Related documents:** `docs/04_TRD.md`, `docs/REFERENCES.md`, `requirements/LOCK_REPORT.md`.
 
+## ADR-012 â€” Normalize one account login identifier
+
+**Status:** Accepted
+**Date:** 2026-11-06
+**Context:** The schema permits email authentication or phone authentication and requires unique normalized identifiers, but does not define normalization rules.
+**Decision:** Each account stores exactly one identifier. Trim and case-fold email addresses; store phone numbers in E.164 syntax (`+` and up to 15 digits). New accounts remain `PENDING` until a later verification flow activates them. `ACTIVE` is the only account status that Django considers authenticated/usable.
+**Reason:** One normalized identifier per account avoids ambiguous account-recovery and duplicate-address behavior. Syntactic E.164 validation is deterministic without claiming that a phone number is owned or verified.
+**Alternatives:** Store both email and phone on a single account without an identifier-selection policy (rejected); infer or rewrite local phone formats based on Bangladesh geography (rejected because it can mis-handle international users and is not in the schema).
+**Consequences:** Registration and authentication services must select one identifier and verify ownership before activation. Phone-only authentication requires the custom backend planned in P2-01; Django's default email username alone is not sufficient for phone login.
+**Related documents:** `docs/01_PRD.md`, `docs/05_Schema.md`, `docs/06_Plan.md`.
+
 ## ADR template
 
 ### ADR-NNN — Title
