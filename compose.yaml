@@ -3,9 +3,9 @@ name: bloodconnect-bd
 x-app-environment: &app-environment
   DJANGO_SETTINGS_MODULE: config.settings.development
   DJANGO_DEBUG: "true"
-  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-compose-only-change-before-sharing}
+  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in the ignored .env file}
   DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web
-  DATABASE_URL: postgresql://${POSTGRES_USER:-bcbd_dev}:${POSTGRES_PASSWORD:-bcbd_local_only}@db:5432/${POSTGRES_DB:-bcbd_dev}
+  DATABASE_URL: postgresql://${POSTGRES_USER:-bcbd_dev}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the ignored .env file}@db:5432/${POSTGRES_DB:-bcbd_dev}
   REDIS_URL: redis://redis:6379/0
   EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
 
@@ -28,7 +28,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-bcbd_dev}
       POSTGRES_USER: ${POSTGRES_USER:-bcbd_dev}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bcbd_local_only}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the ignored .env file}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
     volumes:

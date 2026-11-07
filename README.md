@@ -115,7 +115,7 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-The Django settings read environment variables from the process; they do not parse `.env` directly. Compose reads `.env` for local overrides. For direct local commands, load the required values from `.env` into your shell process first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database. Development uses a local mock verification provider, and password-reset email is held by Django's in-memory email backend; no message is sent externally or printed to terminal logs.
+The Django settings read environment variables from the process; they do not parse `.env` directly. Compose reads `.env` for local overrides. Before starting Compose, set `DJANGO_SECRET_KEY` and `POSTGRES_PASSWORD` in the ignored `.env` file; leave those values blank in `.env.example`. Use a unique Django key and a strong PostgreSQL password (for URL interpolation, use alphanumeric characters such as a random hex value). Do not print these values in command output or logs. For direct local commands, load the required values from `.env` into your shell process first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database. Development uses a local mock verification provider, and password-reset email is held by Django's in-memory email backend; no message is sent externally or printed to terminal logs.
 
 Install the reviewed, hash-pinned development set with:
 

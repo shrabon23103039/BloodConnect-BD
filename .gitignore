@@ -4,6 +4,43 @@
 !.env.example
 *.pem
 *.key
+*.p12
+*.pfx
+*.p7b
+*.p7c
+*.p8
+*.der
+*.crt
+*.cer
+*.jks
+*.keystore
+*.env
+*.env.*
+!.env.example
+.secrets/
+secrets/
+*.secret
+*.credentials
+*.token
+*.jwt
+*credentials*.json
+service-account*.json
+*-service-account.json
+.vault-token
+.aws/
+.azure/
+.config/gcloud/
+.ssh/
+.gnupg/
+.kube/
+.docker/config.json
+.terraform/
+*.tfstate
+*.tfstate.*
+.netrc
+.npmrc
+.pypirc
+.pgpass
 
 # Python environments and bytecode
 .venv/
@@ -29,8 +66,15 @@ dist/
 # Local databases and database artifacts
 *.sqlite3
 *.sqlite3-journal
+*.sqlite
 *.db
 *.dump
+*.pgdump
+*.backup
+*.bak
+*.backup.sql
+*.dump.sql
+backup*.sql
 *.sql.gz
 
 # Uploaded/local media and collected static output
