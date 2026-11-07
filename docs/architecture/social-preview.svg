@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">BloodConnect BD — consent-first donor discovery</title>
+  <desc id="description">A branded overview of potential donor discovery, request contact, and donor-controlled consent.</desc>
+  <defs>
+    <linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffafa"/>
+      <stop offset="1" stop-color="#f5f7fb"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9f1d20"/>
+      <stop offset="1" stop-color="#c83d43"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#172b4d" flood-opacity=".10"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="640" fill="url(#canvas)"/>
+  <circle cx="1110" cy="105" r="235" fill="#fdebec" opacity=".7"/>
+  <circle cx="1190" cy="600" r="255" fill="#e9eef8" opacity=".65"/>
+  <path d="M0 0h16v640H0z" fill="url(#accent)"/>
+
+  <g transform="translate(72 72)">
+    <rect x="0" y="0" width="50" height="50" rx="15" fill="#fdebec"/>
+    <path d="M15 25h8l5-10 7 20 5-10h8" fill="none" stroke="#9f1d20" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="68" y="22" fill="#172b4d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="750" letter-spacing=".02em">BLOODCONNECT BD</text>
+    <text x="68" y="43" fill="#667085" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing=".13em">COMMUNITY COORDINATION</text>
+  </g>
+
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <text x="74" y="222" fill="#9f1d20" font-size="16" font-weight="750" letter-spacing=".12em">POTENTIAL DONOR DISCOVERY</text>
+    <text x="70" y="300" fill="#172b4d" font-size="58" font-weight="780" letter-spacing="-.035em">Find a way</text>
+    <text x="70" y="369" fill="#172b4d" font-size="58" font-weight="780" letter-spacing="-.035em">to connect.</text>
+    <rect x="73" y="398" width="92" height="6" rx="3" fill="url(#accent)"/>
+    <text x="74" y="447" fill="#475467" font-size="22" font-weight="500">People-first discovery.</text>
+    <text x="74" y="480" fill="#475467" font-size="22" font-weight="500">Consent-first contact.</text>
+    <text x="74" y="550" fill="#667085" font-size="15" font-weight="600">Bangladesh-focused · Privacy by design</text>
+  </g>
+
+  <g transform="translate(655 130)" filter="url(#shadow)">
+    <rect width="542" height="386" rx="28" fill="#ffffff" stroke="#e4e7ec"/>
+    <text x="34" y="48" fill="#667085" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="750" letter-spacing=".12em">A SIMPLE, CONSENT-LED FLOW</text>
+
+    <g transform="translate(34 80)">
+      <rect width="474" height="72" rx="17" fill="#fff7f7" stroke="#f1d7d8"/>
+      <circle cx="37" cy="36" r="18" fill="#fdebec"/>
+      <text x="37" y="42" text-anchor="middle" fill="#9f1d20" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="800">1</text>
+      <text x="72" y="32" fill="#172b4d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="720">Find potential contacts</text>
+      <text x="72" y="54" fill="#667085" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13">Exact blood-group label · broad area filters</text>
+    </g>
+
+    <path d="M271 153v20" stroke="#d0d5dd" stroke-width="2" stroke-dasharray="4 5"/>
+
+    <g transform="translate(34 175)">
+      <rect width="474" height="72" rx="17" fill="#f8f9fb" stroke="#e4e7ec"/>
+      <circle cx="37" cy="36" r="18" fill="#e9eef8"/>
+      <text x="37" y="42" text-anchor="middle" fill="#344b70" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="800">2</text>
+      <text x="72" y="32" fill="#172b4d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="720">Request contact</text>
+      <text x="72" y="54" fill="#667085" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13">Private details stay hidden while pending</text>
+    </g>
+
+    <path d="M271 248v20" stroke="#d0d5dd" stroke-width="2" stroke-dasharray="4 5"/>
+
+    <g transform="translate(34 270)">
+      <rect width="474" height="72" rx="17" fill="#f4f8f6" stroke="#d7e8df"/>
+      <circle cx="37" cy="36" r="18" fill="#e4f2eb"/>
+      <text x="37" y="42" text-anchor="middle" fill="#067647" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="16" font-weight="800">3</text>
+      <text x="72" y="32" fill="#172b4d" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" font-weight="720">The donor decides</text>
+      <text x="72" y="54" fill="#667085" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13">Only accepted, consented channels can be shared</text>
+    </g>
+  </g>
+
+  <text x="1198" y="602" text-anchor="end" fill="#98a2b3" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="600">COORDINATION, NOT MEDICAL ADVICE</text>
+</svg>

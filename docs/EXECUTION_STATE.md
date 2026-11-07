@@ -2,20 +2,21 @@
 
 ## Current status
 - Overall: In progress
-- Current phase: Phase 8 - Security, quality and release readiness (staging-dependent checks pending)
-- Current task ID: P8-05 (blocked)
+- Current phase: Phase 11 - Open-source repository presentation
+- Current task ID: P11-01 (in progress); P11-02 awaits owner license authorization
 - Last updated: 2026-11-07
-- Git branch: `master` (cleanup committed as `a4b62f4`; working tree clean; `.env` remains ignored)
-- Git remote: none configured; intended GitHub repository is unknown and no push was made.
+- Git branch: `master` (clean; tracks `origin/master` at `5aa42cfb631f9e59f975f4904b244465576e2b17`; `.env` remains ignored)
+- Git remote: `origin` → `https://github.com/shrabon23103039/BloodConnect-BD.git`; the original 26-commit history was pushed after explicit authorization. No P11 upgrade changes have been pushed.
+- Current uncommitted work: professional repository presentation upgrade (Phase 11); no existing commits were changed.
 - Checkpoint commit: `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965` (`docs: record final review and local commit`).
-- Latest verified local implementation commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`); not pushed.
+- Latest verified local implementation commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`). Latest repository commit: `5aa42cfb631f9e59f975f4904b244465576e2b17` (`docs: record Compose cleanup verification`), pushed to `origin/master`.
 
 ## Final local review and commit (2026-11-07)
 - Reviewed the complete tracked diff and all new files (108 paths staged); confirmed no local `.env`, database, key or credential-shaped literal was included. The staged `git diff --check` passed after fixing whitespace in new files.
 - Commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`). No force-push, reset, clean, or history rewrite was used.
 - Verification: full suite 167 tests and 6 subtests; Bandit no findings (existing B105 protocol-label suppression warning); pip-audit no known vulnerabilities; `pip check` clean; migrations consistent; Docker Compose config valid; Render YAML/static assertions pass; synthetic production deploy check reports no issues; `git diff --check` clean.
 - Not verified: Render account-side Blueprint validation, provisioning, hosted deployment, HTTPS, hosted migrations/health, SMTP/provider delivery, staging load, restore, and release sign-off.
-- Repository change has not been pushed. Render remains unauthorized and unused; no resources were created and no costs incurred. GitHub target and credentials are not configured in this checkout.
+- Render remains unauthorized and unused; no resources were created and no costs incurred. GitHub is connected, but this does not authorize connecting it to Render or deploying.
 
 ## Pre-GitHub-push secret and security audit (2026-11-07)
 
@@ -38,7 +39,7 @@
 - Docker inspection confirms the active Compose PostgreSQL container remains mounted to `bloodconnect-bd_postgres_data`, and the `.env` target container remains mounted to `supabase_db_nirapatta-p112-fresh`; both containers are running as before. No container lifecycle operation, database write, migration, volume change, reset or recreation was performed.
 - The exact `.env` database credentials passed a read-only identity query against its target container. A direct host-side connection attempt timed out in this execution environment, so the published-port route remains unverified.
 - Commit: `a4b62f4` (`security: remove fixed Compose credentials`), containing the seven reviewed files; no existing commit was rewritten.
-- Post-commit verification: Gitleaks scanned all 25 reachable commits including `a4b62f4` (about 2.33 MB) and found no leaks. Branch status is clean; no remote is configured. No push is authorized or planned.
+- Post-commit verification at that checkpoint: Gitleaks scanned all 25 reachable commits including `a4b62f4` (about 2.33 MB) and found no leaks. The later owner-authorized base-history push is recorded below.
 
 ## Completed tasks
 - [x] P0-01 — Verify context documents and inspect repository baseline
@@ -345,10 +346,22 @@
 - Related ADR/document: ADR-014 in `docs/12_Architecture_ADRs.md`; scheduled cleanup and shared Redis throttles are P9/P5 follow-up work.
 
 ## Blockers requiring owner input
-- Intended GitHub repository URL/access and explicit authorization before pushing. No remote is configured.
+- No blocker remains for configuring GitHub: `origin` is set and the original master history was pushed and verified. Explicit authorization is still required before pushing future local changes.
 - Render account/workspace and repository connection, plus explicit authorization before paid staging resources are created or a deployment is triggered. No domain is required for the planned Render-generated subdomain.
 - Approved SMTP provider credentials for the staging web service. Account verification needs a separately implemented and authorized delivery adapter; SMTP configuration alone does not provide it.
 - Staging access for Locust/performance, database restore verification, staging security checks and production release sign-off.
+
+## Phase 11 — Open-source repository presentation (2026-11-07)
+
+- Updated README, contribution/security guidance, changelog, issue forms, PR template, and GitHub Actions CI. The CI badge describes the real workflow; GitHub has not run it because this work has not been pushed. No version badge is included.
+- Added the standard MIT License after maintainer authorization for `Copyright (c) 2026 Shrabon Biswas`. Reviewed vendored Bootstrap MIT notices and dependency metadata; upstream dependencies retain their separate licenses. README explicitly says the software license does not authorize donor-data use or override privacy obligations.
+- Added editable system, ER, user-flow and technology stack Mermaid sources and corresponding accessible SVG artwork, plus editable social-preview SVG and 1280×640 PNG. Mermaid CLI installation failed in this environment (npm registry package installation failure); the Mermaid sources were manually inspected for syntax and consistency with their SVGs, but automated CLI parsing could not be run.
+- Updated the homepage status copy to match the implemented discovery workflow and lack of reviewed location data; updated the corresponding regression assertion.
+- Added an opt-in Playwright capture test. It created eight genuine route screenshots using only synthetic `example.test` users and a disposable Django test database. Screenshots were visually inspected; no Compose database was used.
+- Verification: `docker compose config --quiet` passed; `git diff --check` passed; `manage.py check --settings=config.settings.test` passed; `pip check` passed; Bandit reported no findings; complete tests passed (167 passed, 1 opt-in test skipped, 6 subtests). With `BLOODCONNECT_CAPTURE_SCREENSHOTS=1`, the screenshot test passed (1 passed). Markdown local-link check and GitHub workflow/issue YAML parsing passed after SVG assets were added.
+- `.env` remains ignored by `.gitignore` and untracked; `.env.example` contains blank values only. No compose lifecycle, database, volume, or user-data operation was performed. Docker daemon inspection was unavailable due access denied, so no independent post-run container/volume identity query was possible; all Docker commands used were read-only config validation.
+- Gitleaks is not installed in this environment. The latest recorded history scan at the prior security checkpoint found no leaks; current added/modified tracked content was manually reviewed, and `.env` is excluded and absent from the worktree diff.
+- Work is committed locally after the passing application and repository checks. No push, publish, deployment, database migration, reset, or volume operation was performed. The remaining verification limitation is automated Mermaid CLI parsing; all diagram sources received manual syntax and consistency review.
 
 ## Resume instructions
 - Re-read project instructions and this checkpoint.

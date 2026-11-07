@@ -1,0 +1,88 @@
+erDiagram
+    ACCOUNTS_USER {
+        uuid id PK
+        string email
+        string phone_e164
+        string account_status
+        string display_name
+    }
+    LOCATIONS_LOCATION {
+        uuid id PK
+        string name_en
+        string level
+        uuid parent_id FK
+    }
+    DONORS_DONORPROFILE {
+        uuid id PK
+        uuid user_id FK
+        string blood_group
+        string availability_status
+        boolean visibility_enabled
+    }
+    REQUESTS_BLOODREQUEST {
+        uuid id PK
+        uuid requester_id FK
+        uuid division_id FK
+        uuid district_id FK
+        string blood_group
+        string status
+    }
+    CONNECTIONS_CONTACTREQUEST {
+        uuid id PK
+        uuid recipient_id FK
+        uuid donor_profile_id FK
+        uuid blood_request_id FK
+        string status
+    }
+    CONNECTIONS_CONNECTION {
+        uuid id PK
+        uuid contact_request_id FK
+        string status
+    }
+    GOVERNANCE_CONSENTRECORD {
+        uuid id PK
+        uuid user_id FK
+        string consent_type
+        boolean granted
+        datetime captured_at
+    }
+    NOTIFICATIONS_NOTIFICATION {
+        uuid id PK
+        uuid recipient_id FK
+        string notification_type
+        string delivery_status
+    }
+    MODERATION_USERREPORT {
+        uuid id PK
+        uuid reporter_id FK
+        uuid reported_user_id FK
+        string status
+    }
+    MODERATION_USERBLOCK {
+        uuid id PK
+        uuid blocker_id FK
+        uuid blocked_id FK
+    }
+    AUDIT_AUDITEVENT {
+        uuid id PK
+        uuid actor_id FK
+        string action
+        json metadata_redacted
+    }
+
+    ACCOUNTS_USER ||--o| DONORS_DONORPROFILE : owns
+    ACCOUNTS_USER ||--o{ REQUESTS_BLOODREQUEST : creates
+    ACCOUNTS_USER ||--o{ CONNECTIONS_CONTACTREQUEST : recipient
+    DONORS_DONORPROFILE ||--o{ CONNECTIONS_CONTACTREQUEST : receives
+    REQUESTS_BLOODREQUEST ||--o{ CONNECTIONS_CONTACTREQUEST : context
+    CONNECTIONS_CONTACTREQUEST ||--o| CONNECTIONS_CONNECTION : may_create
+    ACCOUNTS_USER ||--o{ GOVERNANCE_CONSENTRECORD : records
+    ACCOUNTS_USER ||--o{ NOTIFICATIONS_NOTIFICATION : receives
+    ACCOUNTS_USER ||--o{ MODERATION_USERREPORT : reports
+    ACCOUNTS_USER ||--o{ MODERATION_USERREPORT : is_reported
+    ACCOUNTS_USER ||--o{ MODERATION_USERBLOCK : blocks
+    ACCOUNTS_USER ||--o{ MODERATION_USERBLOCK : is_blocked
+    ACCOUNTS_USER o|--o{ AUDIT_AUDITEVENT : acts
+    LOCATIONS_LOCATION o|--o{ LOCATIONS_LOCATION : parent_of
+    LOCATIONS_LOCATION ||--o{ DONORS_DONORPROFILE : service_area
+    LOCATIONS_LOCATION ||--o{ REQUESTS_BLOODREQUEST : requested_area

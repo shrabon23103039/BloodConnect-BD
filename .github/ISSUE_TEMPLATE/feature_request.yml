@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest a scoped improvement to the project.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include real donor/requester data or propose medical eligibility, compatibility, blood inventory, or unauthorized institutional integrations.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or user need
+      description: Describe the need without including personal or health information.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy, security, and safety considerations
+      description: Explain data minimization, consent, authorization, and any safety boundaries affected.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Existing MVP workflow
+        - Accessibility or usability
+        - Developer experience or documentation
+        - Future roadmap item
+    validations:
+      required: true

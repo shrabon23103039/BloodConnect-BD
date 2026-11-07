@@ -1,0 +1,15 @@
+flowchart TB
+    user["People"] --> web["Web UI<br/>Django templates + Bootstrap 5.3.8"]
+    apiClient["Future/mobile/API clients"] --> api["Django REST Framework<br/>/api/v1/"]
+    web --> django["Python 3.14<br/>Django 5.2 modular monolith"]
+    api --> django
+    django --> orm["Django ORM"]
+    orm --> postgres[("PostgreSQL 17")]
+    django --> redis[("Redis 7.4")]
+    django --> celery["Celery 5.7<br/>worker + beat"]
+    celery --> postgres
+    celery --> adapters["Email/SMS adapters<br/>mock or disabled"]
+    django --> serving["Local: Django runserver<br/>Proposed: Gunicorn + WhiteNoise"]
+    serving --> compose["Docker Compose<br/>local services"]
+    checks["pytest + pytest-django<br/>Playwright, Bandit, pip-audit"] --> django
+    render["Proposed Render Blueprint<br/>Dockerfile + managed services<br/>prepared, not deployed"] -. "proposed hosting only" .-> serving

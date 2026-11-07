@@ -1,29 +1,52 @@
 # Contributing to BloodConnect BD
 
-## Before starting
+Thanks for helping improve the project. BloodConnect BD handles sensitive donor and request workflows, so contributions must preserve privacy, consent, and the project's medical-safety boundaries.
 
-1. Read `AUTONOMOUS_IMPLEMENTATION.md` and the applicable instructions/specifications.
-2. Find the first incomplete task in `docs/06_Plan.md` whose dependencies are verified.
-3. Reconcile that task with `docs/EXECUTION_STATE.md` and the actual Git/worktree state.
-4. Keep changes within the selected task unless a documented dependency or safety issue requires a plan update.
+## Before you start
 
-## Implementation and verification
+1. Read `AGENTS.md`, `CLAUDE.md`, `README.md`, and the relevant specifications under `docs/`.
+2. Check `docs/06_Plan.md` and `docs/EXECUTION_STATE.md`; work on a planned task or add a scoped task before implementation.
+3. Check the current branch and complete Git status. Do not discard or rewrite existing work.
+4. Keep unrelated changes out of your pull request.
 
-- Follow the modular Django monolith, PostgreSQL, Django ORM, Django templates/Bootstrap, and versioned DRF API architecture in `docs/04_TRD.md`.
-- Add or update tests for acceptance criteria, permissions, state transitions, failure cases, and privacy boundaries. Run the relevant tests and checks available for the task.
-- Do not claim a check passed unless it was run; record unavailable tools/services as not run and explain why.
-- Review the diff for secrets, personal/health data, accidental files, and private donor-field leakage.
-- Update `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` with task status, changed files, commands, actual results, unresolved issues, and the next task.
-- Use synthetic data only. Never add real donor/requester data, credentials, OTPs, or tokens to fixtures, screenshots, logs, or examples.
+## Development setup
 
-## Product and privacy boundaries
+Use Python 3.14.10 and install the hash-pinned development dependencies:
 
-- Blood-group/location filters find potential contacts; they do not determine clinical compatibility or donor eligibility.
-- Donor phone/email and precise location remain private until an authorized, explicit donor acceptance permits disclosure of the channels the donor selected.
-- Enforce authorization server-side; hiding a control in the UI is not an access check.
-- Keep government, hospital, identity, SMS, email, and map integrations behind adapters. Do not enable production integrations without documented authorization and credentials.
-- Record an ADR before changing an accepted architecture decision or adding a dependency outside the approved stack.
+```sh
+python -m venv .venv
+# Activate the environment using your platform's command.
+python -m pip install --require-hashes -r requirements/dev.lock
+```
 
-## Local environment
+Copy `.env.example` to `.env` for local Compose settings. Set a unique development `DJANGO_SECRET_KEY` and `POSTGRES_PASSWORD`; never add `.env`, database files, credentials, real donor data, or provider tokens to a change.
 
-Follow the staged setup in `README.md`. `.env.example` contains variable names only; put local values in `.env`, which Git ignores. Do not use production secrets or real personal/health data in development.
+Run the isolated application suite and useful checks:
+
+```sh
+python -m pytest --ds=config.settings.test tests -q --tb=short -p no:cacheprovider
+python manage.py check --settings=config.settings.test
+python -m pip check
+python -m bandit -q -r apps config
+docker compose config --quiet
+```
+
+The test profile uses synthetic records and an isolated SQLite database. Do not use the local Compose database for tests or screenshots.
+
+## Change requirements
+
+- Follow the modular Django monolith and existing dependencies; document architecture changes in an ADR before implementation.
+- Enforce permissions in views/services/API layers, not only in templates.
+- Keep donor phone/email and precise location private until donor acceptance and channel-specific consent.
+- Do not implement or imply clinical eligibility, compatibility, blood inventory, or donation guarantees.
+- Keep government, hospital, SMS, email, identity, and map integrations disabled/mock until authorization is documented.
+- Use synthetic-only fixtures, screenshots, logs, and examples.
+- Add or update focused tests when behavior changes. Record exact checks and actual results.
+- Update `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for completed project tasks.
+- Keep setup, limitations, and security claims aligned with what was actually verified.
+
+## Pull requests
+
+Open an issue first for substantial scope changes. Pull requests should explain the behavior change, link a task or issue, list tests/checks run, and call out privacy/security implications. Include screenshots only when they come from implemented screens with synthetic data. Do not claim CI, deployment, performance, or production readiness until the evidence exists.
+
+The default development branch is `master`. Use normal commits and fast-forward updates; never force-push or rewrite shared history.

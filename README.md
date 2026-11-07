@@ -1,180 +1,173 @@
-# BloodConnect BD — Context Architecture Pack
+<div align="center">
+  <img src="docs/architecture/social-preview.png" alt="BloodConnect BD — people-first donor discovery and consent-first contact" width="100%">
 
-**Product:** BloodConnect BD  
-**Document set:** Context Architecture v1.0  
-**Prepared:** 2026-11-06  
-**Formal academic schedule:** 16 weeks  
-**Initial MVP target:** 7 calendar days (aspirational; release only after acceptance gates pass)
+  <h1>BloodConnect BD</h1>
+  <p><strong>A privacy-first platform for discovering potential blood donors and coordinating contact.</strong></p>
 
-## What this repository contains
+  <p>
+    <a href="https://github.com/shrabon23103039/BloodConnect-BD/actions/workflows/ci.yml"><img src="https://github.com/shrabon23103039/BloodConnect-BD/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI workflow status"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License"></a>
+    <img src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14">
+    <img src="https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white" alt="Django 5.2">
+    <img src="https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL 17">
+    <img src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" alt="Docker Compose">
+  </p>
+</div>
 
-This package is the source of truth for product scope, user journeys, visual design, technical decisions, data model, implementation order, security, testing, deployment, API contracts, data governance, mobile roadmap and academic SDLC documentation.
+BloodConnect BD is a Bangladesh-focused, peer-to-peer donor discovery and coordination project. Recipients can find potential contacts and send a contact request; donors choose whether to accept before any donor-selected contact channel is disclosed.
 
-### Required six-document architecture
+> **Safety:** BloodConnect BD is not a blood bank, healthcare provider, or clinical decision-support system. Search results do not establish medical eligibility or compatibility and do not guarantee a response or donation. Clinical decisions belong to qualified healthcare professionals and authorized facilities.
 
-1. [`docs/01_PRD.md`](docs/01_PRD.md) — Product Requirements Document.
-2. [`docs/02_AppFlow.md`](docs/02_AppFlow.md) — Screen-by-screen navigation and state flows.
-3. [`docs/03_UI_Spec.md`](docs/03_UI_Spec.md) — Design system and UI behavior.
-4. [`docs/04_TRD.md`](docs/04_TRD.md) — Technical Requirements Document.
-5. [`docs/05_Schema.md`](docs/05_Schema.md) — Relational schema and authorization model.
-6. [`docs/06_Plan.md`](docs/06_Plan.md) — Dependency-ordered implementation checklist.
+## Why this project
 
-### Additional engineering documents
+People seeking blood often depend on scattered contacts and informal networks. BloodConnect BD provides structured search and request workflows while keeping donor contact details private until the donor accepts and has opted to share the relevant channel.
 
-- [`docs/07_Security.md`](docs/07_Security.md)
-- [`docs/08_Testing.md`](docs/08_Testing.md)
-- [`docs/09_Deployment.md`](docs/09_Deployment.md)
-- [`docs/10_API_Contract.md`](docs/10_API_Contract.md)
-- [`docs/11_Data_Governance.md`](docs/11_Data_Governance.md)
-- [`docs/12_Architecture_ADRs.md`](docs/12_Architecture_ADRs.md)
-- [`docs/13_Mobile_Plan.md`](docs/13_Mobile_Plan.md)
-- [`docs/14_Academic_SDLC.md`](docs/14_Academic_SDLC.md)
-- [`docs/15_Release_Checklist.md`](docs/15_Release_Checklist.md)
-- [`docs/REFERENCES.md`](docs/REFERENCES.md)
+## Features
 
-Agent instructions:
-- [`CLAUDE.md`](CLAUDE.md)
-- [`AGENTS.md`](AGENTS.md)
-- [`.cursorrules`](.cursorrules)
-- [`.cursor/rules/project-guardrails.mdc`](.cursor/rules/project-guardrails.mdc)
+- Account registration, login, identifier verification seam, and password recovery.
+- Donor profiles with self-reported availability, visibility, and discovery consent.
+- Potential donor discovery by exact blood-group label and administrative area.
+- Request creation, editing, cancellation, closure, and expiry.
+- Donor-controlled contact request acceptance or decline, with consent-gated disclosure.
+- In-app notifications, user reports and blocks, moderator workflows, and minimized audit events.
+- Aggregate operational metrics with small-count suppression.
+- Versioned Django REST Framework API under `/api/v1/` for current documented endpoints.
+- Responsive Django templates, locally vendored Bootstrap assets, PostgreSQL, Redis, and Celery.
 
-## Product decision in one sentence
+## Technology
 
-BloodConnect BD is a **P2P-first, institution-ready donor discovery and coordination platform**: recipients discover potential donors and send contact requests; donors control whether to accept; optional organizations may participate later. The platform does not collect, test, store, sell, transport or transfuse blood and does not determine medical eligibility.
+| Layer | Technology |
+|---|---|
+| Web application | Python 3.14, Django 5.2, Django REST Framework |
+| Data | PostgreSQL 17, Django ORM |
+| Background work/cache | Celery, Redis |
+| UI | Django templates, Bootstrap 5.3.8, custom CSS |
+| Local services | Docker Compose |
+| Production serving configuration | Gunicorn, WhiteNoise, proposed Render Blueprint |
+| Tests and security checks | pytest, pytest-django, Playwright, Bandit, pip-audit |
 
-## How to use this pack
+The versions shown are the repository's pinned development/runtime baseline, not a promise that a hosted deployment is running.
 
-1. Read `CLAUDE.md` / `AGENTS.md` first.
-2. Read all six core documents before implementation.
-3. Review the supporting security, testing, data-governance and deployment documents.
-4. Resolve any open decision before coding; record changes in `12_Architecture_ADRs.md`.
-5. Work through `06_Plan.md` in order.
-6. After every completed task, update its status, evidence and test results in `06_Plan.md`.
-7. Do not mark a task complete based only on generated code. Run the relevant checks and inspect the result.
+## Architecture
 
-## Status vocabulary
+BloodConnect BD is a modular Django monolith. The browser and API use server-side application routes; Django owns database access and authorization. PostgreSQL stores application data, while Redis supports cache/broker functions and Celery runs background tasks. External delivery adapters remain mock-only or disabled until authorized.
 
-- `NOT_STARTED`
-- `IN_PROGRESS`
-- `BLOCKED`
-- `IMPLEMENTED_UNVERIFIED`
-- `VERIFIED`
-- `DEFERRED`
+![System architecture](docs/architecture/system-architecture.svg)
 
-`VERIFIED` requires reproducible evidence. A generated screen or a successful build alone does not verify the full feature.
+See the [architecture diagrams and editable Mermaid sources](docs/architecture/README.md) for the system, data model, user flow, and technology stack.
 
-## Important scope and safety constraints
-
-- MVP is a coordination tool, not a medical service or blood bank.
-- Blood-group filtering is a discovery filter, not a transfusion-compatibility decision.
-- A qualified healthcare professional and authorized facility must assess donor eligibility, compatibility and transfusion safety.
-- Donor phone numbers and precise locations are private by default.
-- No NID, DGHS, hospital, blood-bank or government API integration is assumed to be available. Use mock adapters until written authorization and credentials exist.
-- Do not claim national deployment, 100,000-user capacity, government partnership, legal compliance or clinical validation without evidence.
-- The 16-week schedule is the formal planning baseline. The 7-day MVP target is an internal acceleration target, not a claim about the actual duration of work.
-
-## Version policy
-
-The dependency versions in `04_TRD.md` are the proposed baseline. Before installing, verify current security advisories and package compatibility, then commit a complete resolved lock file. Never silently upgrade major versions.
-
-## Development setup
-
-### Current repository state
-
-The repository contains the Django project, separated settings, hash-pinned dependencies, PostgreSQL configuration, public information pages, a custom account model, and verified web registration/session authentication, email/phone verification, password-reset, role/ownership permissions, versioned consent/privacy settings, a location hierarchy/import process, owner-managed donor profiles, consent-gated donor search with an HMAC-keyed rate limit, requester-owned blood request workflows, consent-gated contact request workflows, minimized in-app notifications, Redis/Celery outbox configuration with mock-only email/SMS adapters, private report/block services, moderator workflows and versioned API workflows. New accounts remain pending until their identifier is verified. Local verification uses an in-memory mock and sends no real email or SMS; production verification remains disabled until an authorized provider is implemented. No official location snapshot is bundled pending source reconciliation and review, so real donor profiles cannot yet be completed. Docker Compose provides a local PostgreSQL/Redis/Django/Celery development stack. Consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Public privacy and terms pages are drafts. Do not treat the current implementation as a completed application.
+## Get started
 
 ### Prerequisites
 
 - Git.
-- Python 3.14.10, per `docs/04_TRD.md` and `.python-version`.
-- Docker Desktop or Docker Engine with the Compose plugin for local PostgreSQL/Redis services (Compose setup is P9-01).
+- Python 3.14.10 for direct local development and tests.
+- Docker Desktop or Docker Engine with the Compose plugin for the complete local service stack.
 
-### Bootstrap commands
+### Install and configure
 
-From the repository root, create and activate a virtual environment:
+Clone the repository, create a virtual environment, and install the hash-pinned development dependencies:
 
 ```powershell
 py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install --require-hashes -r requirements/dev.lock
+Copy-Item .env.example .env
 ```
 
-On macOS/Linux, use:
+On macOS or Linux:
 
 ```sh
 python3.14 -m venv .venv
 source .venv/bin/activate
-```
-
-Copy `.env.example` to `.env` and set local values without committing `.env`:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-```sh
+python -m pip install --require-hashes -r requirements/dev.lock
 cp .env.example .env
 ```
 
-The Django settings read environment variables from the process; they do not parse `.env` directly. Compose reads `.env` for local overrides. Before starting Compose, set `DJANGO_SECRET_KEY` and `POSTGRES_PASSWORD` in the ignored `.env` file; leave those values blank in `.env.example`. Use a unique Django key and a strong PostgreSQL password (for URL interpolation, use alphanumeric characters such as a random hex value). Do not print these values in command output or logs. For direct local commands, load the required values from `.env` into your shell process first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database. Development uses a local mock verification provider, and password-reset email is held by Django's in-memory email backend; no message is sent externally or printed to terminal logs.
+Set local values in the ignored `.env` before starting Compose. At minimum, supply a unique `DJANGO_SECRET_KEY` and a strong `POSTGRES_PASSWORD`. Keep the `.env.example` assignments blank. Compose uses development-only defaults for the database/user names and loopback ports; do not reuse any development value on a shared or production host.
 
-Install the reviewed, hash-pinned development set with:
+For direct Django commands, export the needed `.env` values into the process environment first. Django does not load `.env` itself. See [deployment configuration](docs/09_Deployment.md) for the full variable reference and production requirements.
+
+### Start with Docker Compose
 
 ```sh
-python -m pip install --require-hashes -r requirements/dev.lock
-```
-
-Production images should install only the runtime set with `python -m pip install --require-hashes -r requirements/base.lock`.
-
-Start the local development stack (PostgreSQL, Redis, Django, Celery worker and beat) with:
-
-```powershell
+docker compose config --quiet
 docker compose up --build
 ```
 
-```sh
-docker compose up --build
-```
+The app is served at <http://localhost:8000>. Compose runs migrations when the web service starts and stores PostgreSQL data in the project-scoped `postgres_data` named volume. `docker compose down` stops the services and retains that volume. Do not use `docker compose down --volumes` unless you intentionally want to delete local database data.
 
-The app is available at `http://localhost:8000`. Compose runs migrations when the web service starts. Run checks inside the app container with:
+### Run directly
 
-```sh
-docker compose exec web python manage.py check
-docker compose exec web python manage.py migrate --check
-docker compose exec web python -m pytest --ds=config.settings.test
-```
-
-Stop the services while retaining the local PostgreSQL volume with:
-
-```sh
-docker compose down
-```
-
-For current scaffold checks, run:
-
-```sh
-python manage.py check
-pytest --ds=config.settings.test
-```
-
-After P1-06 creates the custom user model and initial migration, apply migrations and run the development server:
+After loading the local environment and starting the required PostgreSQL/Redis services, run:
 
 ```sh
 python manage.py migrate
 python manage.py runserver
 ```
 
-Run the test suite with `python -m pytest` after the project test dependencies are installed. Use synthetic data only. See `docs/08_Testing.md` for required coverage and evidence; see `docs/09_Deployment.md` for production configuration, which is not equivalent to the local development server.
+Local verification uses an in-memory mock for account verification and does not send real email or SMS. Production registration verification remains unavailable until an authorized provider adapter is implemented.
 
-### Environment variables
+## Testing and checks
 
-`.env.example` lists variable names only. Configure local values in the ignored `.env` file. Do not commit secrets, real provider credentials, production URLs, or personal/health data. The authoritative descriptions and production handling requirements are in `docs/09_Deployment.md`.
+The automated test profile uses an isolated SQLite database, synthetic fixtures, and a local browser for the end-to-end flow; it does not require or migrate the Compose database.
 
-## Contribution workflow
+```sh
+python -m pytest --ds=config.settings.test tests -q --tb=short -p no:cacheprovider
+python manage.py check --settings=config.settings.test
+python -m pip check
+python -m bandit -q -r apps config
+docker compose config --quiet
+```
 
-Read `AUTONOMOUS_IMPLEMENTATION.md`, `CLAUDE.md`, `AGENTS.md`, and the relevant product/engineering documents before changing code. Use `docs/06_Plan.md` as the dependency-ordered task queue and `docs/EXECUTION_STATE.md` as the handoff checkpoint. Complete one task at a time, add tests for behavior and permission boundaries, run the documented checks, inspect the diff, and record actual results before marking a task verified. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the project workflow and safety review.
+The repository also includes a CI workflow that runs the test suite. The badge above reports that workflow's GitHub status; it does not represent deployment, coverage, or a release. There is no version badge because this project has no versioned release yet.
 
-For the current versioned API routes, token flow and synthetic request examples, see [`docs/16_API_Usage_Guide.md`](docs/16_API_Usage_Guide.md) and [`docs/10_API_Contract.md`](docs/10_API_Contract.md).
+## Screenshots
 
-For current web workflows and a synthetic local demonstration walkthrough, see [`docs/17_User_Guide.md`](docs/17_User_Guide.md) and [`docs/18_Demo_and_Viva_Guide.md`](docs/18_Demo_and_Viva_Guide.md).
+Showcase captures are generated from the actual templates and routes using synthetic records in an isolated test database. They illustrate implemented screens, not a hosted production service.
 
-The proposed Render staging Blueprint is [`render.yaml`](render.yaml). Its account, secret, cost and manual deployment requirements are documented in [`docs/09_Deployment.md`](docs/09_Deployment.md); it has not been applied.
+| Screen | Preview |
+|---|---|
+| Home | ![BloodConnect BD home page](docs/screenshots/homepage.png) |
+| Registration | ![Account registration form](docs/screenshots/registration.png) |
+| Login | ![Account login form](docs/screenshots/login.png) |
+| Donor discovery | ![Potential donor discovery](docs/screenshots/donor-discovery.png) |
+| Donor profile | ![Self-reported donor profile editor](docs/screenshots/donor-profile.png) |
+| Blood request | ![Blood request creation form](docs/screenshots/blood-request.png) |
+| Moderator operations dashboard | ![Moderator aggregate operations dashboard](docs/screenshots/moderator-dashboard.png) |
+| Django admin | ![Django admin dashboard](docs/screenshots/django-admin.png) |
+
+## Security and privacy
+
+- Donor phone numbers, email addresses, exact addresses, and precise coordinates are not public discovery fields.
+- A donor must explicitly accept a contact request before their currently consented contact channel can be shown to the authorized recipient.
+- Discovery consent and availability are revocable; profiles are self-reported and are not medical clearances.
+- Authentication, object ownership, moderation roles, and request transitions are enforced server-side.
+- Local `.env`, generated credentials, databases, uploads, and backups are excluded from source control and Docker build context.
+- No official government, hospital, identity, or blood-bank integration is assumed.
+
+See [SECURITY.md](SECURITY.md), the [security requirements](docs/07_Security.md), and [data-governance policy](docs/11_Data_Governance.md) for details and reporting guidance.
+
+## Roadmap and current limitations
+
+- **Implemented locally:** core account, donor discovery/profile, blood request, contact consent, moderation, audit, aggregate operations, and documented API workflows.
+- **Data readiness:** an official reviewed Bangladesh location snapshot is not bundled, so real donor profiles cannot yet be completed.
+- **Provider readiness:** email/SMS delivery uses mocks or is disabled; production account verification is not enabled.
+- **Release readiness:** Render configuration is prepared but has not been applied. Hosted health checks, deployment, restore, load testing, and release sign-off remain incomplete.
+- **Future work:** Flutter clients, organization workflows, authorized institutional integrations, and measured staging/recovery work are tracked in [the implementation plan](docs/06_Plan.md).
+
+This project is an academic MVP and local demonstration; it is not production-ready or a substitute for emergency or clinical services.
+
+## Contributing
+
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the applicable project documents before opening a change. Use synthetic data only, preserve privacy boundaries, run the relevant checks, and document material architecture decisions. Please do not publish personal donor information in issues, pull requests, screenshots, or logs.
+
+Use the issue templates for bugs and feature proposals. Report security issues through the private process in [SECURITY.md](SECURITY.md), not a public issue.
+
+## License and acknowledgements
+
+Project-owned code is licensed under the [MIT License](LICENSE), with authorization confirmed by the maintainer. Bundled Bootstrap 5.3.8 assets are separately licensed under MIT; see [`static/vendor/bootstrap/LICENSE`](static/vendor/bootstrap/LICENSE) and [`static/vendor/bootstrap/NOTICE.md`](static/vendor/bootstrap/NOTICE.md). Python dependencies retain their respective upstream licenses.
+
+The project uses and acknowledges Python, Django, Django REST Framework, PostgreSQL, Redis, Celery, Bootstrap, pytest, Playwright, Docker, and the maintainers of the pinned dependencies. This acknowledgment does not transfer or combine their licenses.
+
+A software license does not grant permission to use donor personal data or override privacy, consent, or data-governance requirements.

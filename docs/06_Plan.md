@@ -54,7 +54,7 @@ For every task:
 
 ### Implementation readiness, risks and planning gaps
 
-- Latest local commits: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (implementation) and `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965` (checkpoint). Branch `master` is clean; no Git remote is configured and neither commit is pushed.
+- Latest repository state: `master` is clean and tracks `origin/master` at `5aa42cfb631f9e59f975f4904b244465576e2b17` (26 commits). The existing history has been pushed to `https://github.com/shrabon23103039/BloodConnect-BD`; no deployment was performed.
 - Current first incomplete task: **P8-05**, staging load testing; blocked on a verified hosted staging environment. P0-01 through P0-03, P1-01 through P1-06, P2-01 through P2-04, P3-01 through P3-04, P4-01 through P4-04, P5-01 through P5-06, P6-01 through P6-04, P7-01 through P7-04, P8-01 through P8-04, P9-01, P9-03, P9-04 and P9-05 are verified.
 - P9-02's Render configuration and operational instructions are implemented and statically checked, but deployment acceptance (HTTPS, live health checks, secrets and migrations) remains unverified. P8-05/P8-06/P8-07 need an authorized, operational staging deployment; P9-03 local configuration is now verified, while hosted deployment evidence remains under P9-02. P1-04 legal notices remain draft/review items.
 - Remaining planning risks: no reviewed official Bangladesh geography snapshot is loaded; Terms/Privacy text and retention/deletion policy require review; provider-backed account verification and staging release evidence require authorization. Optional maps, organization sharing and public exports remain outside committed MVP scope.
@@ -381,6 +381,26 @@ Optional PRD items are not committed MVP acceptance gates: generalized map view 
 - [>] P10-07 RLS defense-in-depth evaluation — DEFERRED; requires dedicated design and connection-pooling tests.
 - [>] P10-08 National-scale capacity and disaster-recovery validation — DEFERRED; no capacity claim until workload and measured evidence exist.
 
+## Phase 11 — Open-source repository presentation
+
+- [x] P11-01 Prepare repository documentation and contribution files. **VERIFIED LOCALLY 2026-11-07.**
+  - Depends on: P9-04 and P8-03.
+  - Scope: rewrite README against actual routes/settings/status; prepare CONTRIBUTING, SECURITY, CHANGELOG, issue forms and pull request template; correct repository/deployment status references.
+  - Acceptance: all setup and feature claims match the code; limitations and privacy boundaries are explicit; no fake test/version/license claims or secrets.
+- [x] P11-02 Establish project license and add MIT License. **VERIFIED 2026-11-07 after maintainer authorization.**
+  - Depends on: maintainer confirmation of licensing authority and copyright holder.
+  - Evidence: maintainer explicitly authorized MIT release with `Copyright (c) 2026 Shrabon Biswas`; inspected vendored Bootstrap MIT notices and dependency license metadata. Dependencies retain their own licenses.
+  - Acceptance: add standard MIT text with the holder and year only after owner confirmation; state that software licensing does not authorize use of donor personal data or override privacy obligations.
+- [~] P11-03 Add architecture, ER, user-flow and technology diagrams plus social preview artwork. **SVG assets created; Mermaid CLI validation could not run.**
+  - Depends on: P11-01 and implemented architecture in `docs/04_TRD.md`, `docs/05_Schema.md`, and `docs/02_AppFlow.md`.
+  - Acceptance: editable Mermaid sources and matching SVG assets are stored under `docs/architecture/`; architecture is documented against the running project. Mermaid CLI validation remains outstanding because the package could not be installed in this environment.
+- [x] P11-04 Capture application screenshots with synthetic data. **VERIFIED LOCALLY 2026-11-07.**
+  - Depends on: P8-04 and isolated test database/browser setup.
+  - Acceptance: screenshots depict genuine implemented routes only, include no real data, and are stored under `docs/screenshots/`.
+- [~] P11-05 Add locally verified GitHub Actions CI and perform repository presentation checks. **Local checks pass; Mermaid validation remains outstanding.**
+  - Depends on: P11-01, P11-03 and P11-04.
+  - Acceptance: workflow uses the project's pinned environment and test commands, is YAML-parsed, and those commands pass locally. Add a workflow badge only for the real workflow; do not claim a remote run until GitHub has run it. Add no version badge without a release/version.
+
 ## 3. Current execution log
 
 | Date | Task ID | Status | Files changed | Commands run | Actual result | Remaining issues |
@@ -438,3 +458,5 @@ Append one row per completed task:
 |---|---|---|---|---|---|---|
 
 Do not fill in passing test results until commands have actually been run against the implementation repository.
+
+| 2026-11-07 | P11-01–P11-05 | PARTIALLY VERIFIED (local; Mermaid CLI validation pending) | `README.md`, `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`, `.github/`, `docs/architecture/`, `docs/screenshots/`, `templates/pages/home.html`, tests, `docs/09_Deployment.md`, `docs/EXECUTION_STATE.md` | `.venv\Scripts\pytest.exe --ds=config.settings.test tests -q --tb=short -p no:cacheprovider` (167 passed, 1 opt-in skip, 6 subtests); `BLOODCONNECT_CAPTURE_SCREENSHOTS=1 .venv\Scripts\pytest.exe --ds=config.settings.test tests/e2e/test_screenshot_showcase.py -q` (1 passed); Django test settings check; `pip check`; Bandit; `docker compose config --quiet`; `git diff --check`; Markdown local-link and GitHub YAML checks | Repository docs, maintainer-authorized MIT license, CI workflow, synthetic screenshots, architecture diagrams and social artwork prepared. Application and local repository checks pass. | Mermaid CLI installation failed from npm, so Mermaid source validation remains pending. Docker daemon inspection denied access; no container/database/volume lifecycle operation was performed. Latest previous Gitleaks history scan was clean; Gitleaks is unavailable for a fresh workspace scan. Changes committed locally; no push was made. Automated Mermaid CLI parsing remains pending. |

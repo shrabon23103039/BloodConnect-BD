@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+<title id="title">Technology stack</title>
+<desc id="desc">Pinned repository baseline; proposed hosting is separate from deployed services.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#667085"/></marker></defs>
+<rect width="100%" height="100%" rx="28" fill="#f7f8fa"/>
+<text x="56" y="62" font-family="Segoe UI,Arial,sans-serif" font-size="28" font-weight="700" fill="#172b4d">Technology stack</text>
+<text x="56" y="94" font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="#667085">Pinned repository baseline; proposed hosting is separate from deployed services.</text>
+<path d="M240.0 205.0 L640.0 205.0" fill="none" stroke="#98a2b3" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M640.0 205.0 L1040.0 205.0" fill="none" stroke="#98a2b3" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M640.0 205.0 L240.0 465.0" fill="none" stroke="#98a2b3" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M640.0 465.0 L640.0 205.0" fill="none" stroke="#98a2b3" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M1040.0 465.0 L640.0 205.0" fill="none" stroke="#98a2b3" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M640.0 660.0 L640.0 465.0" fill="none" stroke="#98a2b3" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="70" y="145" width="340" height="120" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="70" y="145" width="7" height="120" rx="3" fill="#b4232a"/>
+<text x="94" y="179" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Web UI</text>
+<text x="94" y="205" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">Django templates ? Bootstrap 5.3.8</text>
+<rect x="470" y="145" width="340" height="120" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="470" y="145" width="7" height="120" rx="3" fill="#b4232a"/>
+<text x="494" y="179" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Application</text>
+<text x="494" y="205" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">Python 3.14 ? Django 5.2 ? DRF</text>
+<rect x="870" y="145" width="340" height="120" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="870" y="145" width="7" height="120" rx="3" fill="#b4232a"/>
+<text x="894" y="179" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Data</text>
+<text x="894" y="205" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">PostgreSQL 17 ? Django ORM</text>
+<rect x="70" y="405" width="340" height="120" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="70" y="405" width="7" height="120" rx="3" fill="#b4232a"/>
+<text x="94" y="439" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Background work</text>
+<text x="94" y="465" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">Celery 5.7 ? Redis 7.4</text>
+<rect x="470" y="405" width="340" height="120" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="470" y="405" width="7" height="120" rx="3" fill="#b4232a"/>
+<text x="494" y="439" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Local development</text>
+<text x="494" y="465" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">Docker Compose ? runserver</text>
+<rect x="870" y="405" width="340" height="120" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="870" y="405" width="7" height="120" rx="3" fill="#b4232a"/>
+<text x="894" y="439" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Quality checks</text>
+<text x="894" y="465" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">pytest ? Playwright ? Bandit</text>
+<rect x="470" y="610" width="340" height="100" rx="18" fill="#ffffff" stroke="#e4e7ec" stroke-width="2"/>
+<rect x="470" y="610" width="7" height="100" rx="3" fill="#b4232a"/>
+<text x="494" y="644" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="700" fill="#172b4d">Proposed hosting</text>
+<text x="494" y="670" font-family="Segoe UI,Arial,sans-serif" font-size="13" fill="#667085">Render Blueprint prepared; not deployed</text>
+</svg>

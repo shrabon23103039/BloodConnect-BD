@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a reproducible problem using synthetic data only.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include real donor/requester data, phone numbers, email addresses, credentials, tokens, or private screenshots. Report security issues privately using SECURITY.md.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe what went wrong without including personal or health information.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Use synthetic accounts and records only.
+      placeholder: |
+        1. Open ...
+        2. Choose ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, Python version, and commit/tag. Do not include private URLs or secrets.
+    validations:
+      required: false

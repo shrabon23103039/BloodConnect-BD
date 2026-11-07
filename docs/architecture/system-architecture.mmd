@@ -1,0 +1,35 @@
+flowchart LR
+    browser["Browser<br/>Django templates"] -->|HTTPS| django["Django modular monolith"]
+    apiClient["API client"] -->|/api/v1/ JSON| django
+
+    subgraph app["Application modules"]
+        django --> accounts["Accounts and permissions"]
+        django --> donors["Donors and discovery"]
+        django --> requests["Blood requests"]
+        django --> connections["Contact requests and connections"]
+        django --> governance["Consent and privacy"]
+        django --> moderation["Reports and moderation"]
+        django --> notifications["Notifications and audit"]
+    end
+
+    accounts --> postgres[("PostgreSQL system of record")]
+    donors --> postgres
+    requests --> postgres
+    connections --> postgres
+    governance --> postgres
+    moderation --> postgres
+    notifications --> postgres
+
+    django -->|cache and task dispatch| redis[("Redis")]
+    redis -->|broker| celery["Celery worker and beat"]
+    celery --> postgres
+    celery --> delivery["Email/SMS adapter<br/>Development mock; production disabled"]
+
+    subgraph local["Local runtime: Docker Compose"]
+        postgres
+        redis
+        django
+        celery
+    end
+
+    production["Proposed production serving<br/>Docker + Gunicorn + WhiteNoise"] -. "prepared; not deployed" .-> django

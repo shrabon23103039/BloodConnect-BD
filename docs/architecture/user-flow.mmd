@@ -1,0 +1,21 @@
+flowchart TD
+    guest["Visitor"] --> register["Register and acknowledge policy versions"]
+    register --> verify["Verify existing email or phone<br/>Development uses mock delivery"]
+    verify --> active["Active account"]
+
+    active --> donor["Donor creates self-reported profile"]
+    donor --> consent["Donor grants discovery consent<br/>and chooses availability/visibility"]
+    consent --> search["Recipient searches by exact blood group<br/>and available location filters"]
+    active --> request["Recipient creates an active blood request"]
+    search --> contact["Recipient sends a contact request"]
+    request --> contact
+    contact --> pending["Pending: donor contact stays private"]
+    pending --> decision{"Donor decision"}
+    decision -->|Decline or expire| closed["Request closes<br/>No private contact is disclosed"]
+    decision -->|Accept| accepted["Connection is created"]
+    accepted --> consentCheck{"Current channel-specific<br/>consent and verification?"}
+    consentCheck -->|Yes| channel["Only selected contact channel<br/>is shown to authorized participants"]
+    consentCheck -->|No| private["Contact details remain hidden"]
+    channel --> coordination["Donor-selected contact channel is available<br/>to authorized participants"]
+    private --> noChannel["Accepted connection exists<br/>but private contact remains hidden"]
+    clinical["Qualified healthcare professionals<br/>and authorized facilities make clinical decisions"]

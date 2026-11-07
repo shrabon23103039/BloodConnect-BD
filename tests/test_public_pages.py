@@ -35,8 +35,8 @@ class PublicPageTests(TestCase):
     def test_home_discloses_registration_and_search_status(self):
         response = self.client.get(reverse("home"))
 
-        self.assertContains(response, "Account registration is available")
-        self.assertContains(response, "Donor discovery is still being built")
+        self.assertContains(response, "Discovery workflows are implemented")
+        self.assertContains(response, "Reviewed Bangladesh location data is not yet loaded")
         self.assertContains(response, reverse("accounts:register"))
         self.assertNotContains(response, 'href="/donors/"')
 
