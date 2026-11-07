@@ -1,15 +1,14 @@
 # BloodConnect BD — Execution State
 
 ## Current status
-- Overall: In progress
-- Current phase: Phase 11 - Open-source repository presentation
-- Current task ID: P11-01 (in progress); P11-02 awaits owner license authorization
-- Last updated: 2026-11-07
-- Git branch: `master` (clean; tracks `origin/master` at `5aa42cfb631f9e59f975f4904b244465576e2b17`; `.env` remains ignored)
-- Git remote: `origin` → `https://github.com/shrabon23103039/BloodConnect-BD.git`; the original 26-commit history was pushed after explicit authorization. No P11 upgrade changes have been pushed.
-- Current uncommitted work: professional repository presentation upgrade (Phase 11); no existing commits were changed.
-- Checkpoint commit: `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965` (`docs: record final review and local commit`).
-- Latest verified local implementation commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`). Latest repository commit: `5aa42cfb631f9e59f975f4904b244465576e2b17` (`docs: record Compose cleanup verification`), pushed to `origin/master`.
+- Overall: In progress; local repository presentation commit is verified.
+- Current phase: Phase 11 - Open-source repository presentation; automated Mermaid CLI validation remains outstanding.
+- Current task ID: Read-only Docker Engine/container/volume verification.
+- Last updated: 2026-11-07 (Asia/Dhaka).
+- Git branch: `master`, at `2528c759a957662722eb422207141b70fed06918`; clean before this execution-state update, and one commit ahead of `origin/master` at `5aa42cfb631f9e59f975f4904b244465576e2b17`.
+- Git remote: `origin` -> `https://github.com/shrabon23103039/BloodConnect-BD.git`; no push was made for the repository-presentation commit.
+- Current pending worktree change: this requested Docker verification record in `docs/EXECUTION_STATE.md`.
+- Latest verified local presentation commit: `2528c759a957662722eb422207141b70fed06918` (`docs: polish BloodConnect BD repository presentation`).
 
 ## Final local review and commit (2026-11-07)
 - Reviewed the complete tracked diff and all new files (108 paths staged); confirmed no local `.env`, database, key or credential-shaped literal was included. The staged `git diff --check` passed after fixing whitespace in new files.
@@ -367,3 +366,13 @@
 - Re-read project instructions and this checkpoint.
 - Inspect Git status and actual repository state.
 - Resume the first incomplete, unblocked task in `docs/06_Plan.md`.
+
+
+## Docker Desktop and data-volume inspection (2026-11-07 Asia/Dhaka)
+
+- Initial Git inspection: branch `master` at `2528c759a957662722eb422207141b70fed06918`, worktree clean; `git rev-list --left-right --count origin/master...master` returned `0 1` (local master is one commit ahead, with no origin-only commits).
+- Docker Engine responds to read-only inspection: Docker Desktop Engine 29.9.2; 26 containers total, 23 running.
+- `docker ps -a` listed the five BloodConnect Compose containers (db, web, redis, worker, beat); the web and PostgreSQL containers were healthy. The db container ID is `16f3c111597eb9cf7efa792e2d010672e1e70b3d8750ad1753a05968c6cb4a92` and it was created 2026-11-07T14:07:46Z.
+- Compose configuration resolves `db` data to named volume `bloodconnect-bd_postgres_data`. Read-only volume inspection found it present (local driver, created 2026-11-07T07:58:45Z), and container inspection confirmed it is mounted at `/var/lib/postgresql/data`. The same inspection confirmed existing Supabase volumes `supabase_db_nirapatta-p112-fresh` and `supabase_db_nirapatta` remain present and mounted to their respective running database containers.
+- These commands only queried Engine state (`docker info`, `docker ps`, `docker volume ls/inspect`, `docker inspect`, `docker compose ps/config`). No stop, remove, create, recreate, migration, database query/write, or volume operation was run. Therefore this verification introduced no database or container changes; container and volume identities/current mounts are recorded above.
+- The default shell Docker CLI initially reported access denied for the Docker config/daemon pipe. Read-only inspection succeeded using elevated access. No push was made.
