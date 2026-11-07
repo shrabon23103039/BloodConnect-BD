@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from apps.audit.services import record_audit_event
 from apps.accounts.models import AccountStatus
 from apps.requests.models import BloodRequest, BloodRequestStatus
 
@@ -41,6 +42,13 @@ def create_blood_request(*, user, values, publish=False):
         _validate_publish(blood_request)
         blood_request.status = BloodRequestStatus.OPEN
     blood_request.save()
+    record_audit_event(
+        actor=owner,
+        action="blood_request.created",
+        resource_type="blood_request",
+        resource_id=blood_request.pk,
+        metadata={"to_status": blood_request.status, "reason_code": "OWNER_CREATED"},
+    )
     return blood_request
 
 
@@ -93,10 +101,18 @@ def transition_blood_request(*, user, blood_request_id, target_status, now=None)
     now = now or timezone.now()
     if request.status == target_status:
         return request
+    previous_status = request.status
     if request.status == BloodRequestStatus.DRAFT and target_status == BloodRequestStatus.OPEN:
         _validate_publish(request, now=now)
         request.status = BloodRequestStatus.OPEN
         request.save(update_fields=["status", "updated_at"])
+        record_audit_event(
+            actor=owner,
+            action="blood_request.transitioned",
+            resource_type="blood_request",
+            resource_id=request.pk,
+            metadata={"from_status": previous_status, "to_status": request.status, "reason_code": "OWNER_PUBLISHED"},
+        )
         return request
     elif request.status != BloodRequestStatus.OPEN:
         raise ValidationError("This request state transition is not allowed.")
@@ -107,6 +123,17 @@ def transition_blood_request(*, user, blood_request_id, target_status, now=None)
         raise ValidationError("This request state transition is not allowed.")
     request.status = target_status
     request.save(update_fields=["status", "updated_at"])
+    record_audit_event(
+        actor=owner,
+        action="blood_request.transitioned",
+        resource_type="blood_request",
+        resource_id=request.pk,
+        metadata={
+            "from_status": previous_status,
+            "to_status": request.status,
+            "reason_code": "SYSTEM_EXPIRY" if target_status == BloodRequestStatus.EXPIRED else "OWNER_CLOSED",
+        },
+    )
     return request
 
 

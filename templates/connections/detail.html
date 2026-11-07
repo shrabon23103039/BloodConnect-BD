@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Contact request · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container reading-width">
+  <p class="eyebrow">Contact request</p>
+  {% if audience == "recipient" %}<h1>{{ contact_request.donor_profile.public_alias|default:"Blood donor" }}</h1>{% else %}<h1>Potential donor request</h1>{% endif %}
+  <div class="card card-body mb-3">
+    <p><strong>Status:</strong> {{ contact_request.get_status_display }}</p>
+    <p><strong>Blood group requested:</strong> {{ contact_request.blood_request.get_blood_group_display }}</p>
+    <p><strong>General area:</strong> {{ contact_request.blood_request.district.name_en }}, {{ contact_request.blood_request.division.name_en }}</p>
+    <p><strong>Needed by:</strong> {{ contact_request.blood_request.required_at|date:"Y-m-d H:i" }}</p>
+    {% if contact_request.message %}<p><strong>Message:</strong> {{ contact_request.message }}</p>{% endif %}
+    <p class="mb-0">This request coordinates contact only and does not establish donor availability or medical suitability.</p>
+  </div>
+  {% if contact_request.status == "PENDING" %}<div class="d-flex flex-wrap gap-2">
+    {% if audience == "donor" %}
+      <form method="post" action="{% url 'connections:action' contact_request.pk 'accept' %}">{% csrf_token %}<button class="btn btn-brand" type="submit">Accept</button></form>
+      <form method="post" action="{% url 'connections:action' contact_request.pk 'decline' %}">{% csrf_token %}<button class="btn btn-outline-brand" type="submit">Decline</button></form>
+    {% else %}<form method="post" action="{% url 'connections:action' contact_request.pk 'cancel' %}">{% csrf_token %}<button class="btn btn-outline-brand" type="submit">Cancel request</button></form>{% endif %}
+  </div>{% endif %}
+  {% if audience == "recipient" and contact_request.status == "ACCEPTED" %}<a class="btn btn-brand mt-3" href="{% url 'connection_detail' connection_id=contact_request.connection.pk %}">View accepted connection</a>{% endif %}
+  <a class="btn btn-link mt-3" href="{% if audience == 'donor' %}{% url 'connections:incoming' %}{% else %}{% url 'connections:outgoing' %}{% endif %}">Back to requests</a>
+</div></section>
+{% endblock %}

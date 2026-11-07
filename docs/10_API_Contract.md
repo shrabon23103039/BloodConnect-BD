@@ -6,6 +6,8 @@
 **IDs:** UUID public IDs  
 **Authentication:** DRF configured auth; session for web and token strategy for mobile/API clients.
 
+**Implementation status (2026-11-07):** See [`16_API_Usage_Guide.md`](16_API_Usage_Guide.md) for routes currently mounted and tested. Routes below marked as an endpoint inventory describe the target contract; routes not in the guide are not implemented and may return 404.
+
 ## 1. Conventions
 
 - Use explicit serializers with allowlisted fields.
@@ -33,6 +35,7 @@
 ```
 
 Do not include stack traces, SQL, tokens, OTPs or private record details.
+The current API returns this envelope for DRF exceptions and includes the same request ID in the `X-Request-ID` response header. Rate-limit responses use `RATE_LIMITED` and include `Retry-After`.
 
 ## 3. Endpoint inventory
 
@@ -46,6 +49,8 @@ Do not include stack traces, SQL, tokens, OTPs or private record details.
 - `POST /auth/token/` (API/mobile token issuance)
 - `POST /auth/token/refresh/`
 - `POST /auth/token/revoke/`
+
+API-client token routes are available under `/api/v1/`. `POST /auth/token/` accepts `{ "identifier": "...", "password": "..." }`; successful authentication returns opaque `access_token` and `refresh_token` values, `token_type: "Bearer"` and `expires_in: 900`. Send access tokens in `Authorization: Bearer <access_token>`. `POST /auth/token/refresh/` accepts the current refresh token and rotates both values; clients must discard the old pair. Reuse of a rotated refresh token revokes that token family. `POST /auth/token/revoke/` revokes the family and is idempotent. Access expires after 15 minutes; refresh expires after 30 days. Token storage/retention and TLS requirements are detailed in ADR-029.
 
 ### Current user
 - `GET /me/`

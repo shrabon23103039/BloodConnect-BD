@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Operational metrics | BloodConnect BD{% endblock %}
+{% block content %}
+<section class="container py-5" aria-labelledby="page-title">
+  <h1 id="page-title">Operational metrics</h1>
+  <p>Global counts only. Counts below five are suppressed to protect privacy.</p>
+  <dl class="row">
+    <dt class="col-sm-8">Discoverable donor profiles</dt><dd class="col-sm-4">{% if metrics.discoverable_donors != None %}{{ metrics.discoverable_donors }}{% else %}Suppressed{% endif %}</dd>
+    <dt class="col-sm-8">Open public blood requests</dt><dd class="col-sm-4">{% if metrics.open_blood_requests != None %}{{ metrics.open_blood_requests }}{% else %}Suppressed{% endif %}</dd>
+    <dt class="col-sm-8">Pending contact requests</dt><dd class="col-sm-4">{% if metrics.pending_contact_requests != None %}{{ metrics.pending_contact_requests }}{% else %}Suppressed{% endif %}</dd>
+    <dt class="col-sm-8">Open reports</dt><dd class="col-sm-4">{% if metrics.open_reports != None %}{{ metrics.open_reports }}{% else %}Suppressed{% endif %}</dd>
+  </dl>
+</section>
+{% endblock %}

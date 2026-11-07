@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Notifications · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container">
+  <p class="eyebrow">Updates</p><h1>Notifications</h1>
+  {% if notifications %}<div class="list-group">{% for item in notifications %}<article class="list-group-item{% if not item.read_at %} list-group-item-light{% endif %}">
+    <h2 class="h6">{{ item.title }}</h2><p>{{ item.body }}</p>
+    <p class="small text-muted">{{ item.created_at|date:"Y-m-d H:i" }} · In app</p>
+    {% if item.resource_type == "contact_request" %}{% if item.notification_type == "CONTACT_REQUEST_RECEIVED" or item.notification_type == "CONTACT_REQUEST_CANCELLED" %}<a href="{% url 'connections:incoming_detail' item.resource_id %}">Open contact request</a>{% else %}<a href="{% url 'connections:outgoing_detail' item.resource_id %}">Open contact request</a>{% endif %}{% endif %}
+    {% if not item.read_at %}<form method="post" action="{% url 'notifications:read' item.pk %}" class="mt-2">{% csrf_token %}<button class="btn btn-outline-brand btn-sm" type="submit">Mark as read</button></form>{% endif %}
+  </article>{% endfor %}</div>{% else %}<div class="alert alert-info">You have no notifications.</div>{% endif %}
+</div></section>
+{% endblock %}

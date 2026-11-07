@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Report review | BloodConnect BD{% endblock %}
+{% block content %}
+<section class="container py-5" aria-labelledby="page-title">
+  <h1 id="page-title">Report review</h1>
+  <p>Private queue for authorized moderators.</p>
+  <form method="get" class="mb-4">
+    <label class="form-label" for="status">Filter by status</label>
+    <select class="form-select" id="status" name="status">
+      <option value="">All statuses</option>
+      {% for value, label in status_choices %}<option value="{{ value }}"{% if status == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-outline-primary mt-2" type="submit">Filter</button>
+  </form>
+  {% if reports %}
+    <ul class="list-group">
+      {% for report in reports %}<li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ report.get_reason_display }} · {{ report.get_status_display }} · {{ report.created_at|date:"Y-m-d H:i" }}</span>
+        <a href="{% url 'moderation:detail' report_id=report.pk %}">Review report</a>
+      </li>{% endfor %}
+    </ul>
+  {% else %}<p>No reports match this filter.</p>{% endif %}
+</section>
+{% endblock %}

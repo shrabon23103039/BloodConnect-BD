@@ -47,6 +47,9 @@ def test_production_profile_accepts_synthetic_secure_environment():
             "EMAIL_HOST_USER": "synthetic-user",
             "EMAIL_HOST_PASSWORD": "synthetic-password",
             "EMAIL_USE_TLS": "true",
+            "REDIS_URL": "redis://cache:6379/0",
+            "DATABASE_SSLMODE": "require",
+            "BLOODCONNECT_PROCESS_ROLE": "web",
         }
     )
 
@@ -57,7 +60,12 @@ def test_production_profile_accepts_synthetic_secure_environment():
             "import django; django.setup(); from django.conf import settings; "
             "assert settings.DEBUG is False; "
             "assert settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql'; "
-            "assert settings.SESSION_COOKIE_SECURE",
+            "assert settings.SESSION_COOKIE_SECURE; "
+            "assert settings.CACHES['default']['LOCATION'] == 'redis://cache:6379/0'; "
+            "assert settings.CELERY_BROKER_URL == 'redis://cache:6379/1'; "
+            "assert settings.CELERY_RESULT_BACKEND is None; "
+            "assert settings.CELERY_TASK_ACKS_LATE; "
+            "assert settings.NOTIFICATION_DELIVERY_MODE == 'disabled'",
         ],
         check=False,
         capture_output=True,
@@ -82,6 +90,7 @@ def test_production_profile_rejects_plaintext_smtp():
             "EMAIL_HOST_PASSWORD": "synthetic-password",
             "EMAIL_USE_TLS": "false",
             "EMAIL_USE_SSL": "false",
+            "REDIS_URL": "redis://cache:6379/0",
         }
     )
 
@@ -95,6 +104,70 @@ def test_production_profile_rejects_plaintext_smtp():
 
     assert result.returncode != 0
     assert "Production SMTP must use TLS or SSL." in result.stderr
+
+
+def test_production_worker_profile_does_not_require_web_smtp_credentials():
+    environment = os.environ.copy()
+    for name in ("EMAIL_HOST", "EMAIL_HOST_USER", "EMAIL_HOST_PASSWORD"):
+        environment.pop(name, None)
+    environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.production",
+            "DJANGO_SECRET_KEY": "synthetic-test-only-secret-value",
+            "DJANGO_ALLOWED_HOSTS": "bloodconnect.example.test",
+            "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect",
+            "DATABASE_SSLMODE": "require",
+            "REDIS_URL": "redis://cache:6379/0",
+            "BLOODCONNECT_PROCESS_ROLE": "worker",
+        }
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import django; django.setup(); from django.conf import settings; "
+            "assert settings.PROCESS_ROLE == 'worker'; "
+            "assert settings.DATABASES['default']['OPTIONS']['sslmode'] == 'require'",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+
+    assert result.returncode == 0, result.stderr
+
+
+def test_production_profile_rejects_database_tls_disabled():
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.production",
+            "DJANGO_SECRET_KEY": "synthetic-test-only-secret-value",
+            "DJANGO_ALLOWED_HOSTS": "bloodconnect.example.test",
+            "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect?sslmode=disable",
+            "DATABASE_SSLMODE": "require",
+            "EMAIL_HOST": "smtp.example.test",
+            "EMAIL_HOST_USER": "synthetic-user",
+            "EMAIL_HOST_PASSWORD": "synthetic-password",
+            "EMAIL_USE_TLS": "true",
+            "REDIS_URL": "redis://cache:6379/0",
+        }
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-c", "import django; django.setup()"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+
+    assert result.returncode != 0
+    assert "Production DATABASE_URL must require PostgreSQL TLS" in result.stderr
 
 
 def test_database_url_configures_postgres_without_leaking_credentials():
@@ -137,6 +210,21 @@ def test_database_url_errors_do_not_echo_credentials():
             "postgresql://test:supersecret@db/bloodconnect?options=-csearch_path=public"
         )
     assert "supersecret" not in str(error.value)
+
+
+def test_redis_database_urls_validate_and_separate_consumers():
+    import pytest
+    from django.core.exceptions import ImproperlyConfigured
+
+    from config.redis import redis_database_url
+
+    assert redis_database_url("rediss://user:secret@cache.example.test:6380/0?ssl_cert_reqs=required", 0) == (
+        "rediss://user:secret@cache.example.test:6380/0?ssl_cert_reqs=required"
+    )
+    assert redis_database_url("redis://cache:6379/0", 1) == "redis://cache:6379/1"
+    with pytest.raises(ImproperlyConfigured) as error:
+        redis_database_url("postgresql://user:secret@db/name", 0)
+    assert "secret" not in str(error.value)
 
 
 def test_test_profile_uses_isolated_database():

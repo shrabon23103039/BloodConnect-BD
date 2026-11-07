@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Accepted connection · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container reading-width">
+  <p class="eyebrow">Accepted connection</p>
+  <h1>{{ connection.contact_request.donor_profile.public_alias|default:"Blood donor" }}</h1>
+  <p>Contact request accepted. Acceptance does not mean a donation occurred or that a donor is medically eligible. Coordinate through an authorized healthcare facility.</p>
+  <div class="card card-body">
+    <h2 class="h5">Donor-approved contact methods</h2>
+    {% if channels.phone %}<p><strong>Phone:</strong> <a href="tel:{{ channels.phone }}">{{ channels.phone }}</a></p>{% endif %}
+    {% if channels.email %}<p><strong>Email:</strong> <a href="mailto:{{ channels.email }}">{{ channels.email }}</a></p>{% endif %}
+    {% if not channels %}<p class="mb-0">The donor has not enabled a verified phone or email for sharing on this connection.</p>{% endif %}
+  </div>
+  <h2 class="h5 mt-4">Request details</h2>
+  <p>{{ connection.contact_request.blood_request.get_blood_group_display }} · {{ connection.contact_request.blood_request.district.name_en }}, {{ connection.contact_request.blood_request.division.name_en }}</p>
+  <a class="btn btn-link" href="{% url 'connections:outgoing_detail' connection.contact_request_id %}">Back to contact request</a>
+</div></section>
+{% endblock %}

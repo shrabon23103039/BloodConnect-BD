@@ -175,6 +175,127 @@ Record important decisions here. New decisions should be appended, not silently 
 **Consequences:** Request screens explain that replies are coordinated in app. A later product change that enables direct requester contact must define a schema, consent, authorization and disclosure policy through a new reviewed decision.
 **Related documents:** `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/07_Security.md`, `docs/11_Data_Governance.md`.
 
+## ADR-020 - Public donor search rate limit
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P4-04 requires abuse protection for unauthenticated donor search. The project already uses a cache-backed, fixed-window IP throttle with HMAC-derived keys for account workflows; shared Redis configuration is scheduled in P5-05.
+**Decision:** Limit donor search to 30 requests per remote IP per 60-second fixed window using the existing cache throttle. Return HTTP 429 with `Retry-After: 60` after the limit. Derive the cache key with the Django secret key and HMAC-SHA256; do not store raw IP addresses. Apply this equally to guests and authenticated users.
+**Reason:** Public guest search is a product requirement; a bounded request rate reduces scraping and automated load while preserving ordinary interactive use. Reusing the established mechanism avoids a new dependency.
+**Alternatives:** Require login (conflicts with guest-search requirements); add a third-party package (unneeded dependency); choose an unbounded service-wide or per-account policy (does not protect unauthenticated search or lacks defined identity behavior).
+**Consequences:** The current development/default cache is process-local, so this is not a cross-worker production control until P5-05 configures Redis. The threshold is an initial abuse-control default and should be reviewed against operational evidence before public scale claims.
+**Related documents:** `docs/07_Security.md`, `docs/08_Testing.md`, `docs/06_Plan.md`, `docs/09_Deployment.md`.
+
+## ADR-021 - Contact request expiry
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** The contact request schema requires an expiry time, but the MVP flow did not define its duration. Blood requests already have an explicit owner-controlled expiry, and pending contact requests should not remain actionable indefinitely.
+**Decision:** A pending contact request expires at the earlier of 48 hours after creation or the associated blood request's expiry. A late accept/decline attempt records the request as expired. Expiry is terminal; it does not reopen or disclose contact details.
+**Reason:** A bounded 48-hour window limits stale contact attempts while allowing time to respond. Capping it at the parent blood request's expiry prevents a contact request from outliving its purpose.
+**Alternatives:** Let requests remain pending indefinitely (stale requests); use an arbitrary longer fixed period without regard to request expiry; allow contact requests after the parent request closes.
+**Consequences:** Creation and decision services enforce the window. A later scheduled expiry job may mark untouched due rows expired; the pending unique constraint stops applying once a request is terminal.
+**Related documents:** `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`.
+
+## ADR-022 - Contact request creation throttle
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** Authenticated contact request creation can generate unwanted notifications and spam even when duplicate pending requests are blocked. The existing account/search controls use the shared fixed-window cache throttle.
+**Decision:** Limit contact request creation to 10 POST attempts per remote IP per 60-minute fixed window. Use the existing HMAC-derived IP cache key and return 429 with `Retry-After: 3600` after the limit. Apply after authentication; requests are also scoped to an active recipient and a single pending donor/request tuple.
+**Reason:** A conservative bound reduces scripted abuse while allowing ordinary request coordination. The duplicate constraint independently prevents repeated pending requests for the same donor and request.
+**Alternatives:** No endpoint limit (permits spam); key only by account (does not constrain guest-independent automation across accounts); introduce a separate dependency (unnecessary).
+**Consequences:** The current cache is process-local; P5-05 Redis configuration is required for cross-worker enforcement. Revisit the threshold using operational evidence.
+**Related documents:** `docs/07_Security.md`, `docs/08_Testing.md`, `docs/06_Plan.md`, `docs/09_Deployment.md`.
+
+## ADR-023 - Redis-backed notification outbox and Celery
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P5-05 requires shared throttling and background notification delivery. The TRD already selects Redis 7.x and Celery 5.7.0, and the runtime lock already pins `celery[redis]`; notifications are durable database rows created with the contact transaction.
+**Decision:** Use the existing `REDIS_URL` for Django's shared cache and Celery's Redis broker, selecting separate Redis database indexes for cache and broker. Use each durable notification UUID as the Celery task identifier and as the database idempotency key. Enqueue only after the creating transaction commits; failed/unsent rows remain pending and are redriven by a bounded periodic task. Configure JSON-only tasks, late acknowledgement, worker-loss rejection, bounded transient retries, task time limits and no result backend. Tests use eager Celery and an isolated local cache.
+**Reason:** Reuse the approved stack, avoid losing notifications when a request transaction rolls back, and make duplicate worker delivery harmless without storing message payloads in Redis.
+**Alternatives:** Add a new broker/dependency (contradicts TRD); publish before database commit (can create notifications for rolled-back requests); rely on an untracked process-local queue (loses work on restart); store Celery results unnecessarily.
+**Consequences:** Redis and a Celery worker/beat process are required for production background delivery and cross-worker throttling. Provider adapters remain disabled until P5-06 and authorized configuration exist. In-app rows stay readable from PostgreSQL even while delivery is pending.
+**Related documents:** `docs/04_TRD.md`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/09_Deployment.md`, `docs/10_API_Contract.md`.
+
+## ADR-024 - Mock-only email and SMS notification adapters
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P5-06 requires email/SMS adapter seams, but no approved production notification provider or SMS authorization is configured. Email credentials exist as environment settings, which alone do not authorize product notifications.
+**Decision:** Add email/SMS adapter protocols with deterministic mock implementations only. Create external-channel outbox records only in mock mode, for verified destinations with current optional-notification consent; recheck consent at delivery. Production settings disable external channels. Do not instantiate SMTP/SMS providers from notification tasks until an authorized provider and explicit release approval are recorded.
+**Reason:** Preserve the planned adapter boundary and test delivery behavior without sending real messages or treating configured credentials as authorization.
+**Alternatives:** Send real SMTP/SMS on the basis of credentials alone (no consent/provider authorization); invent an SMS provider (unsupported); omit consent checks (violates privacy policy).
+**Consequences:** Mock references identify simulated deliveries only. Production in-app notifications continue through PostgreSQL; email/SMS notifications are disabled pending documented authorization and provider implementation.
+**Related documents:** `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/09_Deployment.md`, `docs/11_Data_Governance.md`.
+
+## ADR-025 - Private reports and bilateral blocks
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P6-01 requires private user reporting and blocking; schema says blocks in either direction prevent new contact requests but does not define controlled report reasons.
+**Decision:** Allow report reasons `SAFETY_CONCERN`, `HARASSMENT`, `SPAM`, `IMPERSONATION`, `INAPPROPRIATE_CONTENT`, and `OTHER`. Keep report details scoped to the reporter and authorized moderators (moderator UI/access is P6-02); never expose the reporter or report text to the reported account. Treat a block in either direction as disqualifying a new contact request. Block creation is idempotent and does not notify the other party.
+**Reason:** A small controlled list supports triage without collecting broad sensitive narratives. Symmetric eligibility enforcement applies the schema's bilateral wording consistently while preserving reporter privacy.
+**Alternatives:** Reveal report contents to reported users (risks retaliation); treat blocks as one-way contact eligibility (contradicts the schema); add free-form categories or anonymous third-party reports without policy (unbounded abuse surface).
+**Consequences:** Report and block records use server-side ownership checks. No moderator access or report-resolution workflow is exposed until P6-02.
+**Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`.
+
+## ADR-026 - Explicit moderator authorization and report decisions
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P6-02 requires private report review and resolution. Django staff/admin privileges have a separate operational purpose and must not grant product moderation rights implicitly.
+**Decision:** Require an active account in the explicit `MODERATOR` group for report review and transition actions. Staff status and superuser status alone grant no access. Allow `OPEN` to move to `UNDER_REVIEW`, `RESOLVED` or `DISMISSED`; allow `UNDER_REVIEW` to move to either terminal state. Terminal decisions require a nonblank reason, and every accepted transition records the actor and minimized status/reason codes in the audit log.
+**Reason:** A dedicated, explicit role and constrained state machine implement least privilege and leave an accountable decision trail without disclosing reporter information to the reported account.
+**Alternatives:** Reuse `is_staff` (broader operational authority); let terminal reports reopen without a new report (weakens audit history); audit free-form narratives (unnecessary PII exposure).
+**Consequences:** Moderator group membership must be provisioned deliberately. Moderator pages expose report details only to authorized active moderators; no action is available to the reported account.
+**Related documents:** `docs/01_PRD.md`, `docs/02_AppFlow.md`, `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`.
+
+## ADR-027 - Redacted append-only audit events
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P6-03 requires evidence for sensitive state changes while preventing audit records from becoming a second store of donor contact data or user narratives.
+**Decision:** Store append-only audit events in PostgreSQL with actor, action, resource type/UUID, timestamp and an allowlisted set of short status/reason codes. Record sensitive consent, report/block, blood-request and contact-request transitions, accepted contact disclosure, and report moderation actions in their domain transaction. Exclude message bodies, contact destinations, report descriptions, resolution text and other arbitrary metadata.
+**Reason:** A small durable record can support review while sharply constraining the data retained in operational logs.
+**Alternatives:** Free-form JSON audit payloads (risk of PII/secrets); logs only (weaker durability/transactional consistency); updating or deleting audit rows (breaks append-only history).
+**Consequences:** Audit rows are append-only through the application model and require a retention/access policy before production. They record only events after this feature is deployed; they do not reconstruct earlier actions.
+**Related documents:** `docs/05_Schema.md`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/11_Data_Governance.md`.
+
+## ADR-028 - Small-cell suppression for operational metrics
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P6-04 requires aggregate-only operational metrics and the data-governance policy prohibits small-cell reporting that could re-identify a person.
+**Decision:** Provide a fixed moderator-only dashboard of global counts for discoverable donor profiles, open public blood requests, pending contact requests and open reports. Suppress counts below five, including zero. Do not provide location, blood group, time, user, report reason or other breakdowns, exports or individual records.
+**Reason:** A coarse fixed set of operational totals can support MVP oversight while reducing the chance that a small population reveals individual activity.
+**Alternatives:** Expose per-user or demographic/location breakdowns (re-identification risk); show small counts (reveals presence); add CSV exports (larger disclosure surface).
+**Consequences:** Metrics are operational indicators only and do not establish service outcomes, donor eligibility or blood supplied. The threshold should be reviewed with privacy and operational evidence before expansion.
+**Related documents:** `docs/01_PRD.md`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/11_Data_Governance.md`.
+
+## ADR-029 - Opaque, rotating API bearer tokens
+
+**Status:** Accepted
+**Date:** 2026-11-07
+**Context:** P7-02 needs short-lived API credentials with refresh rotation, expiry and revocation. The TRD lists JWT as a target after package review; no JWT package is currently in the approved lock.
+**Decision:** Use cryptographically random opaque access and refresh tokens, store only SHA-256 digests in PostgreSQL, expire access tokens after 15 minutes and refresh tokens after 30 days, rotate refresh tokens on each use, and revoke the whole token family when a used refresh token is replayed. Check active account status and token revocation/expiry on every bearer-authenticated request. Apply the existing HMAC-keyed IP throttle to issue, refresh and revoke routes. Do not add a dependency.
+**Reason:** This meets current expiry/rotation/revocation acceptance while avoiding an unreviewed auth dependency and avoids keeping credentials in cleartext at rest. Opaque tokens allow immediate server-side revocation.
+**Alternatives:** Static DRF tokens (no expiry/rotation); JWT with a new dependency (requires separate package review and refresh-token blacklist semantics); self-issued JWT code (unnecessary cryptographic implementation risk).
+**Consequences:** Every bearer request reads PostgreSQL, so no performance/capacity claim is made. Access tokens are invalidated on refresh; clients must atomically replace both credentials. TLS is mandatory in deployment. Token-row retention/cleanup must be included in operations.
+**Related documents:** `docs/04_TRD.md`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/10_API_Contract.md`, `docs/11_Data_Governance.md`.
+
+## ADR-030 - Render as proposed staging provider
+
+**Status:** Accepted for staging configuration only; provisioning and deployment not authorized
+**Date:** 2026-11-07
+**Context:** P9-02 and the staging-dependent P8-05/P8-06 tasks need a hosted environment. The project owner proposed Render and explicitly withheld authorization to assume an account, create paid resources, or deploy. The repository already has a Docker image, PostgreSQL 17, Redis-compatible Celery configuration, liveness/readiness endpoints and production settings.
+**Decision:** Prepare a Render Blueprint for a Docker web service, managed PostgreSQL 17, private Key Value, Celery worker and beat scheduler, co-located in Singapore with synthetic-only staging data. Use Render's service-provided `onrender.com` hostname, referenced dynamically through `RENDER_EXTERNAL_HOSTNAME` and `RENDER_EXTERNAL_URL`; do not define a custom domain. Disable auto-deploys, use private database/Key Value service references, require database TLS, run migrations in the paid web service pre-deploy command, and keep all credentials in Render environment variables/secret management. Do not apply or deploy the Blueprint until separately authorized.
+**Reason:** This matches the existing container/Celery architecture, uses Render's managed service connections and health-check support, and avoids assuming a custom domain or pre-existing account. Paid persistent data services are necessary for credible staging load/restore work; their current pricing must be reviewed before provisioning.
+**Alternatives:** Treat local Compose as staging (does not verify a hosted deployment); use free Postgres/Key Value for staging (Postgres expires after 30 days and has no managed backups; Key Value loses state on restart); configure a custom domain (unnecessary because Render provides an `onrender.com` subdomain).
+**Consequences:** `render.yaml` describes paid resources but creates none until explicitly applied. P9-02 remains implemented-unverified until an authorized Render account/repository connection, approved SMTP settings and a deployment pass health/migration checks. Account verification remains unavailable in production until a separately authorized verification adapter exists. P8-05/P8-06/P8-07 remain blocked until staging is operational and the verification integration gap is resolved as needed.
+**Related documents:** `Dockerfile`, `render.yaml`, `scripts/render_start.sh`, `docs/06_Plan.md`, `docs/07_Security.md`, `docs/09_Deployment.md`, `docs/EXECUTION_STATE.md`.
+
 ## ADR template
 
 ## ADR template

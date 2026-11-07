@@ -2,16 +2,65 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
+from django.utils.http import urlencode
 from django.views.decorators.http import require_http_methods
 
+from apps.accounts.throttling import limited_by_ip
 from apps.donors.forms import DonorProfileForm
-from apps.donors.models import DonorProfile
+from apps.donors.models import AvailabilityStatus, DonorProfile
+from apps.donors.search_forms import DonorSearchForm
 from apps.donors.services import (
     deactivate_donor_profile,
     pause_donor_profile,
     save_donor_profile,
 )
+
+DONOR_SEARCH_PAGE_SIZE = 20
+
+
+@limited_by_ip(scope="donor-search", limit=30, window_seconds=60)
+def donor_search(request):
+    form = DonorSearchForm(request.GET or None)
+    profiles = DonorProfile.objects.none()
+    if not form.is_bound or form.is_valid():
+        profiles = DonorProfile.objects.discoverable().filter(
+            availability_status=AvailabilityStatus.AVAILABLE
+        )
+        if form.is_bound:
+            filters = form.cleaned_data
+            for field in ("blood_group", "division", "district", "upazila"):
+                value = filters.get(field)
+                if value:
+                    profiles = profiles.filter(**{field: value})
+        profiles = (
+            profiles.select_related("division", "district", "upazila")
+            .only(
+                "id",
+                "public_alias",
+                "blood_group",
+                "availability_status",
+                "division__name_en",
+                "district__name_en",
+                "upazila__name_en",
+            )
+            .order_by("district__name_en", "public_alias", "id")
+        )
+    paginator = Paginator(profiles, DONOR_SEARCH_PAGE_SIZE)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    query_params = request.GET.copy()
+    query_params.pop("page", None)
+    return render(
+        request,
+        "donors/search.html",
+        {
+            "form": form,
+            "page_obj": page_obj,
+            "query_string": urlencode(query_params),
+            "invalid_filters": form.is_bound and not form.is_valid(),
+        },
+    )
 
 
 @login_required

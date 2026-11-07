@@ -1,0 +1,128 @@
+# Proposed Render staging blueprint only. Do not sync/apply without explicit
+# authorization: applying this file provisions paid compute and data services.
+envVarGroups:
+  - name: bloodconnect-bd-staging-shared
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DATABASE_SSLMODE
+        value: require
+
+databases:
+  - name: bloodconnect-bd-staging-db
+    databaseName: bloodconnect_staging
+    user: bloodconnect_staging
+    plan: 0.1c-256mb
+    diskSizeGB: 15
+    postgresMajorVersion: "17"
+    region: singapore
+    ipAllowList: []
+
+services:
+  - type: keyvalue
+    name: bloodconnect-bd-staging-redis
+    plan: 256mb
+    region: singapore
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
+    persistenceMode: journal-snapshot
+
+  - type: web
+    name: bloodconnect-bd-staging-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: sh scripts/render_start.sh
+    plan: 0.5c-512mb
+    region: singapore
+    autoDeployTrigger: "off"
+    preDeployCommand: python manage.py migrate --noinput
+    healthCheckPath: /health/ready/
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - fromGroup: bloodconnect-bd-staging-shared
+      - key: BLOODCONNECT_PROCESS_ROLE
+        value: web
+      - key: DJANGO_ALLOWED_HOSTS
+        fromService:
+          name: bloodconnect-bd-staging-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        fromService:
+          name: bloodconnect-bd-staging-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bloodconnect-bd-staging-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: bloodconnect-bd-staging-redis
+          type: keyvalue
+          property: connectionString
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "true"
+      - key: EMAIL_USE_SSL
+        value: "false"
+
+  - type: worker
+    name: bloodconnect-bd-staging-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: celery -A config worker --loglevel=INFO
+    plan: 0.5c-512mb
+    region: singapore
+    autoDeployTrigger: "off"
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - fromGroup: bloodconnect-bd-staging-shared
+      - key: BLOODCONNECT_PROCESS_ROLE
+        value: worker
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bloodconnect-bd-staging-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: bloodconnect-bd-staging-redis
+          type: keyvalue
+          property: connectionString
+
+  - type: worker
+    name: bloodconnect-bd-staging-beat
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: celery -A config beat --loglevel=INFO --schedule=/tmp/celerybeat-schedule
+    plan: 0.5c-512mb
+    region: singapore
+    autoDeployTrigger: "off"
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - fromGroup: bloodconnect-bd-staging-shared
+      - key: BLOODCONNECT_PROCESS_ROLE
+        value: scheduler
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bloodconnect-bd-staging-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: bloodconnect-bd-staging-redis
+          type: keyvalue
+          property: connectionString

@@ -7,6 +7,8 @@ from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone
 
+from apps.audit.services import record_audit_event
+
 
 class ConsentType(models.TextChoices):
     TERMS_ACCEPTED = "terms_accepted", "Terms acceptance"
@@ -104,5 +106,16 @@ def record_consent(*, user, consent_type, policy_version, granted, source=Consen
             captured_at=now,
             withdrawn_at=now if was_granted and not granted else None,
             source=source,
+        )
+        record_audit_event(
+            actor=user,
+            action="privacy.consent.changed",
+            resource_type="consent_record",
+            resource_id=record.pk,
+            metadata={
+                "from_status": "GRANTED" if was_granted else None,
+                "to_status": "GRANTED" if granted else "WITHDRAWN",
+                "reason_code": consent_type,
+            },
         )
         return record, True

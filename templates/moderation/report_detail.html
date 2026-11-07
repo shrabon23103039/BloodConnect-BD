@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Review report | BloodConnect BD{% endblock %}
+{% block content %}
+<section class="container py-5" aria-labelledby="page-title">
+  <h1 id="page-title">Review report</h1>
+  <dl class="row">
+    <dt class="col-sm-3">Reason</dt><dd class="col-sm-9">{{ report.get_reason_display }}</dd>
+    <dt class="col-sm-3">Details</dt><dd class="col-sm-9">{{ report.description|linebreaksbr }}</dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9">{{ report.get_status_display }}</dd>
+    <dt class="col-sm-3">Submitted</dt><dd class="col-sm-9">{{ report.created_at|date:"Y-m-d H:i" }}</dd>
+    {% if report.resolution_note %}<dt class="col-sm-3">Resolution reason</dt><dd class="col-sm-9">{{ report.resolution_note|linebreaksbr }}</dd>{% endif %}
+  </dl>
+  {% if form.fields.status.choices %}
+    <h2>Update status</h2>
+    <form method="post" action="{% url 'moderation:transition' report_id=report.pk %}">
+      {% csrf_token %}
+      {% for field in form %}<div class="mb-3">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}</div>{% endfor %}
+      {% for error in form.non_field_errors %}<p class="text-danger">{{ error }}</p>{% endfor %}
+      <button class="btn btn-primary" type="submit">Save decision</button>
+    </form>
+  {% else %}<p>This report is closed. Its status cannot be changed.</p>{% endif %}
+  <a href="{% url 'moderation:list' %}">Back to report queue</a>
+</section>
+{% endblock %}

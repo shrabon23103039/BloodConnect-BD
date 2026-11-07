@@ -168,10 +168,11 @@ Indexes/constraints:
 - `(donor_profile_id, status, created_at DESC)`
 - `(recipient_id, status, created_at DESC)`
 - `(blood_request_id, status)`
-- Prevent duplicate pending request for same recipient/donor/request combination using a conditional unique constraint where supported.
+- Prevent duplicate pending request for same recipient/donor/request combination using a partial unique constraint on `(recipient_id, donor_profile_id, blood_request_id)` while status is `PENDING`.
 - Validate that donor and requester are not the same user.
 - Validate that referenced request is open and owned by recipient.
-- Accept/decline is atomic and idempotent.
+- A pending contact request expires at the earlier of 48 hours after creation or the associated blood request's expiry (ADR-021).
+- Accept/decline/cancel transitions are atomic and repeated same-state commands are idempotent.
 
 ### 3.6 `connections_connection`
 
@@ -183,7 +184,7 @@ Indexes/constraints:
 | `created_at` | timestamptz | required |
 | `closed_at` | timestamptz | nullable |
 
-Create only after accepted contact request. Do not duplicate donor phone/email into this table; retrieve allowed fields through a permission-checked service at read time.
+Create atomically after contact request acceptance. Do not duplicate donor phone/email into this table; retrieve only verified, currently consented fields through the recipient-scoped disclosure service at read time. Contact consent withdrawal takes effect immediately.
 
 ### 3.7 `notifications_notification`
 
@@ -297,6 +298,23 @@ Unique `(organization_id, user_id)`.
 ### 3.14 `accounts_verificationchallenge`
 
 Short-lived challenge metadata for verifying an account identifier or confirming a phone password-reset request. The destination is resolved from the related account and is not copied into this table.
+
+### 3.15 `api_apiaccesstoken` and `api_apirefreshtoken`
+
+API credentials are opaque random bearer values. Store only a SHA-256 digest; the raw secret is returned once and never persisted or logged.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | UUID | PK |
+| `user_id` | UUID | FK User, cascade on account deletion |
+| `token_digest` | char(64) | unique, required |
+| `family_id` | UUID | required; indexes token-family revocation |
+| `created_at` | timestamptz | required |
+| `expires_at` | timestamptz | required |
+| `revoked_at` | timestamptz | nullable |
+| `used_at` | timestamptz | refresh table only; set once on rotation |
+
+Access token lifetime is 15 minutes; refresh lifetime is 30 days. Refresh reuse revokes the whole family. Cleanup/retention of expired rows must be operationally configured. See ADR-029.
 
 | Column | Type | Constraints |
 |---|---|---|

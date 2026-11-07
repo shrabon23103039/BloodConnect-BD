@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Request contact · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container reading-width">
+  <p class="eyebrow">Contact request</p>
+  <h1>Ask a potential donor to connect</h1>
+  <p>The donor chooses whether to accept. Their phone number and email stay private unless they accept and have chosen to share a channel.</p>
+  <form method="post" class="card card-body">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    {% for field in form %}<div class="mb-3">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
+    <div class="d-flex gap-2"><button class="btn btn-brand" type="submit">Send contact request</button><a class="btn btn-outline-brand" href="{% url 'donors:search' %}">Cancel</a></div>
+  </form>
+</div></section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Incoming contact requests · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container">
+  <p class="eyebrow">Contact requests</p><h1>Requests sent to you</h1>
+  <nav class="nav nav-tabs mb-4"><a class="nav-link active" href="{% url 'connections:incoming' %}">Incoming</a><a class="nav-link" href="{% url 'connections:outgoing' %}">Outgoing</a></nav>
+  {% if contact_requests %}<div class="list-group">{% for item in contact_requests %}<a class="list-group-item list-group-item-action" href="{% url 'connections:incoming_detail' item.pk %}"><strong>{{ item.blood_request.blood_group }}</strong> request · {{ item.get_status_display }} · {{ item.created_at|date:"Y-m-d H:i" }}</a>{% endfor %}</div>{% else %}<div class="alert alert-info">You have no incoming contact requests.</div>{% endif %}
+</div></section>
+{% endblock %}

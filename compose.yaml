@@ -1,0 +1,81 @@
+name: bloodconnect-bd
+
+x-app-environment: &app-environment
+  DJANGO_SETTINGS_MODULE: config.settings.development
+  DJANGO_DEBUG: "true"
+  DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-compose-only-change-before-sharing}
+  DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web
+  DATABASE_URL: postgresql://${POSTGRES_USER:-bcbd_dev}:${POSTGRES_PASSWORD:-bcbd_local_only}@db:5432/${POSTGRES_DB:-bcbd_dev}
+  REDIS_URL: redis://redis:6379/0
+  EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+
+x-app: &app
+  build:
+    context: .
+  environment: *app-environment
+  volumes:
+    - .:/app:ro
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bcbd_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-bcbd_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bcbd_local_only}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    <<: *app
+    command: ["/bin/sh", "-c", "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live/', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  worker:
+    <<: *app
+    command: ["celery", "-A", "config", "worker", "--loglevel=INFO"]
+    depends_on:
+      web:
+        condition: service_healthy
+
+  beat:
+    <<: *app
+    command: ["celery", "-A", "config", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

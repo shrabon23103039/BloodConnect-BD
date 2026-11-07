@@ -18,14 +18,25 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
+from apps.connections import views as connection_views
 from config.health import liveness, readiness
 
 urlpatterns = [
     path("health/live/", liveness, name="health_live"),
     path("health/ready/", readiness, name="health_ready"),
+    path("api/v1/", include("apps.api.urls")),
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls")),
     path("app/requests/", include("apps.requests.urls")),
+    path("app/contact-requests/", include("apps.connections.urls")),
+    path("app/notifications/", include("apps.notifications.urls")),
+    path("app/moderation/", include("apps.moderation.urls")),
+    path("app/operations/", include("apps.analytics.urls")),
+    path(
+        "app/connections/<uuid:connection_id>/",
+        connection_views.accepted_connection_detail,
+        name="connection_detail",
+    ),
     path("app/", include("apps.donors.urls")),
     path("app/settings/", include("apps.governance.urls")),
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Find potential donors · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="section"><div class="container">
+  <p class="eyebrow">Donor discovery</p>
+  <h1>Find potential donors</h1>
+  <p>Results are potential contacts only. Blood group and location filters do not establish medical suitability or compatibility. An authorized healthcare professional must assess those decisions.</p>
+  <form method="get" class="card card-body mb-4" aria-label="Filter potential donors">
+    <div class="row g-3">
+      {% for field in form %}<div class="col-md-6 col-lg-4">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
+    </div>
+    {% if form.non_field_errors %}<div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="d-flex gap-2 mt-3"><button class="btn btn-brand" type="submit">Search</button><a class="btn btn-outline-brand" href="{% url 'donors:search' %}">Clear filters</a></div>
+  </form>
+  {% if invalid_filters %}<div class="alert alert-danger" role="alert">Some filters are invalid. Choose an active location from each list and try again.</div>
+  {% elif page_obj.object_list %}
+    <p role="status">{{ page_obj.paginator.count }} potential donor{{ page_obj.paginator.count|pluralize }} found.</p>
+    <div class="row g-3">
+      {% for profile in page_obj.object_list %}
+        <div class="col-md-6 col-xl-4"><article class="card h-100"><div class="card-body">
+          <h2 class="h5">{{ profile.public_alias|default:"Blood donor" }}</h2>
+          <p class="mb-1"><strong>Blood group:</strong> {{ profile.get_blood_group_display }}</p>
+          <p class="mb-1"><strong>Area:</strong> {% if profile.upazila %}{{ profile.upazila.name_en }}, {% endif %}{{ profile.district.name_en }}, {{ profile.division.name_en }}</p>
+          <span class="badge text-bg-success">Available to receive contact requests</span>
+          <div class="mt-3">{% if user.is_authenticated %}<a class="btn btn-outline-brand btn-sm" href="{% url 'connections:create' %}?donor={{ profile.pk }}">Request contact</a>{% else %}<a class="btn btn-outline-brand btn-sm" href="{% url 'accounts:login' %}">Sign in to request contact</a>{% endif %}</div>
+        </div></article></div>
+      {% endfor %}
+    </div>
+    {% if page_obj.has_other_pages %}<nav aria-label="Donor search pages" class="mt-4"><ul class="pagination">
+      {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+      <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+      {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+    </ul></nav>{% endif %}
+  {% else %}<div class="alert alert-info" role="status">No available potential donors match these filters.</div>{% endif %}
+</div></section>
+{% endblock %}

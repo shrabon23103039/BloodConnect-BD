@@ -81,7 +81,7 @@ The dependency versions in `04_TRD.md` are the proposed baseline. Before install
 
 ### Current repository state
 
-The repository contains the Django project, separated settings, hash-pinned dependencies, PostgreSQL configuration, public information pages, a custom account model, and verified web registration/session authentication, email/phone verification, password-reset, role/ownership permissions, versioned consent/privacy settings, a location hierarchy/import process and donor profile persistence with owner-scoped editing and consent-aware availability/visibility eligibility. New accounts remain pending until their identifier is verified. Local verification uses an in-memory mock and sends no real email or SMS; production verification remains disabled until an authorized provider is implemented. No official location snapshot is bundled pending source reconciliation and review, so real donor profiles cannot yet be completed. Public search, blood/contact requests, moderation, API workflows, Docker Compose services and release deployment remain incomplete; consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Public privacy and terms pages are drafts. Do not treat the current implementation as a completed application.
+The repository contains the Django project, separated settings, hash-pinned dependencies, PostgreSQL configuration, public information pages, a custom account model, and verified web registration/session authentication, email/phone verification, password-reset, role/ownership permissions, versioned consent/privacy settings, a location hierarchy/import process, owner-managed donor profiles, consent-gated donor search with an HMAC-keyed rate limit, requester-owned blood request workflows, consent-gated contact request workflows, minimized in-app notifications, Redis/Celery outbox configuration with mock-only email/SMS adapters, private report/block services, moderator workflows and versioned API workflows. New accounts remain pending until their identifier is verified. Local verification uses an in-memory mock and sends no real email or SMS; production verification remains disabled until an authorized provider is implemented. No official location snapshot is bundled pending source reconciliation and review, so real donor profiles cannot yet be completed. Docker Compose provides a local PostgreSQL/Redis/Django/Celery development stack. Consult `docs/06_Plan.md` and `docs/EXECUTION_STATE.md` for verified progress. Public privacy and terms pages are drafts. Do not treat the current implementation as a completed application.
 
 ### Prerequisites
 
@@ -115,7 +115,7 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-The Django settings read environment variables from the process; they do not parse `.env` directly. Compose will load `.env` for local services after P9-01. For direct local commands, load the required values from `.env` into your shell process first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database. Development password-reset email is held by Django's in-memory email backend; no message is sent externally or printed to terminal logs.
+The Django settings read environment variables from the process; they do not parse `.env` directly. Compose reads `.env` for local overrides. For direct local commands, load the required values from `.env` into your shell process first. Development and production require PostgreSQL; only automated tests use an in-memory SQLite database. Development uses a local mock verification provider, and password-reset email is held by Django's in-memory email backend; no message is sent externally or printed to terminal logs.
 
 Install the reviewed, hash-pinned development set with:
 
@@ -125,10 +125,28 @@ python -m pip install --require-hashes -r requirements/dev.lock
 
 Production images should install only the runtime set with `python -m pip install --require-hashes -r requirements/base.lock`.
 
-After P9-01 adds the Compose file, start local PostgreSQL and Redis with:
+Start the local development stack (PostgreSQL, Redis, Django, Celery worker and beat) with:
+
+```powershell
+docker compose up --build
+```
 
 ```sh
-docker compose up -d db redis
+docker compose up --build
+```
+
+The app is available at `http://localhost:8000`. Compose runs migrations when the web service starts. Run checks inside the app container with:
+
+```sh
+docker compose exec web python manage.py check
+docker compose exec web python manage.py migrate --check
+docker compose exec web python -m pytest --ds=config.settings.test
+```
+
+Stop the services while retaining the local PostgreSQL volume with:
+
+```sh
+docker compose down
 ```
 
 For current scaffold checks, run:
@@ -154,3 +172,9 @@ Run the test suite with `python -m pytest` after the project test dependencies a
 ## Contribution workflow
 
 Read `AUTONOMOUS_IMPLEMENTATION.md`, `CLAUDE.md`, `AGENTS.md`, and the relevant product/engineering documents before changing code. Use `docs/06_Plan.md` as the dependency-ordered task queue and `docs/EXECUTION_STATE.md` as the handoff checkpoint. Complete one task at a time, add tests for behavior and permission boundaries, run the documented checks, inspect the diff, and record actual results before marking a task verified. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the project workflow and safety review.
+
+For the current versioned API routes, token flow and synthetic request examples, see [`docs/16_API_Usage_Guide.md`](docs/16_API_Usage_Guide.md) and [`docs/10_API_Contract.md`](docs/10_API_Contract.md).
+
+For current web workflows and a synthetic local demonstration walkthrough, see [`docs/17_User_Guide.md`](docs/17_User_Guide.md) and [`docs/18_Demo_and_Viva_Guide.md`](docs/18_Demo_and_Viva_Guide.md).
+
+The proposed Render staging Blueprint is [`render.yaml`](render.yaml). Its account, secret, cost and manual deployment requirements are documented in [`docs/09_Deployment.md`](docs/09_Deployment.md); it has not been applied.
