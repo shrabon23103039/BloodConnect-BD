@@ -5,9 +5,9 @@
 - Current phase: Phase 11 - Open-source repository presentation; automated Mermaid CLI validation remains outstanding.
 - Current task ID: Read-only Docker Engine/container/volume verification.
 - Last updated: 2026-11-07 (Asia/Dhaka).
-- Git branch: `master`, at `2528c759a957662722eb422207141b70fed06918`; clean before this execution-state update, and one commit ahead of `origin/master` at `5aa42cfb631f9e59f975f4904b244465576e2b17`.
-- Git remote: `origin` -> `https://github.com/shrabon23103039/BloodConnect-BD.git`; no push was made for the repository-presentation commit.
-- Current pending worktree change: this requested Docker verification record in `docs/EXECUTION_STATE.md`.
+- Git branch: `master`; post-push verification recorded below found local `master` and `origin/master` equal at the Docker checkpoint commit.
+- Git remote: `origin` -> `https://github.com/shrabon23103039/BloodConnect-BD.git`; the repository-presentation commit and Docker verification checkpoint were pushed with a normal, non-force push.
+- Working-tree status at the Docker verification checkpoint was clean before this execution-state record was updated.
 - Latest verified local presentation commit: `2528c759a957662722eb422207141b70fed06918` (`docs: polish BloodConnect BD repository presentation`).
 
 ## Final local review and commit (2026-11-07)
@@ -376,3 +376,11 @@
 - Compose configuration resolves `db` data to named volume `bloodconnect-bd_postgres_data`. Read-only volume inspection found it present (local driver, created 2026-11-07T07:58:45Z), and container inspection confirmed it is mounted at `/var/lib/postgresql/data`. The same inspection confirmed existing Supabase volumes `supabase_db_nirapatta-p112-fresh` and `supabase_db_nirapatta` remain present and mounted to their respective running database containers.
 - These commands only queried Engine state (`docker info`, `docker ps`, `docker volume ls/inspect`, `docker inspect`, `docker compose ps/config`). No stop, remove, create, recreate, migration, database query/write, or volume operation was run. Therefore this verification introduced no database or container changes; container and volume identities/current mounts are recorded above.
 - The default shell Docker CLI initially reported access denied for the Docker config/daemon pipe. Read-only inspection succeeded using elevated access. No push was made.
+
+
+## Normal GitHub push verification (2026-11-07 Asia/Dhaka)
+
+- The configured `origin` URL matched `https://github.com/shrabon23103039/BloodConnect-BD.git`; `git fetch origin` succeeded and found no remote-only commits before checkpointing (`origin/master...master` = `0 1`).
+- `.env` remained ignored by `.gitignore` and absent from Git's index. The only staged change was the Docker/container/volume verification record in this file, and `git diff --cached --check` passed.
+- Commit `1a603ed82932ae4444b383f5fa53054283acf076` (`docs: record Docker volume verification checkpoint`) was created without rewriting history.
+- `git push -u origin master` completed normally (`5aa42cf..1a603ed master -> master`); no force option was used. A subsequent `git fetch origin` confirmed local `master` and `origin/master` both at `1a603ed82932ae4444b383f5fa53054283acf076`, with `0 0` divergence. No deployment or visibility change was performed.
