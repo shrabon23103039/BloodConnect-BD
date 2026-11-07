@@ -54,7 +54,7 @@ For every task:
 
 ### Implementation readiness, risks and planning gaps
 
-- Latest verified local implementation commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`); not pushed.
+- Latest local commits: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (implementation) and `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965` (checkpoint). Branch `master` is clean; no Git remote is configured and neither commit is pushed.
 - Current first incomplete task: **P8-05**, staging load testing; blocked on a verified hosted staging environment. P0-01 through P0-03, P1-01 through P1-06, P2-01 through P2-04, P3-01 through P3-04, P4-01 through P4-04, P5-01 through P5-06, P6-01 through P6-04, P7-01 through P7-04, P8-01 through P8-04, P9-01, P9-03, P9-04 and P9-05 are verified.
 - P9-02's Render configuration and operational instructions are implemented and statically checked, but deployment acceptance (HTTPS, live health checks, secrets and migrations) remains unverified. P8-05/P8-06/P8-07 need an authorized, operational staging deployment; P9-03 local configuration is now verified, while hosted deployment evidence remains under P9-02. P1-04 legal notices remain draft/review items.
 - Remaining planning risks: no reviewed official Bangladesh geography snapshot is loaded; Terms/Privacy text and retention/deletion policy require review; provider-backed account verification and staging release evidence require authorization. Optional maps, organization sharing and public exports remain outside committed MVP scope.

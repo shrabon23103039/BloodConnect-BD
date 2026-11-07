@@ -116,11 +116,22 @@ The application uses the `REDIS_URL` Redis URL with logical database 0 for Djang
 
 `render.yaml` is a proposed Render Blueprint. It describes a Docker web service, managed PostgreSQL 17, private Render Key Value, a Celery worker and a separate Celery beat scheduler. The web service and both workers use the existing hash-pinned Docker image. `autoDeployTrigger: off` disables automatic deploys on later Git changes; it does not prevent initial resources/deploys when a Blueprint is created or synced, or a manual deploy. Do not create/sync the Blueprint or initiate a deployment until the project owner explicitly authorizes the resulting resources and charges.
 
+### GitHub push readiness checklist
+
+No Git remote is configured in this checkout. Current branch `master` is clean and contains the local implementation commit `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` followed by checkpoint commit `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965`. Neither commit has been pushed. Do not push until the owner explicitly authorizes it and identifies the target repository.
+
+- [ ] Confirm the exact GitHub repository URL, owner/organization and intended branch; confirm you have authorized write access.
+- [ ] After authorization, configure the remote using the chosen name (normally `origin`) and authenticate through Git Credential Manager, SSH agent or GitHub CLI. Do not put tokens in command lines, repository files or chat.
+- [ ] Fetch the target refs and inspect commit ancestry, branch protection and remote-only commits. Keep all existing remote history; resolve divergence with a reviewed merge or other non-destructive integration before pushing.
+- [ ] Confirm the local worktree is clean and the intended branch includes both commits above. Recheck that `.env`, local databases, credentials and real personal/health data are absent from the push range.
+- [ ] After the authorized normal push, verify the GitHub branch points to the expected commit. Do not use `--force` or `--force-with-lease`.
+- [ ] Connecting GitHub to Render and applying its Blueprint are separate actions. Render provisioning/deployment requires separate explicit authorization and may incur charges.
+
 ### Account and repository setup
 
 1. Create or select a Render account and workspace; none is assumed to exist. Confirm billing and who can approve resource creation.
 2. Review the expected services and cost estimate below with the account owner. Confirm Singapore is an acceptable region; Render does not allow changing a service's region after creation.
-3. Connect the Git provider account that owns the BloodConnect repository. Render needs a repository containing `render.yaml`, the Docker files and application source. This workspace currently has uncommitted changes; a reviewed commit/push to a connected repository is a prerequisite, and no commit/push authorization is assumed.
+3. Connect the Git provider account that owns the BloodConnect repository. Render needs a repository containing `render.yaml`, the Docker files and application source. Local commits `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` and `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965` are present on `master`; no Git remote is configured and neither commit has been pushed. A push to the intended repository requires explicit owner authorization.
 4. Select **New > Blueprint**, choose the connected repository and `render.yaml`, and inspect every planned resource, region, plan and environment variable. Do not press the create/sync/apply action before explicit approval: the initial Blueprint create/sync provisions resources and starts their first builds/deploys even with `autoDeployTrigger: off`.
 5. Provide the three `sync: false` SMTP settings in Render's protected prompt/dashboard only when an approved SMTP provider is available. The web service will fail closed without them. Do not substitute fake credentials or enable the mock verification provider.
 6. After separate authorization, apply the reviewed Blueprint and observe the initial build/deploy. Keep automatic deploys disabled; subsequent releases must use an explicitly reviewed manual deploy.
@@ -133,7 +144,9 @@ Preparation is complete locally; the actions below require a Render account and 
 - [ ] Confirm a Render account/workspace and billing owner; choose the Hobby workspace unless a feature explicitly requires another tier. Workspace tier is separate from service compute plans.
 - [ ] Review the current cost estimator and approve the five-resource baseline and any possible usage-based charges listed below.
 - [ ] Confirm the `singapore` region for the web service, database and Key Value before creation; region changes require replacement/migration.
-- [ ] Connect an authorized Git provider account to a repository containing the reviewed/approved commit with this Blueprint. The current working changes have not been committed or pushed.
+- [ ] Confirm the intended GitHub repository URL, owner and access. No remote is currently configured.
+- [ ] After explicit authorization, configure the intended remote and fetch its refs; inspect ancestry and branch differences before pushing. Preserve remote history and use a normal fast-forward push only when ancestry permits; do not force-push.
+- [ ] Verify the intended branch contains both local commits (`d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` and `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965`) before connecting the repository to Render.
 - [ ] Confirm an approved SMTP provider and obtain its hostname, username and password through an authorized secret channel. If unavailable, defer initial Blueprint creation because the production web process requires SMTP configuration at startup.
 - [ ] In the Blueprint review screen, confirm exactly one web service, one PostgreSQL database, one Key Value instance, one worker and one scheduler; check plans, data disk, region, environment references and first-deploy behavior.
 - [ ] Before creating, explicitly approve the initial paid resource provisioning and first build/deploy. A future change to manual deploy policy is not equivalent to initial provisioning approval.

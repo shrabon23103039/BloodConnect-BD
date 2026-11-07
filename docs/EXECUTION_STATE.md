@@ -5,7 +5,9 @@
 - Current phase: Phase 8 - Security, quality and release readiness (staging-dependent checks pending)
 - Current task ID: P8-05 (blocked)
 - Last updated: 2026-11-07
-- Git branch: master
+- Git branch: `master` (clean)
+- Git remote: none configured; intended GitHub repository is unknown and no push was made.
+- Checkpoint commit: `3aaf5c28ea6a9da2750b43f9ce8ce5d1755d0965` (`docs: record final review and local commit`).
 - Latest verified local implementation commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`); not pushed.
 
 ## Final local review and commit (2026-11-07)
@@ -13,7 +15,7 @@
 - Commit: `d1a8c678d0de76b821b555d3bc99fdca7b65bd2a` (`feat: complete BloodConnect MVP workflows`). No force-push, reset, clean, or history rewrite was used.
 - Verification: full suite 167 tests and 6 subtests; Bandit no findings (existing B105 protocol-label suppression warning); pip-audit no known vulnerabilities; `pip check` clean; migrations consistent; Docker Compose config valid; Render YAML/static assertions pass; synthetic production deploy check reports no issues; `git diff --check` clean.
 - Not verified: Render account-side Blueprint validation, provisioning, hosted deployment, HTTPS, hosted migrations/health, SMTP/provider delivery, staging load, restore, and release sign-off.
-- Repository change has not been pushed. Render remains unauthorized and unused; no resources were created and no costs incurred.
+- Repository change has not been pushed. Render remains unauthorized and unused; no resources were created and no costs incurred. GitHub target and credentials are not configured in this checkout.
 
 ## Completed tasks
 - [x] P0-01 — Verify context documents and inspect repository baseline
@@ -320,6 +322,7 @@
 - Related ADR/document: ADR-014 in `docs/12_Architecture_ADRs.md`; scheduled cleanup and shared Redis throttles are P9/P5 follow-up work.
 
 ## Blockers requiring owner input
+- Intended GitHub repository URL/access and explicit authorization before pushing. No remote is configured.
 - Render account/workspace and repository connection, plus explicit authorization before paid staging resources are created or a deployment is triggered. No domain is required for the planned Render-generated subdomain.
 - Approved SMTP provider credentials for the staging web service. Account verification needs a separately implemented and authorized delivery adapter; SMTP configuration alone does not provide it.
 - Staging access for Locust/performance, database restore verification, staging security checks and production release sign-off.
