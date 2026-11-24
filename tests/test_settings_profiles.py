@@ -12,6 +12,129 @@ def test_test_profile_isolated_and_debug_disabled():
     assert "django.middleware.csrf.CsrfViewMiddleware" in settings.MIDDLEWARE
 
 
+def test_development_selects_smtp_only_when_full_configuration_is_present():
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.development",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect",
+            "EMAIL_BACKEND": "",
+            "EMAIL_HOST": "smtp-relay.brevo.com",
+            "EMAIL_PORT": "587",
+            "EMAIL_USE_TLS": "true",
+            "EMAIL_USE_SSL": "false",
+            "EMAIL_HOST_USER": "synthetic-smtp-user",
+            "EMAIL_HOST_PASSWORD": "synthetic-smtp-key",
+            "DEFAULT_FROM_EMAIL": "verified@example.test",
+        }
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import django; django.setup(); from django.conf import settings; "
+            "assert settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend'; "
+            "assert settings.ALLOW_MOCK_VERIFICATION",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_development_keeps_mock_backend_when_smtp_configuration_is_incomplete():
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.development",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect",
+            "EMAIL_BACKEND": "",
+            "EMAIL_HOST": "smtp-relay.brevo.com",
+            "EMAIL_HOST_USER": "",
+            "EMAIL_HOST_PASSWORD": "",
+            "DEFAULT_FROM_EMAIL": "",
+        }
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import django; django.setup(); from django.conf import settings; "
+            "assert settings.EMAIL_BACKEND == 'django.core.mail.backends.locmem.EmailBackend'",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_development_throttle_overrides_are_large_and_production_does_not_load_them():
+    development_environment = os.environ.copy()
+    development_environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.development",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect",
+            "EMAIL_BACKEND": "django.core.mail.backends.locmem.EmailBackend",
+        }
+    )
+    development_result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import django; django.setup(); from django.conf import settings; "
+            "assert settings.DEBUG; "
+            "assert len(settings.DEVELOPMENT_THROTTLE_OVERRIDES) == 17; "
+            "assert all(v == (1000, 3600) for v in settings.DEVELOPMENT_THROTTLE_OVERRIDES.values()); "
+            "assert settings.DEVELOPMENT_VERIFICATION_SEND_COOLDOWN_SECONDS == 0; "
+            "assert settings.DEVELOPMENT_VERIFICATION_MAX_SENDS_PER_HOUR == 1000; "
+            "assert len(settings.ACCOUNT_RATE_LIMITS) == 12; "
+            "assert all(v.startswith('1000/h') for v in settings.ACCOUNT_RATE_LIMITS.values())",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=development_environment,
+    )
+    assert development_result.returncode == 0, development_result.stderr
+
+    production_environment = os.environ.copy()
+    production_environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.production",
+            "DJANGO_SECRET_KEY": "synthetic-test-only-secret-value",
+            "DJANGO_ALLOWED_HOSTS": "bloodconnect.example.test",
+            "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect?sslmode=require",
+            "DATABASE_SSLMODE": "require",
+            "REDIS_URL": "redis://cache:6379/0",
+            "BLOODCONNECT_PROCESS_ROLE": "worker",
+        }
+    )
+    production_result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import django; django.setup(); from django.conf import settings; "
+            "assert settings.DEBUG is False; "
+            "assert not hasattr(settings, 'DEVELOPMENT_THROTTLE_OVERRIDES'); "
+            "assert not hasattr(settings, 'DEVELOPMENT_VERIFICATION_MAX_SENDS_PER_HOUR'); "
+            "from allauth.account import app_settings; "
+            "assert app_settings.RATE_LIMITS['signup'] == '20/m/ip'; "
+            "assert app_settings.RATE_LIMITS['login_failed'] == '10/m/ip,5/300s/key'; "
+            "assert settings.REGISTRATION_THROTTLE_LIMIT == 5",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=production_environment,
+    )
+    assert production_result.returncode == 0, production_result.stderr
+
+
 def test_production_profile_fails_closed_without_required_environment():
     environment = os.environ.copy()
     for name in (
@@ -46,6 +169,7 @@ def test_production_profile_accepts_synthetic_secure_environment():
             "EMAIL_HOST": "smtp.example.test",
             "EMAIL_HOST_USER": "synthetic-user",
             "EMAIL_HOST_PASSWORD": "synthetic-password",
+            "DEFAULT_FROM_EMAIL": "verification@example.test",
             "EMAIL_USE_TLS": "true",
             "REDIS_URL": "redis://cache:6379/0",
             "DATABASE_SSLMODE": "require",
@@ -88,6 +212,7 @@ def test_production_profile_rejects_plaintext_smtp():
             "EMAIL_HOST": "smtp.example.test",
             "EMAIL_HOST_USER": "synthetic-user",
             "EMAIL_HOST_PASSWORD": "synthetic-password",
+            "DEFAULT_FROM_EMAIL": "verification@example.test",
             "EMAIL_USE_TLS": "false",
             "EMAIL_USE_SSL": "false",
             "REDIS_URL": "redis://cache:6379/0",

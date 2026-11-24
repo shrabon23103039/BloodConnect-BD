@@ -6,6 +6,7 @@ from .base import *  # noqa: F403
 
 DEBUG = False
 ALLOW_MOCK_VERIFICATION = True
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 SECRET_KEY = secrets.token_urlsafe(48)
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}

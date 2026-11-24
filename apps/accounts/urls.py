@@ -13,6 +13,7 @@ urlpatterns = [
     path("verify/request/", views.verification_start, name="verification_start"),
     path("verify/", views.verify_account, name="verify"),
     path("login/", views.ThrottledLoginView.as_view(), name="login"),
+    path("google/link/", views.google_link, name="google_link"),
     path("logout/", auth_views.LogoutView.as_view(next_page=reverse_lazy("home")), name="logout"),
     path("password-reset/", views.ThrottledPasswordResetView.as_view(), name="password_reset"),
     path(

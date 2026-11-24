@@ -8,7 +8,9 @@ from typing import Protocol
 from uuid import UUID
 
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db import transaction
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare, salted_hmac
 
@@ -37,6 +39,10 @@ class MockVerificationMessage:
 
 class VerificationUnavailable(Exception):
     """Raised when this environment has no authorized verification adapter."""
+
+
+class VerificationDeliveryError(Exception):
+    """Raised when the configured provider cannot deliver a verification code."""
 
 
 class VerificationRateLimited(Exception):
@@ -90,10 +96,61 @@ class MockVerificationProvider:
         self.messages.clear()
 
 
+class DjangoEmailVerificationProvider:
+    """Deliver email codes using Django's configured email backend."""
+
+    def deliver(
+        self,
+        *,
+        challenge_id: UUID,
+        purpose: str,
+        channel: str,
+        destination: str,
+        code: str,
+    ) -> None:
+        if channel != VerificationChannel.EMAIL:
+            raise VerificationUnavailable("The configured provider sends email only.")
+        message = render_to_string(
+            "accounts/verification_code_email.txt",
+            {
+                "code": code,
+                "expires_minutes": CODE_LIFETIME_SECONDS // 60,
+            },
+        ).strip()
+        try:
+            sent = send_mail(
+                subject="Your BloodConnect BD verification code",
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[destination],
+                fail_silently=False,
+            )
+        except Exception as error:
+            raise VerificationDeliveryError() from error
+        if sent != 1:
+            raise VerificationDeliveryError()
+
+
 mock_verification_provider = MockVerificationProvider()
 
 
-def get_verification_provider() -> VerificationProvider:
+def get_verification_provider(channel: str | None = None) -> VerificationProvider:
+    email_backend = settings.EMAIL_BACKEND
+    smtp_backend = "django.core.mail.backends.smtp.EmailBackend"
+    if channel == VerificationChannel.EMAIL and email_backend == smtp_backend:
+        if (
+            not settings.EMAIL_HOST
+            or not 1 <= settings.EMAIL_PORT <= 65535
+            or not settings.EMAIL_HOST_USER
+            or not settings.EMAIL_HOST_PASSWORD
+            or settings.EMAIL_USE_TLS == settings.EMAIL_USE_SSL
+            or not settings.EMAIL_USE_TLS and not settings.EMAIL_USE_SSL
+            or not settings.DEFAULT_FROM_EMAIL
+        ):
+            raise VerificationUnavailable("SMTP verification is not configured securely.")
+        return DjangoEmailVerificationProvider()
+    if channel == VerificationChannel.EMAIL and settings.DEFAULT_FROM_EMAIL:
+        return DjangoEmailVerificationProvider()
     if settings.ALLOW_MOCK_VERIFICATION:
         return mock_verification_provider
     raise VerificationUnavailable("No authorized verification provider is configured.")
@@ -121,12 +178,17 @@ def _channel_and_destination(user, purpose: str) -> tuple[str, str]:
     raise VerificationUnavailable("The account has no verification channel.")
 
 
-def issue_challenge(user: User, purpose: str) -> VerificationChallenge:
+def issue_challenge(
+    user: User,
+    purpose: str,
+    *,
+    reuse_unexpired: bool = False,
+) -> VerificationChallenge:
     """Create and deliver a bounded one-time challenge for an account."""
-    provider = get_verification_provider()
     if purpose not in VerificationPurpose.values:
         raise ValueError("Unsupported verification purpose.")
-    code = f"{secrets.randbelow(1_000_000):06d}"
+    channel, destination = _channel_and_destination(user, purpose)
+    provider = get_verification_provider(channel)
     with transaction.atomic():
         locked_user = User.objects.select_for_update().get(pk=user.pk)
         if purpose == VerificationPurpose.ACCOUNT and locked_user.account_status != AccountStatus.PENDING:
@@ -136,8 +198,39 @@ def issue_challenge(user: User, purpose: str) -> VerificationChallenge:
         if purpose == VerificationPurpose.PASSWORD_RESET and not locked_user.phone_verified_at:
             raise VerificationUnavailable("Phone reset requires a verified phone account.")
 
-        channel, destination = _channel_and_destination(locked_user, purpose)
         now = timezone.now()
+        if reuse_unexpired:
+            existing = (
+                VerificationChallenge.objects.select_for_update()
+                .filter(
+                    user=locked_user,
+                    purpose=purpose,
+                    channel=channel,
+                    consumed_at__isnull=True,
+                    expires_at__gt=now,
+                    failed_attempts__lt=MAX_FAILED_ATTEMPTS,
+                )
+                .order_by("-created_at")
+                .first()
+            )
+            if existing:
+                return existing
+
+        # Only the dedicated DEBUG development profile supplies these local
+        # overrides. Expiry and failed-code limits intentionally stay fixed.
+        if settings.DEBUG:
+            send_cooldown = getattr(
+                settings, "DEVELOPMENT_VERIFICATION_SEND_COOLDOWN_SECONDS",
+                SEND_COOLDOWN_SECONDS,
+            )
+            max_sends_per_hour = getattr(
+                settings, "DEVELOPMENT_VERIFICATION_MAX_SENDS_PER_HOUR",
+                MAX_SENDS_PER_HOUR,
+            )
+        else:
+            send_cooldown = SEND_COOLDOWN_SECONDS
+            max_sends_per_hour = MAX_SENDS_PER_HOUR
+
         recent = VerificationChallenge.objects.filter(
             user=locked_user,
             purpose=purpose,
@@ -146,9 +239,9 @@ def issue_challenge(user: User, purpose: str) -> VerificationChallenge:
         latest = recent.order_by("-created_at").first()
         if latest:
             seconds_since_send = int((now - latest.created_at).total_seconds())
-            if seconds_since_send < SEND_COOLDOWN_SECONDS:
-                raise VerificationRateLimited(SEND_COOLDOWN_SECONDS - seconds_since_send)
-            if recent.count() >= MAX_SENDS_PER_HOUR:
+            if seconds_since_send < send_cooldown:
+                raise VerificationRateLimited(send_cooldown - seconds_since_send)
+            if recent.count() >= max_sends_per_hour:
                 oldest = recent.order_by("created_at").first()
                 retry_after = max(
                     1,
@@ -156,6 +249,7 @@ def issue_challenge(user: User, purpose: str) -> VerificationChallenge:
                 )
                 raise VerificationRateLimited(retry_after)
 
+        code = f"{secrets.randbelow(1_000_000):06d}"
         VerificationChallenge.objects.select_for_update().filter(
             user=locked_user,
             purpose=purpose,
@@ -171,13 +265,20 @@ def issue_challenge(user: User, purpose: str) -> VerificationChallenge:
         challenge.code_digest = _code_digest(challenge.id, purpose, code)
         challenge.save(update_fields=["code_digest"])
 
-    provider.deliver(
-        challenge_id=challenge.id,
-        purpose=purpose,
-        channel=channel,
-        destination=destination,
-        code=code,
-    )
+    try:
+        provider.deliver(
+            challenge_id=challenge.id,
+            purpose=purpose,
+            channel=channel,
+            destination=destination,
+            code=code,
+        )
+    except VerificationDeliveryError:
+        VerificationChallenge.objects.filter(
+            pk=challenge.pk,
+            consumed_at__isnull=True,
+        ).update(consumed_at=timezone.now())
+        raise
     return challenge
 
 
