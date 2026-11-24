@@ -80,6 +80,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "rest_framework",
     "drf_spectacular",
     "apps.accounts.apps.AccountsConfig",
@@ -97,7 +101,10 @@ INSTALLED_APPS = [
 TERMS_POLICY_VERSION = "draft-1"
 PRIVACY_POLICY_VERSION = "draft-1"
 AUTH_USER_MODEL = "accounts.User"
-AUTHENTICATION_BACKENDS = ["apps.accounts.authentication.IdentifierBackend"]
+AUTHENTICATION_BACKENDS = [
+    "apps.accounts.authentication.IdentifierBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "apps.api.authentication.BearerTokenAuthentication",
@@ -130,6 +137,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
