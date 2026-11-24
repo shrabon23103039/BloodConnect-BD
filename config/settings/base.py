@@ -18,6 +18,7 @@ EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT") or "587")
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "").strip()
 EMAIL_USE_TLS = (os.environ.get("EMAIL_USE_TLS") or "true").strip().lower() in {
     "1",
     "true",
@@ -28,6 +29,7 @@ EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "").strip().lower() in {
     "true",
     "yes",
 }
+EMAIL_TIMEOUT = 10
 REDIS_URL = os.environ.get("REDIS_URL", "")
 NOTIFICATION_DELIVERY_MODE = os.environ.get("NOTIFICATION_DELIVERY_MODE", "mock").strip().lower()
 CACHES = (
@@ -80,6 +82,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "rest_framework",
     "drf_spectacular",
     "apps.accounts.apps.AccountsConfig",
@@ -97,7 +103,48 @@ INSTALLED_APPS = [
 TERMS_POLICY_VERSION = "draft-1"
 PRIVACY_POLICY_VERSION = "draft-1"
 AUTH_USER_MODEL = "accounts.User"
-AUTHENTICATION_BACKENDS = ["apps.accounts.authentication.IdentifierBackend"]
+AUTHENTICATION_BACKENDS = [
+    "apps.accounts.authentication.IdentifierBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+ACCOUNT_ADAPTER = "apps.accounts.social_auth.BloodConnectAccountAdapter"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*"]
+# Django's global default points to the optional, unmounted
+# /accounts/profile/ route. Use the project's existing public home route, which
+# is also the destination used by the server-rendered login view.
+LOGIN_REDIRECT_URL = "home"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_ADAPTER = "apps.accounts.social_auth.BloodConnectSocialAccountAdapter"
+SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False
+SOCIALACCOUNT_LOGIN_ON_GET = False
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_FORMS = {
+    "signup": "apps.accounts.social_forms.GoogleSocialSignupForm",
+}
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
+GOOGLE_OAUTH_ENABLED = bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
+# Conservative production defaults; local development may override these.
+REGISTRATION_THROTTLE_LIMIT = 5
+GOOGLE_OAUTH_START_THROTTLE_LIMIT = 10
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": GOOGLE_OAUTH_CLIENT_ID,
+            "secret": GOOGLE_OAUTH_CLIENT_SECRET,
+            "key": "",
+        },
+        "SCOPE": ["openid", "email", "profile"],
+        "OAUTH_PKCE_ENABLED": True,
+        "EMAIL_AUTHENTICATION": False,
+        "EMAIL_AUTHENTICATION_AUTO_CONNECT": False,
+    }
+}
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "apps.api.authentication.BearerTokenAuthentication",
@@ -130,6 +177,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -148,6 +196,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.accounts.context_processors.google_oauth",
+                "apps.notifications.context_processors.unread_in_app_count",
+                "apps.requests.context_processors.request_workspace_counts",
             ],
         },
     },
