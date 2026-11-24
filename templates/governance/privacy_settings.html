@@ -1,25 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Privacy settings · BloodConnect BD{% endblock %}
 {% block content %}
-<section class="section">
-  <div class="container narrow-container">
-    <p class="eyebrow">Account</p>
-    <h1>Privacy settings</h1>
-    <p>Each choice is recorded with policy version {{ policy_version }}. You can change these choices at any time.</p>
-    <p>Donor discovery and contact sharing remain off until the related donor profile and contact features are available. A donor must still accept each contact request before any selected contact detail can be disclosed.</p>
+<main class="app-utility-page app-settings-page">
+  <header class="app-page-header">
+    <div>
+      <p class="app-page-eyebrow">Account</p>
+      <h1>Privacy settings</h1>
+      <p>Review the choices that control your account and profile.</p>
+    </div>
+  </header>
+  <section class="app-section-card app-settings-card">
+    <div class="app-section-heading">
+      <h2>Your choices</h2>
+      <p>Policy version {{ policy_version }}</p>
+    </div>
+    <p class="app-settings-copy">Each choice is recorded with policy version {{ policy_version }}. You can change these choices at any time.</p>
+    <p class="app-settings-copy">A donor must still accept each contact request before any selected contact detail can be disclosed.</p>
     {% if messages %}{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}{% endif %}
-    <form method="post">
+    <form method="post" class="app-settings-form">
       {% csrf_token %}
       {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
       {% for field in form %}
-        <div class="form-check mb-3">
+        <label class="app-setting-toggle">
           {{ field }}
-          {{ field.label_tag }}
-          {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </div>
+          <span>{{ field.label }}</span>
+        </label>
+        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       {% endfor %}
-      <button class="btn btn-brand" type="submit">Save privacy choices</button>
+      <div class="app-action-bar"><button class="btn btn-brand" type="submit">Save privacy choices</button></div>
     </form>
-  </div>
-</section>
+  </section>
+</main>
 {% endblock %}

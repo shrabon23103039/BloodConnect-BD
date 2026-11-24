@@ -4,6 +4,7 @@ from datetime import timedelta
 from io import StringIO
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.core.cache import cache
 from django.core.management import call_command
 from django.test import TestCase, override_settings
@@ -18,6 +19,7 @@ from apps.accounts.models import (
 )
 from apps.accounts.verification import (
     CODE_LIFETIME_SECONDS,
+    VerificationDeliveryError,
     VerificationRateLimited,
     VerificationUnavailable,
     consume_challenge,
@@ -117,6 +119,40 @@ class VerificationServiceTests(TestCase):
         self.assertIsNotNone(first.consumed_at)
         self.assertFalse(consume_challenge(self.user, VerificationPurpose.ACCOUNT, first_code))
 
+    @override_settings(
+        DEBUG=True,
+        DEVELOPMENT_VERIFICATION_SEND_COOLDOWN_SECONDS=0,
+        DEVELOPMENT_VERIFICATION_MAX_SENDS_PER_HOUR=1000,
+    )
+    def test_idempotent_challenge_request_reuses_live_challenge_without_resending(self):
+        first = issue_challenge(
+            self.user,
+            VerificationPurpose.ACCOUNT,
+            reuse_unexpired=True,
+        )
+        retry = issue_challenge(
+            self.user,
+            VerificationPurpose.ACCOUNT,
+            reuse_unexpired=True,
+        )
+
+        self.assertEqual(retry.pk, first.pk)
+        self.assertEqual(VerificationChallenge.objects.filter(user=self.user).count(), 1)
+        self.assertEqual(len(mock_verification_provider.messages), 1)
+
+    @override_settings(
+        DEBUG=True,
+        DEVELOPMENT_VERIFICATION_SEND_COOLDOWN_SECONDS=0,
+        DEVELOPMENT_VERIFICATION_MAX_SENDS_PER_HOUR=1000,
+    )
+    def test_development_profile_allows_repeated_code_issue_without_weakening_code_security(self):
+        challenges = [
+            issue_challenge(self.user, VerificationPurpose.ACCOUNT) for _ in range(5)
+        ]
+        self.assertEqual(len(challenges), 5)
+        self.assertEqual(CODE_LIFETIME_SECONDS, 600)
+        self.assertEqual(challenges[-1].failed_attempts, 0)
+
     def test_account_send_limit_is_three_per_hour(self):
         issue_challenge(self.user, VerificationPurpose.ACCOUNT)
         for challenge in VerificationChallenge.objects.filter(user=self.user):
@@ -143,6 +179,47 @@ class VerificationServiceTests(TestCase):
         with self.assertRaises(VerificationUnavailable):
             issue_challenge(self.user, VerificationPurpose.ACCOUNT)
         self.assertFalse(VerificationChallenge.objects.exists())
+
+    @override_settings(
+        ALLOW_MOCK_VERIFICATION=False,
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="BloodConnect Verification <verify@example.test>",
+    )
+    def test_email_provider_sends_exactly_one_code_with_django_test_backend(self):
+        challenge = issue_challenge(self.user, VerificationPurpose.ACCOUNT)
+        self.assertEqual(len(mail.outbox), 1)
+        sent = mail.outbox[0]
+        self.assertEqual(sent.to, [self.user.email])
+        self.assertEqual(sent.from_email, "BloodConnect Verification <verify@example.test>")
+        self.assertEqual(sent.subject, "Your BloodConnect BD verification code")
+        code = sent.body.split("code is ", 1)[1].split(".", 1)[0]
+        self.assertEqual(len(code), 6)
+        self.assertTrue(code.isdigit())
+        challenge.refresh_from_db()
+        self.assertNotEqual(challenge.code_digest, code)
+        self.assertTrue(consume_challenge(self.user, VerificationPurpose.ACCOUNT, code))
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(
+        ALLOW_MOCK_VERIFICATION=False,
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="verify@example.test",
+    )
+    def test_email_delivery_failure_invalidates_code_and_keeps_account_pending(self):
+        from unittest.mock import patch
+
+        with patch(
+            "apps.accounts.verification.send_mail",
+            side_effect=OSError("synthetic SMTP failure"),
+        ):
+            with self.assertRaises(VerificationDeliveryError):
+                issue_challenge(self.user, VerificationPurpose.ACCOUNT)
+
+        challenge = VerificationChallenge.objects.get(user=self.user)
+        self.assertIsNotNone(challenge.consumed_at)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.account_status, AccountStatus.PENDING)
+        self.assertIsNone(self.user.email_verified_at)
 
     def test_cleanup_command_purges_only_challenges_over_24_hours_expired(self):
         expired = issue_challenge(self.user, VerificationPurpose.ACCOUNT)
@@ -204,23 +281,85 @@ class VerificationWebFlowTests(TestCase):
             password=PASSWORD,
         )
         request_url = reverse("accounts:verification_start")
-        response = self.client.post(request_url, {"identifier": pending.email})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "If the account is pending")
+        submitted = self.client.post(request_url, {"identifier": pending.email})
+        verify_url = reverse("accounts:verify")
+        self.assertRedirects(submitted, verify_url, fetch_redirect_response=False)
+        self.assertEqual(self.client.session["verification_identifier"], pending.email)
+        challenge_count = VerificationChallenge.objects.filter(user=pending).count()
+        response = self.client.get(verify_url)
+        self.assertContains(response, "If an eligible pending account matches")
         code = mock_verification_provider.messages[-1].code
         self.assertNotContains(response, code)
+        self.assertContains(response, pending.email)
+        self.assertContains(response, 'name="code"')
+        self.assertEqual(VerificationChallenge.objects.filter(user=pending).count(), challenge_count)
+        self.assertEqual(len(mock_verification_provider.messages), 1)
+        fallback_response = self.client.get(request_url)
+        self.assertContains(fallback_response, "Enter verification code")
+        invalid_code = self.client.post(
+            reverse("accounts:verify"),
+            {"identifier": pending.email, "code": "abc"},
+        )
+        self.assertContains(invalid_code, "Enter the six-digit code.")
+        self.assertContains(invalid_code, pending.email)
 
-        unknown_response = self.client.post(
+        unknown_post = self.client.post(
             request_url, {"identifier": "unknown@example.test"}
         )
-        self.assertContains(unknown_response, "If the account is pending")
+        self.assertRedirects(unknown_post, verify_url, fetch_redirect_response=False)
+        unknown_response = self.client.get(verify_url)
+        self.assertContains(unknown_response, "If an eligible pending account matches")
 
         verified = self.client.post(
-            reverse("accounts:verify"), {"identifier": pending.email, "code": code}
+            reverse("accounts:verify"),
+            {"identifier": pending.email, "code": code},
+            follow=True,
+        )
+        self.assertEqual(verified.status_code, 200)
+        self.assertContains(verified, "Your email has been verified. You can now sign in.")
+        pending.refresh_from_db()
+        self.assertEqual(pending.account_status, AccountStatus.ACTIVE)
+
+    @override_settings(
+        ALLOW_MOCK_VERIFICATION=False,
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="verify@example.test",
+    )
+    def test_email_backend_web_flow_sends_once_and_activates_local_email(self):
+        pending = User.objects.create_user(
+            email="smtp-flow@example.test",
+            display_name="SMTP Flow",
+            password=PASSWORD,
+        )
+        submitted = self.client.post(
+            reverse("accounts:verification_start"),
+            {"identifier": pending.email},
+        )
+        self.assertRedirects(
+            submitted,
+            reverse("accounts:verify"),
+            fetch_redirect_response=False,
+        )
+        response = self.client.get(reverse("accounts:verify"))
+        self.assertEqual(len(mail.outbox), 1)
+        code = mail.outbox[0].body.split("code is ", 1)[1].split(".", 1)[0]
+        self.assertNotContains(response, code)
+
+        verified = self.client.post(
+            reverse("accounts:verify"),
+            {"identifier": pending.email, "code": code},
         )
         self.assertRedirects(verified, reverse("accounts:login"))
         pending.refresh_from_db()
         self.assertEqual(pending.account_status, AccountStatus.ACTIVE)
+        self.assertIsNotNone(pending.email_verified_at)
+        self.assertEqual(len(mail.outbox), 1)
+
+        self.client.post(
+            reverse("accounts:verification_start"),
+            {"identifier": pending.email},
+        )
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_verification_code_is_not_rendered_or_logged(self):
         user = User.objects.create_user(
@@ -228,7 +367,11 @@ class VerificationWebFlowTests(TestCase):
         )
         start_url = reverse("accounts:verification_start")
         with self.assertLogs("bloodconnect.request", level="INFO") as send_logs:
-            response = self.client.post(start_url, {"identifier": user.email})
+            submitted = self.client.post(start_url, {"identifier": user.email})
+        self.assertRedirects(
+            submitted, reverse("accounts:verify"), fetch_redirect_response=False
+        )
+        response = self.client.get(reverse("accounts:verify"))
         code = mock_verification_provider.messages[-1].code
         self.assertNotContains(response, code)
         self.assertNotIn(code, "\n".join(send_logs.output))
@@ -238,6 +381,48 @@ class VerificationWebFlowTests(TestCase):
                 reverse("accounts:verify"), {"identifier": user.email, "code": code}
             )
         self.assertNotIn(code, "\n".join(verify_logs.output))
+
+    @override_settings(
+        ALLOW_MOCK_VERIFICATION=False,
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="verify@example.test",
+    )
+    def test_email_delivery_failure_is_safe_and_does_not_reveal_account(self):
+        from unittest.mock import patch
+
+        user = User.objects.create_user(
+            email="delivery-failure@example.test",
+            display_name="Pending Email",
+            password=PASSWORD,
+        )
+        request_url = reverse("accounts:verification_start")
+        with patch(
+            "apps.accounts.verification.send_mail",
+            side_effect=OSError("synthetic SMTP failure"),
+        ):
+            with self.assertLogs("bloodconnect.verification", level="WARNING") as logs:
+                failed_post = self.client.post(request_url, {"identifier": user.email})
+        verify_url = reverse("accounts:verify")
+        self.assertRedirects(failed_post, verify_url, fetch_redirect_response=False)
+        failed = self.client.get(verify_url)
+        unknown_post = self.client.post(
+            request_url,
+            {"identifier": "unknown@example.test"},
+        )
+        self.assertRedirects(unknown_post, verify_url, fetch_redirect_response=False)
+        unknown = self.client.get(verify_url)
+
+        self.assertEqual(failed.status_code, 200)
+        self.assertEqual(unknown.status_code, 200)
+        self.assertContains(failed, "If an eligible pending account matches")
+        self.assertContains(unknown, "If an eligible pending account matches")
+        self.assertNotIn("synthetic SMTP failure", "\n".join(logs.output))
+        self.assertNotIn("Traceback", "\n".join(logs.output))
+        user.refresh_from_db()
+        self.assertEqual(user.account_status, AccountStatus.PENDING)
+        self.assertIsNone(user.email_verified_at)
+        challenge = VerificationChallenge.objects.get(user=user)
+        self.assertIsNotNone(challenge.consumed_at)
 
     def test_resend_rate_limit_and_code_attempt_limit_are_applied(self):
         user = User.objects.create_user(

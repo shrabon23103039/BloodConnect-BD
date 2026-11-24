@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ error_title }} · BloodConnect BD{% endblock %}
+{% block content %}
+<section class="public-auth-page" aria-labelledby="public-error-title">
+  <div class="container public-auth-page__container">
+    <article class="public-auth-card">
+      <div class="public-auth-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6m0 4h.01"></path></svg>
+      </div>
+      <p class="public-auth-eyebrow">Error {{ error_status }}</p>
+      <h1 id="public-error-title">{{ error_heading }}</h1>
+      <p class="public-auth-card__intro">{{ error_copy }}</p>
+      <div class="public-auth-actions">
+        {% if user.is_authenticated %}
+          <a class="btn btn-brand" href="{% url 'home' %}">Return to dashboard</a>
+        {% else %}
+          <a class="btn btn-brand" href="{% url 'accounts:login' %}">Sign in</a>
+        {% endif %}
+      </div>
+      <p class="public-auth-secondary"><a href="{% url 'home' %}">Return home</a></p>
+    </article>
+  </div>
+</section>
+{% endblock %}

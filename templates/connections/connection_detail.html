@@ -2,6 +2,7 @@
 {% block title %}Accepted connection · BloodConnect BD{% endblock %}
 {% block content %}
 <section class="section"><div class="container reading-width">
+  {% include "requests/_workspace_tabs.html" %}
   <p class="eyebrow">Accepted connection</p>
   <h1>{{ connection.contact_request.donor_profile.public_alias|default:"Blood donor" }}</h1>
   <p>Contact request accepted. Acceptance does not mean a donation occurred or that a donor is medically eligible. Coordinate through an authorized healthcare facility.</p>

@@ -1,36 +1,276 @@
 {% extends "base.html" %}
-{% block title %}Find potential donors · BloodConnect BD{% endblock %}
+{% load static %}
+{% block title %}Find blood donors · BloodConnect BD{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/location_picker.css' %}">
+<link rel="stylesheet" href="{% static 'css/donor_search.css' %}">
+{% endblock %}
 {% block content %}
-<section class="section"><div class="container">
-  <p class="eyebrow">Donor discovery</p>
-  <h1>Find potential donors</h1>
-  <p>Results are potential contacts only. Blood group and location filters do not establish medical suitability or compatibility. An authorized healthcare professional must assess those decisions.</p>
-  <form method="get" class="card card-body mb-4" aria-label="Filter potential donors">
-    <div class="row g-3">
-      {% for field in form %}<div class="col-md-6 col-lg-4">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
-    </div>
-    {% if form.non_field_errors %}<div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
-    <div class="d-flex gap-2 mt-3"><button class="btn btn-brand" type="submit">Search</button><a class="btn btn-outline-brand" href="{% url 'donors:search' %}">Clear filters</a></div>
-  </form>
-  {% if invalid_filters %}<div class="alert alert-danger" role="alert">Some filters are invalid. Choose an active location from each list and try again.</div>
-  {% elif page_obj.object_list %}
-    <p role="status">{{ page_obj.paginator.count }} potential donor{{ page_obj.paginator.count|pluralize }} found.</p>
-    <div class="row g-3">
-      {% for profile in page_obj.object_list %}
-        <div class="col-md-6 col-xl-4"><article class="card h-100"><div class="card-body">
-          <h2 class="h5">{{ profile.public_alias|default:"Blood donor" }}</h2>
-          <p class="mb-1"><strong>Blood group:</strong> {{ profile.get_blood_group_display }}</p>
-          <p class="mb-1"><strong>Area:</strong> {% if profile.upazila %}{{ profile.upazila.name_en }}, {% endif %}{{ profile.district.name_en }}, {{ profile.division.name_en }}</p>
-          <span class="badge text-bg-success">Available to receive contact requests</span>
-          <div class="mt-3">{% if user.is_authenticated %}<a class="btn btn-outline-brand btn-sm" href="{% url 'connections:create' %}?donor={{ profile.pk }}">Request contact</a>{% else %}<a class="btn btn-outline-brand btn-sm" href="{% url 'accounts:login' %}">Sign in to request contact</a>{% endif %}</div>
-        </div></article></div>
-      {% endfor %}
-    </div>
-    {% if page_obj.has_other_pages %}<nav aria-label="Donor search pages" class="mt-4"><ul class="pagination">
-      {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
-      <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
-      {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
-    </ul></nav>{% endif %}
-  {% else %}<div class="alert alert-info" role="status">No available potential donors match these filters.</div>{% endif %}
-</div></section>
+<div class="donor-search-page">
+  <div class="container donor-search__container">
+    <form id="donor-search-form"
+          method="get"
+          class="donor-search__dashboard"
+          aria-label="Find blood donors"
+          data-location-options-url="{% url 'locations:child_options' 'DISTRICT' %}"
+          data-donor-search-form
+          data-location-picker
+          data-location-picker-mode="find-donor"
+          data-google-maps-api-key="{{ google_maps_browser_api_key }}">
+
+      <header class="donor-search__hero">
+        <div class="donor-search__hero-copy">
+          <p class="donor-search__eyebrow"><span>Find donors</span><span aria-hidden="true"></span></p>
+          <h1>Find donors</h1>
+          <p>Search for potential blood donors by blood group and area, then request contact with the donor’s consent.</p>
+          <p class="donor-search__safety-note">Search results are potential contacts only; they do not establish medical suitability or compatibility.</p>
+        </div>
+        <div class="donor-search__hero-art" aria-hidden="true">
+          <svg viewBox="0 0 560 150" focusable="false">
+            <defs>
+              <linearGradient id="finder-bag" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#d92632"/><stop offset="1" stop-color="#8f101a"/></linearGradient>
+              <linearGradient id="finder-glow" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff9f8"/><stop offset="1" stop-color="#f8d8d7"/></linearGradient>
+            </defs>
+            <path fill="url(#finder-glow)" opacity=".6" d="M0 0h560v150H0z"/>
+            <path fill="#efaead" opacity=".5" d="M0 124c57-5 89-31 137-28 43 2 58 26 101 22 42-4 60-47 107-44 42 3 58 35 103 26 39-8 65-42 112-40v90H0z"/>
+            <path fill="#fff1ef" d="M0 139c63-11 103-35 154-30 39 4 57 23 94 18 42-5 63-38 103-35 47 4 59 28 102 20 48-8 65-35 107-35v73H0z"/>
+            <g fill="#d99091" opacity=".55">
+              <path d="M22 133h7v-25h4v25h8V94h4v39h9V111h4v22h7v9H22z"/>
+              <path d="M477 130h8V98h4v32h8V81h4v49h8v-25h4v25h9V91h4v39h8v10h-57z"/>
+            </g>
+            <path d="M179 136V68m-19 68 19-83 19 83m-32-43h26m-31 25h36" fill="none" stroke="#d68487" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+            <path d="M299 136V49m-14 87 14-65 14 65m-23-37h18m-23 23h28" fill="none" stroke="#d68487" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+            <g transform="translate(356 10)">
+              <path d="M42 20V12a10 10 0 0 1 20 0v8" fill="none" stroke="#a41420" stroke-linecap="round" stroke-width="6"/>
+              <path d="M21 25h62a11 11 0 0 1 11 11v78a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12V37a12 12 0 0 1 11-12z" fill="#fff8f7" stroke="url(#finder-bag)" stroke-width="7"/>
+              <rect x="22" y="40" width="60" height="55" rx="6" fill="#fff0ef" stroke="#e7a2a3" stroke-width="2"/>
+              <path d="M52 51c-6 10-12 17-12 25a12 12 0 0 0 24 0c0-8-6-15-12-25z" fill="url(#finder-bag)"/>
+              <path d="M40 131v8m24-8v8" stroke="#a41420" stroke-linecap="round" stroke-width="5"/>
+              <path d="M33 140h38" stroke="#d63740" stroke-linecap="round" stroke-width="4"/>
+            </g>
+            <g transform="translate(338 76)">
+              <circle cx="23" cy="23" r="21" fill="#fff" stroke="#e9a2a3" stroke-width="3"/>
+              <path d="M23 11v24m-12-12h24" stroke="#bb2029" stroke-linecap="round" stroke-width="5"/>
+            </g>
+            <path d="M453 20c25 15 50 13 84-8-17 26-40 37-77 29m-12-6c19 0 36-8 50-25" fill="none" stroke="#e49598" stroke-linecap="round" stroke-width="4"/>
+          </svg>
+        </div>
+      </header>
+
+      <section class="donor-search__search-card card" aria-label="Search filters">
+        <div class="donor-search__control-grid">
+          <fieldset class="donor-search__control-group donor-search__blood-group">
+            <legend><span class="donor-search__control-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3C9 8 6 11 6 15a6 6 0 0 0 12 0c0-4-3-7-6-12z"/></svg>
+            </span>Blood group</legend>
+            <select id="donor-blood-group"
+                    class="form-select donor-search__blood-select"
+                    name="{{ form.blood_group.html_name }}"
+                    aria-label="Blood group">
+              {% for value, label in form.blood_group.field.choices %}
+                <option value="{{ value }}"{% if form.blood_group.value == value %} selected{% elif not value and not form.blood_group.value %} selected{% endif %}>
+                  {% if not value %}Any blood group{% else %}{{ label }}{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </fieldset>
+
+          <section class="donor-search__control-group donor-search__location-group" aria-labelledby="donor-location-search-label">
+            <h2><span class="donor-search__control-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0z"/><circle cx="12" cy="10" r="2.2"/></svg>
+            </span><label id="donor-location-search-label" for="donor-location-input">Location</label></h2>
+            <div class="donor-search__address-row">
+              <div class="donor-search__address-field">
+                <input id="donor-location-input"
+                       class="form-control"
+                       type="search"
+                       placeholder="Search address or area"
+                       autocomplete="off"
+                       role="combobox"
+                       aria-autocomplete="list"
+                       aria-expanded="false"
+                       aria-controls="donor-location-suggestions"
+                       aria-describedby="donor-location-help"
+                       data-role="location-input">
+                <ul id="donor-location-suggestions"
+                    class="location-picker__suggestions"
+                    role="listbox"
+                    aria-label="Address suggestions"
+                    data-role="place-suggestions"
+                    hidden></ul>
+              </div>
+              <button class="btn btn-outline-brand donor-search__address-submit" type="button" data-role="search-address">Search address</button>
+            </div>
+            <p id="donor-location-help" class="donor-search__help">Select a place or explicitly use your current location. The map point is not submitted to donor search.</p>
+            <p class="donor-search__provider-status" role="status" aria-live="polite" data-role="provider-status">
+              {% if google_maps_browser_api_key %}Loading map and place search…{% else %}Map unavailable until Google Maps is configured. Administrative search remains available.{% endif %}
+            </p>
+            <div class="donor-search__location-actions">
+              <button class="btn btn-outline-brand" type="button" data-role="use-my-location">Use my location</button>
+              <button class="btn btn-outline-secondary" type="button" data-role="clear-location">Reset location</button>
+              <button class="btn btn-outline-brand donor-search__confirm" type="button" data-role="confirm-location" disabled>Confirm location</button>
+            </div>
+            <p class="location-picker__status donor-search__action-status" role="status" aria-live="polite" data-role="action-status"></p>
+          </section>
+
+          <fieldset class="donor-search__control-group donor-search__radius">
+            <legend><span class="donor-search__control-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3m10 7h-3M12 22v-3M2 12h3"/></svg>
+            </span>Radius preview</legend>
+            <div class="donor-search__radius-options" role="group" aria-label="Radius preview in kilometers">
+              <button class="donor-search__radius-choice" type="button" data-radius="5" aria-pressed="false">5 km</button>
+              <button class="donor-search__radius-choice" type="button" data-radius="10" aria-pressed="false">10 km</button>
+              <button class="donor-search__radius-choice" type="button" data-radius="20" aria-pressed="false">20 km</button>
+              <button class="donor-search__radius-choice" type="button" data-radius="50" aria-pressed="false">50 km</button>
+            </div>
+            <p class="donor-search__help">Visual preview only. Radius does not filter results.</p>
+          </fieldset>
+
+          <div class="donor-search__submit-group">
+            <button class="btn btn-brand" type="submit">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.2 4.2"/></svg>
+              Search donors
+            </button>
+            <a class="btn btn-outline-secondary" href="{% url 'donors:search' %}">Clear filters</a>
+          </div>
+        </div>
+
+        <details class="donor-search__advanced" {% if invalid_filters %}open{% endif %}>
+          <summary>
+            <span class="donor-search__more-filters-label">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v5l-4 2v-7z"/></svg>
+              More filters
+            </span>
+            <span class="donor-search__advanced-hint">Area and availability</span>
+          </summary>
+          <div class="donor-search__advanced-body">
+            <div class="donor-search__filters">
+              {% for field in form %}
+                {% if field.name != "blood_group" %}
+                  <div class="donor-search__filter">
+                    {{ field.label_tag }}{{ field }}
+                    {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% if not form.fields.division.queryset.exists %}
+              <p class="alert alert-info mt-3 mb-0" role="status">Administrative area filters are not currently available. Place and radius selections remain previews and do not filter donor results.</p>
+            {% endif %}
+            {% if form.non_field_errors %}<div class="alert alert-danger mt-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+          </div>
+        </details>
+
+        <p class="donor-search__limitations">Search uses the existing blood-group and administrative filters. Place and radius selections are previews only; they do not change donor results.</p>
+      </section>
+
+      <section class="donor-search__results-stage" aria-label="Donor search results" data-results-layout>
+        <div class="donor-search__results-toolbar">
+          <div class="donor-search__result-summary" role="status" aria-live="polite">
+            {% if not invalid_filters %}
+              <p class="donor-search__result-count"><span class="donor-search__count-badge">{{ page_obj.paginator.count }}</span> potential donor{{ page_obj.paginator.count|pluralize }} found</p>
+              <p class="donor-search__result-scope">Showing donors who are visible and available for contact.</p>
+            {% endif %}
+          </div>
+          <div class="donor-search__view-toggle" role="group" aria-label="Choose donor results view">
+            <button type="button" class="is-active" aria-pressed="true" data-results-view="list">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
+              List view
+            </button>
+            <button type="button" aria-pressed="false" data-results-view="map">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/></svg>
+              Map view
+            </button>
+          </div>
+          <label class="donor-search__sort">
+            <span>Sort by:</span>
+            <select aria-label="Current donor order" title="The existing server order is by area, donor alias and record ID." disabled>
+              <option>Area, then name</option>
+            </select>
+          </label>
+        </div>
+
+        <section id="donor-search-results" class="donor-search__results" aria-labelledby="results-heading" data-results-panel="list">
+          <h2 id="results-heading" class="visually-hidden">Available donors</h2>
+          {% if invalid_filters %}
+            <div class="donor-search__empty" role="alert">
+              <h3>Review your search filters</h3>
+              <p>Some filters are invalid. Choose an active area and try again.</p>
+              <a class="btn btn-outline-brand donor-search__empty-action" href="{% url 'donors:search' %}">Clear search</a>
+            </div>
+          {% elif page_obj.object_list %}
+            <div class="donor-search__result-grid">
+              {% for profile in page_obj.object_list %}
+                <article class="donor-search__result card">
+                  <div class="donor-search__result-card-body">
+                    <div class="donor-search__result-mark">
+                      <span class="donor-search__avatar" aria-hidden="true">{{ profile.public_alias|default:"D"|slice:":1"|upper }}</span>
+                      <span class="donor-search__blood-badge">{{ profile.get_blood_group_display }}</span>
+                    </div>
+                    <div class="donor-search__result-person">
+                      <h3>{{ profile.public_alias|default:"Blood donor" }}</h3>
+                      <p class="donor-search__result-area">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0z"/><circle cx="12" cy="10" r="2.2"/></svg>
+                        <span>{% if profile.ward %}Ward {{ profile.ward.name_en }}{% if profile.city_zone %}, {{ profile.city_zone.name_en }}{% endif %}, {{ profile.city_corporation.name_en }}{% elif profile.city_corporation %}{{ profile.city_corporation.name_en }}{% elif profile.upazila %}{% if profile.union %}{{ profile.union.name_en }}, {% endif %}{{ profile.upazila.name_en }}{% endif %}{% if profile.district %}, {{ profile.district.name_en }}{% endif %}</span>
+                      </p>
+                      <span class="donor-search__availability"><span aria-hidden="true"></span>{{ profile.get_availability_status_display }}</span>
+                    </div>
+                    <div class="donor-search__result-actions">
+                      {% if user.is_authenticated %}
+                        <a class="btn btn-brand" href="{% url 'connections:create' %}?donor={{ profile.pk }}">Request contact</a>
+                      {% else %}
+                        <a class="btn btn-brand" href="{% url 'accounts:login' %}">Sign in</a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+            {% if page_obj.has_other_pages %}
+              <nav aria-label="Donor search pages" class="donor-search__pagination">
+                <ul class="pagination">
+                  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+                  <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{{ query_string }}{% if query_string %}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+                </ul>
+              </nav>
+            {% endif %}
+          {% else %}
+            <div class="donor-search__empty" role="status">
+              <span class="donor-search__empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.2 4.2"/></svg>
+              </span>
+              <div>
+                <h3>No donors found</h3>
+                <p>Try a broader blood group or administrative area. Only profiles meeting current availability and consent rules appear here.</p>
+                <a class="btn btn-outline-brand donor-search__empty-action" href="{% url 'donors:search' %}">Clear search</a>
+              </div>
+            </div>
+          {% endif %}
+        </section>
+
+        <aside class="donor-search__map-column" aria-label="Search location map preview" data-results-panel="map">
+          <div class="donor-search__map-header">
+            <div>
+              <p class="donor-search__map-eyebrow">Search area</p>
+              <h2>Location preview</h2>
+            </div>
+            <span class="donor-search__map-status">Selected point only</span>
+          </div>
+          <div class="location-picker__map donor-search__map"
+               role="region"
+               aria-label="Interactive search location map"
+               data-role="map">
+            <p class="location-picker__map-fallback" data-role="map-fallback">Map unavailable. Address search and administrative filters remain available.</p>
+          </div>
+          <p class="donor-search__map-privacy">Donor locations are not plotted. No donor markers or distances are available; the radius is only a visual preview and does not change results.</p>
+        </aside>
+      </section>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/location_picker.js' %}" defer></script>
+<script src="{% static 'js/donor_search.js' %}" defer></script>
 {% endblock %}

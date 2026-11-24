@@ -1,16 +1,74 @@
 {% extends "base.html" %}
+{% load static %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/google_oauth.css' %}">
+  <link rel="stylesheet" href="{% static 'css/account_login.css' %}">
+{% endblock %}
 {% block title %}Sign in · BloodConnect BD{% endblock %}
 {% block content %}
-<section class="section"><div class="container" style="max-width: 34rem">
-  <h1>Sign in</h1>
-  {% if form.errors %}<div class="alert alert-danger" role="alert">Email or phone and password were not accepted. Your account may need verification.</div>{% endif %}
-  <form method="post">
-    {% csrf_token %}
-    {% for field in form %}<div class="mb-3">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
-    <button class="btn btn-brand" type="submit">Sign in</button>
-  </form>
-  <p class="mt-3"><a href="{% url 'accounts:password_reset' %}">Reset password by email</a> · <a href="{% url 'accounts:phone_password_reset' %}">Reset by phone</a></p>
-  <p><a href="{% url 'accounts:verification_start' %}">Verify a pending account</a></p>
-  <p>Need an account? <a href="{% url 'accounts:register' %}">Register</a>.</p>
-</div></section>
+<section class="login-page" aria-labelledby="login-welcome-title">
+  <div class="container login-page__layout">
+    <div class="login-welcome">
+      <p class="login-welcome__eyebrow"><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5 20 6v5.2c0 4.8-3.3 8.1-8 10.3-4.7-2.2-8-5.5-8-10.3V6z"></path><path d="m8.4 11.8 2.3 2.3 4.9-5.1"></path></svg></span>Welcome back</p>
+      <h1 id="login-welcome-title">Sign in to <span>BloodConnect BD</span></h1>
+      <p class="login-welcome__copy">Continue your journey to help save lives. Connect with donors, manage requests and be part of a stronger community.</p>
+      <ul class="login-trust-points" aria-label="BloodConnect principles">
+        <li><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 2.5 20 6v5.2c0 4.8-3.3 8.1-8 10.3-4.7-2.2-8-5.5-8-10.3V6z"></path><path d="m8.4 11.8 2.3 2.3 4.9-5.1"></path></svg><span>Privacy first</span></li>
+        <li><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"></circle><path d="M2.8 19c.4-3.5 2.7-5.4 6.2-5.4 1.6 0 2.9.4 3.9 1.2M16.5 4.8a3.2 3.2 0 0 1 0 6.3M16 14c3.1.2 4.8 1.9 5.2 5"></path></svg><span>Consent-led contact</span></li>
+        <li><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M20.8 8.8c0 5-8.8 10.2-8.8 10.2S3.2 13.8 3.2 8.8a4.4 4.4 0 0 1 8.8-1.1 4.4 4.4 0 0 1 8.8 1.1Z"></path></svg><span>Community driven</span></li>
+      </ul>
+      <div class="login-welcome__art" aria-hidden="true"></div>
+    </div>
+
+    <div class="login-card">
+      <header class="login-card__header">
+        <h2>Sign in</h2>
+        <p>Enter your email or phone and password to access your account.</p>
+      </header>
+
+      {% for message in messages %}
+        <div class="login-message login-message--{{ message.tags|default:'info' }}" role="status">{{ message }}</div>
+      {% endfor %}
+      {% if form.errors %}
+        <div class="login-error-summary" role="alert">Email or phone and password were not accepted. Your account may need verification.</div>
+      {% endif %}
+
+      {% include "accounts/_google_button.html" %}
+
+      <form method="post" class="login-form">
+        {% csrf_token %}
+        <div class="login-field">
+          {{ form.username.label_tag }}
+          <div class="login-input-wrap">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path></svg>
+            {{ form.username }}
+          </div>
+          {% for error in form.username.errors %}<div class="login-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="login-field">
+          {{ form.password.label_tag }}
+          <div class="login-input-wrap">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v3"></path></svg>
+            {{ form.password }}
+          </div>
+          {% for error in form.password.errors %}<div class="login-field-error">{{ error }}</div>{% endfor %}
+        </div>
+
+        <nav class="login-recovery-links" aria-label="Password recovery options">
+          <a href="{% url 'accounts:password_reset' %}">Reset password by email</a>
+          <a href="{% url 'accounts:phone_password_reset' %}">Reset by phone</a>
+        </nav>
+        <a class="login-verification-link" href="{% url 'accounts:verification_start' %}">Verify a pending account</a>
+
+        <button class="btn btn-brand login-submit" type="submit">Sign in <span aria-hidden="true">&rarr;</span></button>
+      </form>
+
+      <p class="login-register">Don't have an account? <a href="{% url 'accounts:register' %}">Register</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_scripts %}
+  <script src="{% static 'js/google_oauth.js' %}" defer></script>
+  <script src="{% static 'js/account_login.js' %}" defer></script>
 {% endblock %}

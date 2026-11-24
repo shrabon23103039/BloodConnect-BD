@@ -1,0 +1,10 @@
+<div class="profile-field{% if field.field.widget.input_type == 'checkbox' %} profile-field--checkbox{% endif %}">
+  {% if field.field.widget.input_type == 'checkbox' %}
+    <input class="form-check-input" type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}" value="on"{% if field.value %} checked{% endif %}{% if field.field.required %} required{% endif %}{% if field.help_text or field.errors or described_by %} aria-describedby="{% if field.help_text %}{{ field.id_for_label }}-help{% endif %}{% if field.help_text and field.errors or field.help_text and described_by or field.errors and described_by %} {% endif %}{% if field.errors %}{{ field.id_for_label }}-errors{% endif %}{% if field.errors and described_by %} {% endif %}{{ described_by }}"{% endif %}{% if field.errors %} aria-invalid="true"{% endif %}>{% if label_override %}<label for="{{ field.id_for_label }}">{{ label_override }}</label>{% else %}{{ field.label_tag }}{% endif %}
+  {% else %}
+    <label for="{{ field.id_for_label }}">{% if label_override %}{{ label_override }}{% else %}{{ field.label }}{% endif %}{% if field.field.required %}<span class="profile-required-indicator" aria-hidden="true"> *</span><span class="visually-hidden"> (required)</span>{% endif %}</label>{{ field }}
+  {% endif %}
+  {% if field.help_text %}<p class="profile-field-help"{% if field.field.widget.input_type == 'checkbox' %} id="{{ field.id_for_label }}-help"{% endif %}>{{ field.help_text }}</p>{% endif %}
+  {% if contact_share %}<p class="profile-field-help">Optional. Shared only after you accept a contact request and current consent is still active.</p>{% endif %}
+  {% if field.errors and field.field.widget.input_type == 'checkbox' %}<div id="{{ field.id_for_label }}-errors" class="profile-field-errors">{% for error in field.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}</div>{% else %}{% for error in field.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}{% endif %}
+</div>

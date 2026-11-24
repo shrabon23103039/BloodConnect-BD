@@ -1,0 +1,26 @@
+<section class="request-summary-grid" aria-label="Request workspace summary">
+  <a class="request-summary-card request-summary-card--primary" href="{% url 'requests:list' %}">
+    <span class="request-summary-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+    </span>
+    <span class="request-summary-label">My blood requests</span>
+    <strong class="request-summary-value" data-summary-count="my-requests">{{ my_blood_request_count|default:0 }}</strong>
+    <span class="request-summary-detail">Requests you created</span>
+  </a>
+  <a class="request-summary-card" href="{% url 'connections:incoming' %}">
+    <span class="request-summary-icon request-summary-icon--rose" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></svg>
+    </span>
+    <span class="request-summary-label">Incoming requests</span>
+    <strong class="request-summary-value" data-summary-count="incoming">{{ incoming_contact_request_count|default:0 }}</strong>
+    <span class="request-summary-detail">Contact requests sent to you</span>
+  </a>
+  <a class="request-summary-card" href="{% url 'connections:outgoing' %}">
+    <span class="request-summary-icon request-summary-icon--gold" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M7 7h10v10M17 7 7 17"/></svg>
+    </span>
+    <span class="request-summary-label">Outgoing requests</span>
+    <strong class="request-summary-value" data-summary-count="outgoing">{{ outgoing_contact_request_count|default:0 }}</strong>
+    <span class="request-summary-detail">Contact requests you sent</span>
+  </a>
+</section>

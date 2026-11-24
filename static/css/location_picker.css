@@ -1,0 +1,210 @@
+.location-picker__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.location-picker__container {
+  max-width: 1080px;
+}
+
+.location-picker__intro,
+.location-picker__privacy {
+  max-width: 72ch;
+  color: var(--color-muted);
+}
+
+.location-picker {
+  min-width: 0;
+}
+
+.location-picker__panel {
+  border-color: var(--color-border);
+  border-radius: 1rem;
+  box-shadow: 0 12px 32px rgb(23 43 77 / 7%);
+}
+
+.location-picker__search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.location-picker__autocomplete {
+  min-width: 0;
+  min-height: 44px;
+}
+
+.location-picker__autocomplete gmp-place-autocomplete {
+  display: block;
+  width: 100%;
+  --gmpx-color-surface: var(--color-surface);
+  --gmpx-color-on-surface: var(--color-text);
+  --gmpx-color-primary: var(--color-primary-700);
+  --gmpx-font-family-base: var(--font-sans);
+}
+
+.location-picker__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, .8fr);
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.location-picker__map {
+  position: relative;
+  min-width: 0;
+  min-height: 390px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: .75rem;
+  background: var(--color-page);
+}
+
+.location-picker__map-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 1.25rem;
+  color: #59636a;
+  text-align: center;
+}
+
+.location-picker__map-fallback[hidden] {
+  display: none;
+}
+
+.location-picker__controls {
+  min-width: 0;
+}
+
+.location-picker__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+
+.location-picker__status {
+  min-height: 1.5rem;
+  margin: .85rem 0;
+  color: var(--color-muted);
+}
+
+.location-picker__coordinates,
+.location-picker__confirmed {
+  margin-top: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: .75rem;
+  padding: 1rem;
+}
+
+.location-picker__coordinates summary {
+  cursor: pointer;
+  color: var(--color-navy-900);
+  font-weight: 650;
+}
+
+.location-picker__coordinates summary:focus-visible {
+  outline: 3px solid var(--color-info);
+  outline-offset: 3px;
+}
+
+.location-picker__coordinates legend {
+  float: none;
+  width: auto;
+  margin-bottom: .65rem;
+}
+
+.location-picker__coordinate-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.location-picker__confirmed {
+  border-color: var(--color-success);
+  background: var(--color-surface);
+  overflow-wrap: anywhere;
+}
+
+.location-picker__confirmed[hidden] {
+  display: none;
+}
+
+.location-picker__privacy {
+  margin-top: 1rem;
+  color: var(--color-muted);
+  font-size: .9rem;
+}
+
+.request-location-picker {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: .8rem;
+  background: var(--color-surface);
+}
+
+.request-location-picker > p {
+  color: var(--color-muted);
+}
+
+.request-location-search-field {
+  position: relative;
+}
+
+.request-location-picker .request-location-map {
+  height: 220px;
+  min-height: 220px;
+  margin-top: .75rem;
+}
+
+.request-location-actions {
+  margin-top: .75rem;
+}
+
+.request-location-status {
+  margin: .45rem 0;
+}
+
+.request-location-confirmed {
+  margin-top: .75rem;
+  padding: .8rem 1rem;
+}
+
+@media (max-width: 767.98px) {
+  .location-picker__nav {
+    align-items: flex-start;
+  }
+
+  .location-picker__nav .brand-mark {
+    font-size: .95rem;
+  }
+
+  .location-picker__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .location-picker__map {
+    min-height: 320px;
+  }
+
+  .request-location-picker .request-location-map {
+    height: 200px;
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 400px) {
+  .location-picker__nav {
+    flex-direction: column;
+  }
+
+  .location-picker__coordinate-inputs {
+    grid-template-columns: 1fr;
+  }
+}

@@ -9,6 +9,11 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.urls import reverse
 
+from apps.accounts.forms import (
+    PhoneResetCodeForm,
+    PhoneResetIdentifierForm,
+    VerificationIdentifierForm,
+)
 from apps.accounts.models import AccountStatus
 
 User = get_user_model()
@@ -57,6 +62,23 @@ class AccountAuthFlowTests(TestCase):
         self.assertEqual(user.account_status, AccountStatus.PENDING)
         self.assertTrue(user.check_password(PASSWORD))
         self.assertNotIn("_auth_user_id", self.client.session)
+        submitted = self.client.get(reverse("accounts:registration_submitted"))
+        self.assertTrue(submitted.context["account_created"])
+        self.assertEqual(submitted.context["identifier_type"], "email")
+
+    @override_settings(ALLOW_MOCK_VERIFICATION=False, DEFAULT_FROM_EMAIL="")
+    def test_registration_unavailable_state_uses_public_auth_shell_without_creating_account(self):
+        response = self.post_registration(
+            email="",
+            phone_e164="+8801700000123",
+            display_name="Unavailable Example",
+        )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertContains(response, 'class="public-site"', status_code=503)
+        self.assertContains(response, "Registration is temporarily unavailable", status_code=503)
+        self.assertContains(response, "Account verification delivery is not enabled", status_code=503)
+        self.assertFalse(User.objects.filter(phone_e164="+8801700000123").exists())
 
     def test_registration_accepts_phone_identifier_and_requires_exactly_one(self):
         response = self.post_registration(
@@ -67,11 +89,77 @@ class AccountAuthFlowTests(TestCase):
         self.assertRedirects(response, reverse("accounts:registration_submitted"))
         self.assertTrue(User.objects.filter(phone_e164="+8801700000000").exists())
 
-        invalid = self.post_registration(
-            email="", phone_e164="01700000000", display_name="Invalid Phone"
+    def test_registration_rejects_missing_and_both_identifiers(self):
+        missing = self.post_registration(email="", phone_e164="")
+        self.assertEqual(missing.status_code, 200)
+        self.assertContains(missing, "Enter an email address.")
+        self.assertFalse(User.objects.exists())
+
+        both = self.post_registration(
+            email="both@example.test",
+            phone_e164="+8801700000000",
+            identifier_type="email",
         )
-        self.assertEqual(invalid.status_code, 200)
+        self.assertEqual(both.status_code, 200)
+        self.assertContains(both, "Use only the selected Email identifier.")
+        self.assertFalse(User.objects.exists())
+
+    def test_registration_normalizes_local_bangladesh_phone_to_e164(self):
+        response = self.post_registration(
+            email="", phone_e164="01700000000", display_name="Local Phone Example"
+        )
+        self.assertRedirects(response, reverse("accounts:registration_submitted"))
+        self.assertTrue(User.objects.filter(phone_e164="+8801700000000").exists())
+
+    def test_registration_rejects_duplicate_equivalent_phone_formats(self):
+        User.objects.create_user(phone_e164="+8801700000000", display_name="Existing")
+        response = self.post_registration(
+            email="", phone_e164="01700000000", display_name="Duplicate"
+        )
+        self.assertRedirects(response, reverse("accounts:registration_submitted"))
+        self.assertEqual(User.objects.filter(phone_e164="+8801700000000").count(), 1)
+
+    def test_registration_rejects_invalid_bangladesh_local_phone(self):
+        response = self.post_registration(
+            email="", phone_e164="0170000000", display_name="Invalid Phone"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "E.164 format")
         self.assertFalse(User.objects.filter(display_name="Invalid Phone").exists())
+
+    def test_verification_form_normalizes_local_bangladesh_phone_before_validation(self):
+        form = VerificationIdentifierForm({"identifier": "01700000000"})
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["identifier"], "+8801700000000")
+
+    def test_phone_reset_forms_accept_local_and_international_formats(self):
+        for form_class in (PhoneResetIdentifierForm, PhoneResetCodeForm):
+            for phone in ("01700000000", "+880 170 000 0000"):
+                with self.subTest(form=form_class.__name__, phone_format=phone):
+                    data = {"phone_e164": phone}
+                    if form_class is PhoneResetCodeForm:
+                        data["code"] = "123456"
+                    form = form_class(data)
+                    self.assertTrue(form.is_valid(), form.errors)
+                    self.assertEqual(form.cleaned_data["phone_e164"], "+8801700000000")
+
+    def test_phone_reset_forms_reject_invalid_bangladesh_mobile(self):
+        for form_class in (PhoneResetIdentifierForm, PhoneResetCodeForm):
+            with self.subTest(form=form_class.__name__):
+                data = {"phone_e164": "+8801100000000"}
+                if form_class is PhoneResetCodeForm:
+                    data["code"] = "123456"
+                form = form_class(data)
+                self.assertFalse(form.is_valid())
+                self.assertIn("phone_e164", form.errors)
+
+    def test_phone_reset_pages_render_phone_format_help(self):
+        for route in ("accounts:phone_password_reset", "accounts:phone_password_reset_verify"):
+            with self.subTest(route=route):
+                response = self.client.get(reverse(route))
+                self.assertContains(response, "Phone number")
+                self.assertContains(response, "01XXXXXXXXX or +8801XXXXXXXXX")
 
     def test_registration_validates_password_confirmation_and_policy_acceptance(self):
         mismatch = self.post_registration(password2="Different-Unique-Password!42")
@@ -128,7 +216,7 @@ class AccountAuthFlowTests(TestCase):
         )
         response = self.client.post(
             reverse("accounts:login"),
-            {"username": " +8801700000000 ", "password": PASSWORD},
+            {"username": " 01700000000 ", "password": PASSWORD},
         )
         self.assertRedirects(response, reverse("home"))
         self.assertEqual(self.client.session["_auth_user_id"], str(phone_user.pk))
@@ -251,6 +339,17 @@ class AccountAuthFlowTests(TestCase):
         )
         self.assertEqual(limited.status_code, 429)
         self.assertEqual(limited["Retry-After"], "60")
+
+    @override_settings(
+        DEBUG=True,
+        DEVELOPMENT_THROTTLE_OVERRIDES={"login": (1000, 3600)},
+    )
+    def test_development_throttle_override_allows_repeated_local_login_testing(self):
+        for _ in range(25):
+            response = self.client.post(
+                reverse("accounts:login"), {"username": "nobody", "password": "wrong"}
+            )
+            self.assertEqual(response.status_code, 200)
 
     def test_registration_and_password_reset_have_separate_throttles(self):
         for index in range(5):

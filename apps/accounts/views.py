@@ -1,13 +1,21 @@
 """Server-rendered account registration and session authentication views."""
 
+import logging
+
+from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import DatabaseError, IntegrityError, transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_http_methods
+
+from allauth.socialaccount.providers.google.views import oauth2_callback, oauth2_login
+from allauth.socialaccount.models import SocialAccount
 
 from apps.accounts.forms import (
     AccountPasswordResetForm,
@@ -19,25 +27,41 @@ from apps.accounts.forms import (
     VerificationCodeForm,
     VerificationIdentifierForm,
 )
-from apps.accounts.models import AccountStatus, VerificationPurpose
+from apps.accounts.models import (
+    AccountStatus,
+    VerificationChannel,
+    VerificationPurpose,
+)
 from apps.accounts.throttling import limited_by_ip
 from apps.accounts.verification import (
     VerificationRateLimited,
+    VerificationDeliveryError,
     VerificationUnavailable,
     consume_challenge,
     get_verification_provider,
     issue_challenge,
 )
+
 from apps.governance.models import ConsentSource, ConsentType, record_consent
 
+oauth_logger = logging.getLogger("bloodconnect.oauth")
 
-@limited_by_ip(scope="register", limit=5, window_seconds=3600)
+
+@limited_by_ip(
+    scope="register", limit=5, window_seconds=3600,
+    limit_setting="REGISTRATION_THROTTLE_LIMIT",
+)
 @require_http_methods(["GET", "POST"])
 def register(request):
     form = RegistrationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
+        verification_channel = (
+            VerificationChannel.EMAIL
+            if form.cleaned_data.get("email")
+            else VerificationChannel.PHONE
+        )
         try:
-            get_verification_provider()
+            get_verification_provider(verification_channel)
         except VerificationUnavailable:
             return render(
                 request,
@@ -67,15 +91,29 @@ def register(request):
                     granted=True,
                     source=ConsentSource.WEB,
                 )
+            request.session["registration_created"] = True
+            request.session["registration_identifier_type"] = (
+                "email" if values.get("email") else "phone"
+            )
         except (IntegrityError, ValidationError):
             # A generic response prevents account enumeration by email or phone.
-            pass
+            request.session["registration_created"] = False
+            request.session.pop("registration_identifier_type", None)
         return redirect("accounts:registration_submitted")
     return render(request, "accounts/register.html", {"form": form})
 
 
 def registration_submitted(request):
-    return render(request, "accounts/registration_submitted.html")
+    account_created = request.session.get("registration_created", False)
+    identifier_type = request.session.get("registration_identifier_type", "")
+    return render(
+        request,
+        "accounts/registration_submitted.html",
+        {
+            "account_created": account_created,
+            "identifier_type": identifier_type,
+        },
+    )
 
 
 def _find_account(identifier):
@@ -88,24 +126,56 @@ def _find_account(identifier):
 @limited_by_ip(scope="verification-send", limit=5, window_seconds=3600)
 @require_http_methods(["GET", "POST"])
 def verification_start(request):
-    form = VerificationIdentifierForm(request.POST or None)
-    sent = False
+    initial = {}
+    if request.method == "GET" and request.session.get("verification_identifier"):
+        initial["identifier"] = request.session["verification_identifier"]
+    form = VerificationIdentifierForm(request.POST or None, initial=initial)
+    sent = request.session.pop("verification_request_submitted", False)
     if request.method == "POST" and form.is_valid():
-        user = _find_account(form.cleaned_data["identifier"])
+        identifier = form.cleaned_data["identifier"]
+        request.session.pop("verification_code_only", None)
+        request.session["verification_identifier"] = identifier
+        user = _find_account(identifier)
         if user and user.account_status == AccountStatus.PENDING:
             try:
                 issue_challenge(user, VerificationPurpose.ACCOUNT)
+            except VerificationDeliveryError as error:
+                logging.getLogger("bloodconnect.verification").warning(
+                    "Verification delivery failed",
+                    extra={
+                        "event": "verification_delivery_failed",
+                        "request_id": getattr(request, "request_id", ""),
+                        "error_type": type(error.__cause__).__name__
+                        if error.__cause__
+                        else type(error).__name__,
+                    },
+                )
             except (VerificationRateLimited, VerificationUnavailable):
                 pass
         # Same response for unknown, active, rate-limited and pending accounts.
-        sent = True
+        request.session["verification_request_submitted"] = True
+        return redirect("accounts:verify")
     return render(request, "accounts/verification_start.html", {"form": form, "sent": sent})
 
 
 @limited_by_ip(scope="verification-attempt", limit=10, window_seconds=3600)
 @require_http_methods(["GET", "POST"])
 def verify_account(request):
-    form = VerificationCodeForm(request.POST or None)
+    initial = {}
+    if request.method == "GET" and request.session.get("verification_identifier"):
+        initial["identifier"] = request.session["verification_identifier"]
+    verification_code_only = bool(
+        request.session.get("verification_code_only")
+        and request.session.get("verification_identifier")
+    )
+    submitted_data = request.POST or None
+    if request.method == "POST" and verification_code_only:
+        # Google supplied the verified address; the session, not a modifiable
+        # hidden field, is authoritative for which account receives the code.
+        submitted_data = request.POST.copy()
+        submitted_data["identifier"] = request.session["verification_identifier"]
+    form = VerificationCodeForm(submitted_data, initial=initial)
+    request_submitted = request.session.get("verification_request_submitted", False)
     if request.method == "POST" and form.is_valid():
         user = _find_account(form.cleaned_data["identifier"])
         if (
@@ -117,9 +187,25 @@ def verify_account(request):
                 form.cleaned_data["code"],
             )
         ):
+            request.session.pop("verification_identifier", None)
+            request.session.pop("verification_code_only", None)
+            request.session.pop("verification_request_submitted", None)
+            identifier_type = "email" if user.email else "phone"
+            messages.success(
+                request,
+                f"Your {identifier_type} has been verified. You can now sign in.",
+            )
             return redirect("accounts:login")
         form.add_error(None, "The code is invalid, expired, or already used.")
-    return render(request, "accounts/verify.html", {"form": form})
+    return render(
+        request,
+        "accounts/verify.html",
+        {
+            "form": form,
+            "request_submitted": request_submitted,
+            "verification_code_only": verification_code_only,
+        },
+    )
 
 
 @limited_by_ip(scope="phone-reset-send", limit=5, window_seconds=3600)
@@ -191,7 +277,7 @@ class ThrottledLoginView(auth_views.LoginView):
     authentication_form = IdentifierAuthenticationForm
     next_page = reverse_lazy("home")
 
-    @limited_by_ip(scope="login", limit=10, window_seconds=60)
+    @limited_by_ip(scope="login", limit=10, window_seconds=60, methods={"POST"})
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
@@ -206,3 +292,56 @@ class ThrottledPasswordResetView(auth_views.PasswordResetView):
     @limited_by_ip(scope="password-reset", limit=5, window_seconds=3600)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+@login_required
+@require_http_methods(["GET"])
+def google_link(request):
+    """Show the explicit, authenticated Google-link action."""
+    if request.user.account_status != AccountStatus.ACTIVE:
+        return render(request, "accounts/google_link.html", status=403)
+    linked = SocialAccount.objects.filter(
+        user=request.user,
+        provider="google",
+    ).exists()
+    return render(
+        request,
+        "accounts/google_link.html",
+        {"google_account_linked": linked},
+    )
+
+
+@limited_by_ip(
+    scope="google-oauth-start", limit=10, window_seconds=60, methods={"POST"},
+    limit_setting="GOOGLE_OAUTH_START_THROTTLE_LIMIT",
+)
+@require_http_methods(["POST"])
+def google_oauth_start(request):
+    """Apply the account IP throttle before django-allauth starts OAuth."""
+    if not settings.GOOGLE_OAUTH_ENABLED:
+        return redirect("accounts:login")
+    return oauth2_login(request)
+
+
+@limited_by_ip(scope="google-oauth-callback", limit=20, window_seconds=60)
+@require_http_methods(["GET"])
+def google_oauth_callback(request):
+    """Bound callback traffic and delegate protocol processing to allauth."""
+    try:
+        return oauth2_callback(request)
+    except Exception as error:
+        # Keep DEBUG's technical 500 page from exposing callback/database details.
+        oauth_logger.error(
+            "Google OAuth callback failed",
+            extra={
+                "event": "oauth_callback_failed",
+                "request_id": getattr(request, "request_id", ""),
+                "error_type": type(error).__name__,
+            },
+        )
+        response_status = 503 if isinstance(error, DatabaseError) else 400
+        return render(
+            request,
+            "accounts/google_oauth_error.html",
+            status=response_status,
+        )

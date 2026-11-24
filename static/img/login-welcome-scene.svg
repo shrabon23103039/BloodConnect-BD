@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" fill="none">
+  <defs>
+    <linearGradient id="ground" x1="110" y1="170" x2="640" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#f8d6d9" stop-opacity=".75"/>
+    </linearGradient>
+    <linearGradient id="drop" x1="342" y1="63" x2="402" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f04d59"/>
+      <stop offset="1" stop-color="#a90c18"/>
+    </linearGradient>
+  </defs>
+  <path d="M0 228c107-10 148-46 249-35 81 9 107 59 197 46 91-13 126-62 274-45v136H0V228Z" fill="url(#ground)"/>
+  <path d="M8 255c111-27 174 1 266-24 72-20 101-55 179-47 81 8 121 42 267 20" stroke="#e9a0a6" stroke-opacity=".45" stroke-width="2.5"/>
+  <g fill="#e9a0a6" fill-opacity=".38">
+    <path d="M70 229h16v-31h18v31h15v-45h21v45h12v-24h19v24h22v16H70z"/>
+    <path d="M498 234h13v-37h19v37h15v-27h19v27h15v-53h22v53h17v-34h18v34h19v14H498z"/>
+  </g>
+  <g stroke="#e4939a" stroke-opacity=".52" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M323 244h76l-8-15h-60zM331 229l30-88 31 88M352 229l9-173 11 173M312 244v13m98-13v13M304 257h115"/>
+  </g>
+  <g fill="#edb0b4" fill-opacity=".5">
+    <path d="M239 191c-14-24-33-25-46-2 10-3 16-1 23 4-11-1-18 2-23 9 12-5 22-4 33 3 5-5 9-9 13-14Z"/>
+    <path d="M542 164c-11-19-26-20-37-2 8-3 13-1 18 3-9-1-14 2-19 7 10-4 18-3 26 2 5-4 8-7 12-10Z"/>
+  </g>
+  <path d="M372 40c-8 15-32 43-32 63a32 32 0 1 0 64 0c0-20-24-48-32-63Z" fill="url(#drop)"/>
+  <path d="M350 101h12l6-10 7 23 8-33 7 23 6-9h12" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"/>
+  <g stroke="#df8c94" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M288 282c-4-28-14-52-33-75-8-10-17-21-22-33-3-7-1-14 5-16 7-2 13 5 19 13l19 26-30-45c-5-7-4-15 2-18 6-3 12 2 18 10l33 41-27-42c-5-8-3-15 3-18 6-3 12 2 17 9l31 43-19-34c-4-8-2-15 4-17 7-2 12 4 17 11l27 43"/>
+    <path d="M456 282c4-28 14-52 33-75 8-10 17-21 22-33 3-7 1-14-5-16-7-2-13 5-19 13l-19 26 30-45c5-7 4-15-2-18-6-3-12 2-18 10l-33 41 27-42c5-8 3-15-3-18-6-3-12 2-17 9l-31 43 19-34c4-8 2-15-4-17-7-2-12 4-17 11l-27 43"/>
+  </g>
+  <path d="M244 287c33 19 75 29 128 29 53 0 95-10 128-29" stroke="#efb9bd" stroke-linecap="round" stroke-width="3"/>
+</svg>

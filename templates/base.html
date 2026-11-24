@@ -9,9 +9,36 @@
   <title>{% block title %}BloodConnect BD{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  {% if user.is_authenticated %}<link rel="stylesheet" href="{% static 'css/authenticated_app.css' %}">{% endif %}
+  {% block extra_head %}{% endblock %}
+  {% if not user.is_authenticated %}<link rel="stylesheet" href="{% static 'css/public_web.css' %}">{% endif %}
 </head>
-<body>
+<body{% if not user.is_authenticated %} class="public-site"{% endif %}>
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  {% if user.is_authenticated %}
+  <div class="app-shell{% if request.resolver_match.url_name == 'home' or request.resolver_match.namespace == 'donors' and request.resolver_match.url_name == 'search' or request.resolver_match.namespace == 'donors' and request.resolver_match.url_name == 'profile' or request.resolver_match.namespace == 'requests' or request.resolver_match.namespace == 'connections' or request.resolver_match.namespace == 'notifications' or request.resolver_match.namespace == 'governance' or request.resolver_match.url_name == 'google_link' %} app-shell--redesigned-workspace{% endif %}">
+    <aside class="app-sidebar" aria-label="Application navigation">
+      <a class="app-brand" href="{% url 'home' %}"><span class="app-brand-mark" aria-hidden="true">B</span><span>BloodConnect <small>BD</small></span></a>
+      {% include "_app_navigation.html" with mobile=False %}
+      <p class="app-sidebar-note">A donor coordination platform.<br>Not a blood bank or medical service.</p>
+    </aside>
+    <div class="app-workspace">
+      <header class="app-topbar">
+        <button class="app-menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobile-app-navigation" aria-controls="mobile-app-navigation" aria-label="Open navigation menu"><span class="app-menu-glyph" aria-hidden="true"></span></button>
+        <div class="app-topbar-label">BloodConnect <span>/</span> {% if request.resolver_match.url_name == 'home' %}Dashboard{% else %}Your account{% endif %}</div>
+        <div class="app-topbar-actions">
+          <a class="app-notification-link" href="{% url 'notifications:list' %}" aria-label="{% if unread_notification_count %}Notifications, {{ unread_notification_count }} unread{% else %}Notifications{% endif %}"{% if request.resolver_match.namespace == 'notifications' %} aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+            {% if unread_notification_count %}<span class="app-notification-count" aria-hidden="true">{{ unread_notification_count }}</span>{% endif %}
+          </a>
+          <div class="app-user-chip"><span class="app-user-avatar" aria-hidden="true">{{ user.display_name|default:user.get_username|slice:":1"|upper }}</span><span>{{ user.display_name|default:user.get_username }}</span></div>
+        </div>
+      </header>
+      <div class="offcanvas offcanvas-start app-mobile-drawer" tabindex="-1" id="mobile-app-navigation" aria-labelledby="mobile-app-navigation-title">
+        <div class="offcanvas-header"><h2 class="offcanvas-title" id="mobile-app-navigation-title">Navigation</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close navigation"></button></div>
+        <div class="offcanvas-body">{% include "_app_navigation.html" with mobile=True %}</div>
+      </div>
+  {% else %}
   <header class="site-header">
     <nav class="navbar navbar-expand-lg" aria-label="Main navigation">
       <div class="container">
@@ -24,32 +51,27 @@
         </button>
         <div class="collapse navbar-collapse" id="site-navigation">
           <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-            <li class="nav-item"><a class="nav-link" href="{% url 'how_it_works' %}">How it works</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'safety' %}">Safety</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'privacy' %}">Privacy</a></li>
-            {% if user.is_authenticated %}
-              <li class="nav-item"><a class="nav-link" href="{% url 'donors:profile' %}">Donor profile</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'requests:list' %}">My requests</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'connections:outgoing' %}">Contact requests</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'notifications:list' %}">Notifications</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'donors:search' %}">Find donors</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'governance:privacy_settings' %}">Privacy settings</a></li>
-              <li class="nav-item"><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="nav-link border-0 bg-transparent" type="submit">Sign out</button></form></li>
-            {% else %}
-              <li class="nav-item"><a class="nav-link" href="{% url 'donors:search' %}">Find donors</a></li>
-              <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Sign in</a></li>
-              <li class="nav-item"><a class="btn btn-brand btn-sm" href="{% url 'accounts:register' %}">Create account</a></li>
-            {% endif %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'how_it_works' %}"{% if request.resolver_match.url_name == 'how_it_works' %} aria-current="page"{% endif %}>How it works</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'safety' %}"{% if request.resolver_match.url_name == 'safety' %} aria-current="page"{% endif %}>Safety</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'privacy' %}"{% if request.resolver_match.url_name == 'privacy' %} aria-current="page"{% endif %}>Privacy</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'donors:search' %}"{% if request.resolver_match.namespace == 'donors' and request.resolver_match.url_name == 'search' %} aria-current="page"{% endif %}>Find donors</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}"{% if request.resolver_match.namespace == 'accounts' and request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>Sign in</a></li>
+              <li class="nav-item"><a class="btn btn-brand btn-sm" href="{% url 'accounts:register' %}"{% if request.path == '/accounts/register/' or request.path == '/accounts/register/submitted/' or request.path == '/accounts/3rdparty/signup/' or request.path == '/accounts/verify/request/' or request.path == '/accounts/verify/' %} aria-current="page"{% endif %}>Create account</a></li>
           </ul>
         </div>
       </div>
     </nav>
   </header>
 
-  <main id="main-content">
+  {% endif %}
+  <main id="main-content"{% if user.is_authenticated %} class="app-main"{% endif %}>
     {% block content %}{% endblock %}
   </main>
-
+  {% if user.is_authenticated %}
+      <footer class="app-footer">BloodConnect BD <span>|</span> Donor discovery and contact coordination</footer>
+    </div>
+  </div>
+  {% else %}
   <footer class="site-footer">
     <div class="container footer-layout">
       <div>
@@ -66,6 +88,9 @@
       <p class="footer-copyright">&copy; {% now "Y" %} BloodConnect BD</p>
     </div>
   </footer>
+  {% endif %}
   <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}" defer></script>
+  {% if user.is_authenticated %}<script src="{% static 'js/app_shell.js' %}" defer></script>{% endif %}
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

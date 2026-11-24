@@ -1,53 +1,90 @@
 {% extends "base.html" %}
 {% block title %}BloodConnect BD — Find a way to connect{% endblock %}
 {% block content %}
-<section class="hero-section">
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> Community-led donor discovery</p>
-      <h1>Make it easier to <span class="text-brand">reach a potential donor.</span></h1>
-      <p class="hero-lede">Search for potential blood donors by blood group and area, then request contact with the donor's consent.</p>
-      <div class="hero-actions">
-        <a class="btn btn-brand btn-lg" href="{% url 'how_it_works' %}">See how it works <span aria-hidden="true">&rarr;</span></a>
-        <a class="btn btn-outline-brand btn-lg" href="{% url 'safety' %}">Read the safety guidance</a>
+<div class="landing-page">
+  <section class="hero-section landing-hero" aria-labelledby="landing-title">
+    <div class="landing-hero__scene" aria-hidden="true"></div>
+    <div class="container hero-grid landing-hero__grid">
+      <div class="hero-copy landing-hero__copy">
+        <p class="eyebrow landing-eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Community-led donor discovery</p>
+        <h1 id="landing-title">Make it easier<br>to <span class="text-brand">reach a</span><br><span class="text-brand">potential donor.</span></h1>
+        <p class="hero-lede">Search for potential blood donors by blood group and area, then request contact with the donor's consent.</p>
+        <div class="hero-actions landing-hero__actions">
+          <a class="btn btn-brand landing-button landing-button--primary" href="{% url 'how_it_works' %}">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.3"></circle><path d="m16 16 4.3 4.3M10.8 7.7v6.2M7.7 10.8h6.2"></path></svg>
+            <span>See how it works</span><span class="landing-button__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+          <a class="btn btn-outline-brand landing-button landing-button--secondary" href="{% url 'safety' %}">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 4.7-3.3 8.1-8 10-4.7-1.9-8-5.3-8-10V6z"></path><path d="m8.6 11.9 2.2 2.2 4.8-5"></path></svg>
+            <span>Read the safety guidance</span>
+          </a>
+        </div>
+        <p class="hero-note landing-hero__note">
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 10.8v5.4M12 7.8h.01"></path></svg>
+          <span>Discovery workflows are implemented. Reviewed Bangladesh location data is not yet loaded.</span>
+        </p>
       </div>
-      <p class="hero-note">Discovery workflows are implemented. Reviewed Bangladesh location data is not yet loaded.</p>
-    </div>
-    <aside class="hero-card" aria-label="How contact privacy works">
-      <div class="hero-card-icon" aria-hidden="true">&#9829;</div>
-      <p class="card-kicker">Consent comes first</p>
-      <h2>Your details stay private until you choose to connect.</h2>
-      <p>Donor contact information is shared only after the donor accepts a contact request, and only through the contact methods they chose to share.</p>
-      <a href="{% url 'privacy' %}" class="text-link">How privacy works <span aria-hidden="true">&rarr;</span></a>
-      <div class="card-decoration" aria-hidden="true"></div>
-    </aside>
-  </div>
-</section>
 
-<section class="section section-steps" id="how-it-works">
-  <div class="container">
-    <div class="section-heading">
-      <p class="eyebrow">A clear, consent-led process</p>
-      <h2>Three steps to start a conversation</h2>
-      <p>BloodConnect BD helps people coordinate contact. It does not arrange or guarantee a donation.</p>
+      <aside class="hero-card landing-consent-card" aria-labelledby="landing-consent-title">
+        <div class="hero-card-icon landing-consent-card__icon" aria-hidden="true">
+          <svg focusable="false" viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 4.7-3.3 8.1-8 10-4.7-1.9-8-5.3-8-10V6z"></path><path d="m8.5 11.9 2.3 2.3 4.8-5"></path></svg>
+        </div>
+        <p class="card-kicker">Consent comes first</p>
+        <h2 id="landing-consent-title">Your details stay private until you choose to connect.</h2>
+        <p>Donor contact information is shared only after the donor accepts a contact request, and only through the contact methods they chose to share.</p>
+        <a href="{% url 'privacy' %}" class="text-link">How privacy works <span aria-hidden="true">&rarr;</span></a>
+        <div class="card-decoration" aria-hidden="true"></div>
+      </aside>
     </div>
-    <div class="row g-4 steps-grid">
-      <div class="col-md-4"><article class="step-card"><span class="step-number">01</span><h3>Find potential donors</h3><p>Filter by the exact blood group and a broad area. Only visible, available profiles with current discovery consent are shown.</p></article></div>
-      <div class="col-md-4"><article class="step-card"><span class="step-number">02</span><h3>Request contact</h3><p>Send a contact request with relevant context. A request does not reveal a donor's private phone number or email.</p></article></div>
-      <div class="col-md-4"><article class="step-card"><span class="step-number">03</span><h3>The donor decides</h3><p>The donor can accept or decline. After acceptance, only the contact methods they chose to share may be shown.</p></article></div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section class="section section-safety">
-  <div class="container safety-panel">
-    <div class="safety-symbol" aria-hidden="true">!</div>
-    <div>
-      <p class="eyebrow">Important to know</p>
-      <h2>Potential contacts, not medical advice</h2>
-      <p>Results are potential contacts only. Medical suitability and compatibility must be assessed by an authorized healthcare professional. Donor availability is self-reported and does not guarantee a response.</p>
-      <a class="text-link" href="{% url 'safety' %}">Read all safety guidance <span aria-hidden="true">&rarr;</span></a>
+  <section class="section section-steps landing-steps" id="how-it-works" aria-labelledby="landing-steps-title">
+    <div class="container">
+      <div class="section-heading landing-section-heading">
+        <p class="eyebrow">A clear, consent-led process</p>
+        <h2 id="landing-steps-title">Three steps to start a conversation</h2>
+        <p>BloodConnect BD helps people coordinate contact. It does not arrange or guarantee a donation.</p>
+      </div>
+      <ol class="landing-step-grid">
+        <li>
+          <article class="step-card landing-step-card">
+            <span class="step-number" aria-hidden="true">01</span>
+            <span class="landing-step-card__icon" aria-hidden="true"><svg focusable="false" viewBox="0 0 32 32"><path d="M16 15.5a5.2 5.2 0 1 0 0-10.4 5.2 5.2 0 0 0 0 10.4ZM5.5 27c.4-5.2 4.8-8 10.5-8s10.1 2.8 10.5 8M25 7.2a4.3 4.3 0 0 1 0 8.3M27 19c2.4 1.1 3.7 3.1 4 6.2"></path></svg></span>
+            <div><h3>Find potential donors</h3><p>Filter by the exact blood group and a broad area. Only visible, available profiles with current discovery consent are shown.</p></div>
+          </article>
+        </li>
+        <li>
+          <article class="step-card landing-step-card">
+            <span class="step-number" aria-hidden="true">02</span>
+            <span class="landing-step-card__icon" aria-hidden="true"><svg focusable="false" viewBox="0 0 32 32"><path d="M5 6.5h22v16H16l-7.5 5v-5H5z"></path><path d="M10 12h12M10 17h8"></path></svg></span>
+            <div><h3>Request contact</h3><p>Send a contact request with relevant context. A request does not reveal a donor's private phone number or email.</p></div>
+          </article>
+        </li>
+        <li>
+          <article class="step-card landing-step-card">
+            <span class="step-number" aria-hidden="true">03</span>
+            <span class="landing-step-card__icon" aria-hidden="true"><svg focusable="false" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12"></circle><path d="m10.5 16.2 3.7 3.7 7.5-8"></path></svg></span>
+            <div><h3>The donor decides</h3><p>The donor can accept or decline. After acceptance, only the contact methods they chose to share may be shown.</p></div>
+          </article>
+        </li>
+      </ol>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="section section-safety landing-safety" aria-labelledby="landing-safety-title">
+    <div class="container">
+      <div class="safety-panel landing-safety-panel">
+        <div class="safety-symbol landing-safety-panel__icon" aria-hidden="true">
+          <svg focusable="false" viewBox="0 0 32 32"><path d="M16 2.5 28 7v8c0 7.1-4.9 12.2-12 15-7.1-2.8-12-7.9-12-15V7z"></path><path d="M14 9h4v5h5v4h-5v5h-4v-5H9v-4h5z"></path></svg>
+        </div>
+        <div class="landing-safety-panel__copy">
+          <p class="eyebrow">Important to know</p>
+          <h2 id="landing-safety-title">Potential contacts, not medical advice</h2>
+          <p>Results are potential contacts only. Medical suitability and compatibility must be assessed by an authorized healthcare professional. Donor availability is self-reported and does not guarantee a response.</p>
+        </div>
+        <a class="text-link landing-safety-panel__link" href="{% url 'safety' %}">Read all safety guidance <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+</div>
 {% endblock %}

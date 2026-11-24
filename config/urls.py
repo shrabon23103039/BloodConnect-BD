@@ -19,14 +19,25 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 
 from apps.connections import views as connection_views
+from apps.accounts import views as account_views
 from config.health import liveness, readiness
+from config.views import home, location_demo
 
 urlpatterns = [
     path("health/live/", liveness, name="health_live"),
     path("health/ready/", readiness, name="health_ready"),
     path("api/v1/", include("apps.api.urls")),
     path("admin/", admin.site.urls),
+    path("accounts/google/login/", account_views.google_oauth_start, name="google_login"),
+    path(
+        "accounts/google/login/callback/",
+        account_views.google_oauth_callback,
+        name="google_callback",
+    ),
     path("accounts/", include("apps.accounts.urls")),
+    path("accounts/", include("allauth.urls")),
+    path("location-demo/", location_demo, name="location_demo"),
+    path("app/location-options/", include("apps.locations.urls")),
     path("app/requests/", include("apps.requests.urls")),
     path("app/contact-requests/", include("apps.connections.urls")),
     path("app/notifications/", include("apps.notifications.urls")),
@@ -39,7 +50,7 @@ urlpatterns = [
     ),
     path("app/", include("apps.donors.urls")),
     path("app/settings/", include("apps.governance.urls")),
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("", home, name="home"),
     path(
         "how-it-works/",
         TemplateView.as_view(template_name="pages/how_it_works.html"),
@@ -50,3 +61,8 @@ urlpatterns = [
     path("terms/", TemplateView.as_view(template_name="pages/terms.html"), name="terms"),
     path("contact/", TemplateView.as_view(template_name="pages/contact.html"), name="contact"),
 ]
+
+handler400 = "config.views.bad_request"
+handler403 = "config.views.permission_denied"
+handler404 = "config.views.not_found"
+handler500 = "config.views.server_error"

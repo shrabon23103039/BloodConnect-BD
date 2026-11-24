@@ -1,0 +1,21 @@
+{% with current=request.resolver_match %}
+<nav class="request-workspace-tabs" aria-label="Requests workspace">
+  <div class="request-workspace-tabs__links">
+    <a href="{% url 'requests:list' %}"{% if current.namespace == 'requests' %} aria-current="page" class="is-active"{% endif %}>
+      My requests <span class="request-tab-count">{{ my_blood_request_count|default:0 }}</span>
+    </a>
+    <a href="{% url 'connections:incoming' %}"{% if current.url_name == 'incoming' or current.url_name == 'incoming_detail' %} aria-current="page" class="is-active"{% endif %}>
+      Incoming <span class="request-tab-count">{{ incoming_contact_request_count|default:0 }}</span>
+    </a>
+    <a href="{% url 'connections:outgoing' %}"{% if current.url_name == 'outgoing' or current.url_name == 'outgoing_detail' or current.url_name == 'connection_detail' or current.namespace == 'connections' and current.url_name == 'create' %} aria-current="page" class="is-active"{% endif %}>
+      Outgoing <span class="request-tab-count">{{ outgoing_contact_request_count|default:0 }}</span>
+    </a>
+  </div>
+  {% if current.url_name == "list" or current.url_name == "incoming" or current.url_name == "outgoing" %}
+  <a class="request-primary-action request-workspace-tabs__create" href="{% url 'requests:create' %}">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    Create request
+  </a>
+  {% endif %}
+</nav>
+{% endwith %}

@@ -279,6 +279,45 @@ class ContactRequestServiceTests(TestCase):
             self.client.get(response.url), self.donor_user.email
         )
 
+    def test_request_workspace_tabs_render_real_incoming_and_outgoing_data(self):
+        contact_request = self.create()
+
+        self.client.force_login(self.donor_user)
+        incoming = self.client.get(reverse("connections:incoming"))
+        self.assertEqual(incoming.status_code, 200)
+        self.assertContains(incoming, "Incoming requests")
+        self.assertContains(incoming, 'class="app-shell app-shell--redesigned-workspace"')
+        self.assertContains(incoming, 'href="/app/requests/" aria-current="page"')
+        self.assertContains(incoming, 'class="request-tab-count">1</span>')
+        self.assertContains(
+            incoming,
+            reverse(
+                "connections:incoming_detail",
+                kwargs={"contact_request_id": contact_request.pk},
+            ),
+        )
+        self.assertContains(incoming, "Synthetic district")
+        self.assertNotContains(incoming, self.recipient.email)
+        self.assertNotContains(incoming, "phone_e164")
+
+        self.client.force_login(self.recipient)
+        outgoing = self.client.get(reverse("connections:outgoing"))
+        self.assertEqual(outgoing.status_code, 200)
+        self.assertContains(outgoing, "Outgoing requests")
+        self.assertContains(outgoing, 'class="app-shell app-shell--redesigned-workspace"')
+        self.assertContains(outgoing, 'href="/app/requests/" aria-current="page"')
+        self.assertContains(outgoing, 'class="request-tab-count">1</span>')
+        self.assertContains(
+            outgoing,
+            reverse(
+                "connections:outgoing_detail",
+                kwargs={"contact_request_id": contact_request.pk},
+            ),
+        )
+        self.assertContains(outgoing, "Blood donor")
+        self.assertNotContains(outgoing, self.donor_user.email)
+        self.assertNotContains(outgoing, "phone_e164")
+
     def test_incoming_decision_actions_are_owner_scoped_and_post_only(self):
         contact_request = self.create()
         detail_url = reverse(

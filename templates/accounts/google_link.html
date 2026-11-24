@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static socialaccount %}
+{% block title %}Account access · BloodConnect BD{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/google_oauth.css' %}">{% endblock %}
+{% block content %}
+<main class="app-utility-page app-account-page">
+  <header class="app-page-header">
+    <div><p class="app-page-eyebrow">Account</p><h1>Account access</h1><p>Manage how you sign in to BloodConnect BD.</p></div>
+  </header>
+  <section class="app-section-card app-account-card">
+  {% for message in messages %}
+    <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}" role="status">{{ message }}</div>
+  {% endfor %}
+  {% if google_account_linked %}
+    <p>Your Google identity is linked to this BloodConnect account.</p>
+    <p>Email/phone sign-in remains available. We do not offer unlinking from this page.</p>
+  {% elif google_oauth_enabled %}
+    <p>Link Google only while signed in to the BloodConnect account you want to keep.</p>
+    <p>Google will confirm the identity to connect. Linking does not change your email, phone, password, verification, account status or donor settings.</p>
+    <div class="google-auth-block">
+      <form method="post" action="{% provider_login_url 'google' process='connect' %}" data-google-oauth-form>
+        {% csrf_token %}
+        <button class="google-auth-button" type="submit" aria-label="Continue with Google to link this account">
+          <svg class="google-auth-button__logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.7c3.9-3.6 6-8.8 6-15z"/>
+            <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.8l-6.7-5.1c-1.8 1.2-4 1.9-6.8 1.9-5.2 0-9.6-3.5-11.2-8.2H5.9v5.3A20 20 0 0 0 24 44z"/>
+            <path fill="#FBBC05" d="M12.8 27.8a12 12 0 0 1 0-7.6v-5.3H5.9a20 20 0 0 0 0 18.2z"/>
+            <path fill="#EA4335" d="M24 12c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.1 29.5 4 24 4A20 20 0 0 0 5.9 14.9l6.9 5.3C14.4 15.5 18.8 12 24 12z"/>
+          </svg>
+          <span class="google-auth-button__label" data-google-oauth-label>Continue with Google</span>
+          <span class="google-auth-button__spinner" aria-hidden="true"></span>
+        </button>
+        <span class="visually-hidden" data-google-oauth-status aria-live="polite" aria-atomic="true"></span>
+      </form>
+    </div>
+  {% else %}
+    <p>Google sign-in is not configured. You can continue using your email or phone.</p>
+  {% endif %}
+  <p class="app-utility-link"><a href="{% url 'home' %}">Return to dashboard</a></p>
+  </section>
+</main>
+{% endblock %}
+{% block extra_scripts %}<script src="{% static 'js/google_oauth.js' %}" defer></script>{% endblock %}

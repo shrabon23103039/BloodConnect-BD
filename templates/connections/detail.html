@@ -2,6 +2,7 @@
 {% block title %}Contact request · BloodConnect BD{% endblock %}
 {% block content %}
 <section class="section"><div class="container reading-width">
+  {% include "requests/_workspace_tabs.html" %}
   <p class="eyebrow">Contact request</p>
   {% if audience == "recipient" %}<h1>{{ contact_request.donor_profile.public_alias|default:"Blood donor" }}</h1>{% else %}<h1>Potential donor request</h1>{% endif %}
   <div class="card card-body mb-3">

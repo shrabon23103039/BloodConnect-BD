@@ -1,0 +1,3671 @@
+{
+  "environment": "pytest live_server + isolated in-memory SQLite + synthetic user",
+  "authenticated_session": "synthetic pytest user; existing human browser session was not accessed",
+  "viewports": [
+    320,
+    375,
+    390,
+    414,
+    480,
+    768,
+    1024,
+    1280,
+    1366,
+    1440,
+    1920
+  ],
+  "pages": [
+    {
+      "key": "home",
+      "label": "Landing page",
+      "url": "/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "BloodConnect BD \u2014 Find a way to connect",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "dashboard",
+      "label": "Authenticated dashboard",
+      "url": "/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Dashboard | BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/",
+            "/"
+          ],
+          "expectedNavigationHref": "/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "how-it-works",
+      "label": "How it works",
+      "url": "/how-it-works/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "How it works \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "privacy",
+      "label": "Privacy notice",
+      "url": "/privacy/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Privacy information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "safety",
+      "label": "Safety",
+      "url": "/safety/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Safety guidance \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "terms",
+      "label": "Terms",
+      "url": "/terms/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Terms information \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "contact",
+      "label": "Contact",
+      "url": "/contact/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Contact \u2014 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "sign-in",
+      "label": "Sign in",
+      "url": "/accounts/login/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Sign in \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "create-account",
+      "label": "Create account",
+      "url": "/accounts/register/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Create account \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "password-reset",
+      "label": "Password reset",
+      "url": "/accounts/password-reset/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Reset password \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "verification",
+      "label": "Verification",
+      "url": "/accounts/verify/request/",
+      "authenticated": false,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Request verification code \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "find-donors",
+      "label": "Find donors",
+      "url": "/app/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Find blood donors \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/",
+            "/app/"
+          ],
+          "expectedNavigationHref": "/app/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "donor-profile",
+      "label": "Donor profile",
+      "url": "/app/donor-profile/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Create Donor Profile \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/donor-profile/",
+            "/app/donor-profile/"
+          ],
+          "expectedNavigationHref": "/app/donor-profile/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "blood-requests",
+      "label": "Blood requests",
+      "url": "/app/requests/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Blood requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "create-blood-request",
+      "label": "Create blood request",
+      "url": "/app/requests/new/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Create blood request \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "contact-requests-incoming",
+      "label": "Incoming contact requests",
+      "url": "/app/contact-requests/incoming/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Incoming requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "contact-requests-outgoing",
+      "label": "Outgoing contact requests",
+      "url": "/app/contact-requests/outgoing/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Outgoing requests \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/requests/",
+            "/app/requests/"
+          ],
+          "expectedNavigationHref": "/app/requests/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "notifications",
+      "label": "Notifications",
+      "url": "/app/notifications/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Notifications \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [],
+          "expectedNavigationHref": null,
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "privacy-settings",
+      "label": "Privacy settings",
+      "url": "/app/settings/privacy/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Privacy settings \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/app/settings/privacy/",
+            "/app/settings/privacy/"
+          ],
+          "expectedNavigationHref": "/app/settings/privacy/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    },
+    {
+      "key": "account-access",
+      "label": "Account access",
+      "url": "/accounts/google/link/",
+      "authenticated": true,
+      "status": "PASS",
+      "viewports": [
+        {
+          "width": 320,
+          "viewportWidth": 320,
+          "documentWidth": 320,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 375,
+          "viewportWidth": 375,
+          "documentWidth": 375,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 390,
+          "viewportWidth": 390,
+          "documentWidth": 390,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 414,
+          "viewportWidth": 414,
+          "documentWidth": 414,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 480,
+          "viewportWidth": 480,
+          "documentWidth": 480,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 768,
+          "viewportWidth": 768,
+          "documentWidth": 768,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1024,
+          "viewportWidth": 1024,
+          "documentWidth": 1024,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1280,
+          "viewportWidth": 1280,
+          "documentWidth": 1280,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1366,
+          "viewportWidth": 1366,
+          "documentWidth": 1366,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "axeViolations": [],
+          "findings": []
+        },
+        {
+          "width": 1440,
+          "viewportWidth": 1440,
+          "documentWidth": 1440,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        },
+        {
+          "width": 1920,
+          "viewportWidth": 1920,
+          "documentWidth": 1920,
+          "title": "Account access \u00b7 BloodConnect BD",
+          "headingCount": 1,
+          "bodyFont": "Inter, \"Noto Sans Bengali\", system-ui, sans-serif",
+          "bodyFontSize": "16px",
+          "bodyLineHeight": "24px",
+          "currentNavigationHrefs": [
+            "/accounts/google/link/",
+            "/accounts/google/link/"
+          ],
+          "expectedNavigationHref": "/accounts/google/link/",
+          "horizontalOverflowPx": 0,
+          "findings": []
+        }
+      ]
+    }
+  ],
+  "unavailable_documented_pages": {
+    "/app/profile/": "No current URL pattern; the authenticated profile editor is /app/donor-profile/.",
+    "/app/help/": "No current URL pattern; public safety content is /safety/.",
+    "/app/donors/<id>/": "No donor-detail route is currently registered.",
+    "/app/report/": "No report-creation route is currently registered."
+  },
+  "not_in_baseline": {
+    "/app/requests/<uuid>/ and /edit/": "Detail pages need isolated request records; audit is currently GET-only and record-free.",
+    "/app/contact-requests/new/ and detail paths": "Creating contact requests changes persistent workflow state; detail pages require synthetic request records.",
+    "/app/connections/<uuid>/": "Accepted connection detail requires a synthetic accepted workflow record.",
+    "/app/moderation/reports/ and detail paths": "Moderator role and synthetic reports are not provisioned for this baseline account.",
+    "/app/operations/": "Requires explicit moderator role; excluded from ordinary user baseline.",
+    "/accounts/password-reset/confirm/<uidb64>/<token>/": "Requires a one-time token generated by a separate password-reset workflow.",
+    "/app/location-options/options/<level>/": "JSON dependent-location endpoint; not a page, and requires approved location data for useful options.",
+    "/location-demo/": "Development-only standalone picker demo; not part of normal signed-in user navigation."
+  },
+  "browser_errors": {
+    "page_errors": [],
+    "console_errors": [],
+    "failed_requests": []
+  },
+  "route_errors": [],
+  "navigation_smoke": [
+    {
+      "href": "/app/",
+      "status": "PASS"
+    },
+    {
+      "href": "/app/requests/",
+      "status": "PASS"
+    },
+    {
+      "href": "/app/donor-profile/",
+      "status": "PASS"
+    },
+    {
+      "href": "/app/settings/privacy/",
+      "status": "PASS"
+    },
+    {
+      "href": "/accounts/google/link/",
+      "status": "PASS"
+    },
+    {
+      "href": "/safety/",
+      "status": "PASS"
+    },
+    {
+      "href": "/app/requests/",
+      "visible_in_drawer": true,
+      "status": "PASS",
+      "viewport": 390,
+      "final_path": "/app/requests/"
+    }
+  ]
+}

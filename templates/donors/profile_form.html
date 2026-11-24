@@ -1,47 +1,182 @@
 {% extends "base.html" %}
-{% block title %}Donor profile · BloodConnect BD{% endblock %}
+{% load static %}
+{% block title %}{% if profile %}Edit{% else %}Create{% endif %} Donor Profile · BloodConnect BD{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/location_picker.css' %}"><link rel="stylesheet" href="{% static 'css/donor_search.css' %}"><link rel="stylesheet" href="{% static 'css/donor_profile.css' %}">{% endblock %}
 {% block content %}
-<section class="section">
-  <div class="container narrow-container">
-    <p class="eyebrow">Self-reported profile</p>
-    <h1>Donor profile</h1>
-    <p>Profile information is self-reported. Blood group and donation history are not used to assess medical eligibility or compatibility. An authorized healthcare professional must make those decisions.</p>
-    <p>Your profile appears in discovery only while it is visible, active, available, your account is active, and your current discovery consent is granted. Visibility and availability choices can be changed here at any time.</p>
-    {% if messages %}{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}{% endif %}
-    {% if not form.fields.division.queryset.exists %}
-      <div class="alert alert-info" role="status">Location selection is temporarily unavailable while the reviewed Bangladesh location list is being prepared. No profile has been created.</div>
-    {% endif %}
-    <form method="post" novalidate>
-      {% csrf_token %}
-      {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
-      {% for field in form %}
-        <div class="mb-3 {% if field.field.widget.input_type == 'checkbox' %}form-check{% endif %}">
-          {{ field.label_tag }}
-          {{ field }}
-          {% if field.name == 'share_phone_after_accept' or field.name == 'share_email_after_accept' %}
-            <div class="form-text">This is optional. The selected verified channel is shared only after you explicitly accept a contact request.</div>
-          {% endif %}
-          {% if field.name == 'visibility_enabled' %}<div class="form-text">Visibility requires your current donor-discovery consent. Turning it off withdraws that consent.</div>{% endif %}
-          {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+<section class="profile-page">
+  <div class="profile-layout">
+    <header class="profile-hero">
+      <a class="profile-back-link" href="{% url 'donors:search' %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 5-7 7 7 7M8 12h12"/></svg>
+        Back to Find Donors
+      </a>
+      <div class="profile-hero__copy">
+        <div class="profile-hero__title-row">
+          <h1>{% if profile %}Edit Donor Profile{% else %}Create Donor Profile{% endif %}</h1>
+          {% if profile %}<span class="profile-saved-state">{{ profile.get_profile_status_display }} · {% if profile_is_discoverable %}Listed in search{% else %}Not listed in search{% endif %}</span>{% endif %}
         </div>
-      {% endfor %}
-      <button class="btn btn-brand" type="submit" name="action" value="save">Save profile</button>
-    </form>
-    {% if profile %}
-      <hr class="my-4">
-      <p>Availability: {{ profile.get_availability_status_display }} · Profile status: {{ profile.get_profile_status_display }}</p>
-      <div class="d-flex flex-wrap gap-2">
-        <form method="post">
-          {% csrf_token %}
-          <button class="btn btn-outline-brand" type="submit" name="action" value="pause">Pause profile</button>
-        </form>
-        <form method="post">
-          {% csrf_token %}
-          <button class="btn btn-outline-danger" type="submit" name="action" value="deactivate">Deactivate and hide profile</button>
-        </form>
+        <p>Set up your donor profile to help people find and contact you when needed.</p>
       </div>
-      <p class="form-text mt-2">Deactivation hides this profile and marks you unavailable. It does not delete account data.</p>
-    {% endif %}
+      <svg class="profile-hero__art" viewBox="0 0 250 180" aria-hidden="true" focusable="false">
+        <defs><linearGradient id="profile-drop" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ef4350"/><stop offset="1" stop-color="#a30917"/></linearGradient></defs>
+        <path d="M0 142c42-3 56-28 95-22 38 6 46 32 85 25 28-5 42-25 70-30v65H0z" fill="#f5c2c6" opacity=".7"/>
+        <path d="M0 158c38-16 63-18 94-8 30 10 52 21 82 9 29-12 49-24 74-21v42H0z" fill="#f9dadd"/>
+        <path d="M123 18c-15 25-27 39-27 55a28 28 0 0 0 56 0c0-16-13-31-29-55Z" fill="url(#profile-drop)"/>
+        <path d="M110 72c8 5 18 5 27 0m-28 10c8 5 19 5 28 0" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="3"/>
+        <path d="M84 93c-9 6-16 16-19 31l-4 24m104-55c9 6 16 16 19 31l4 24M71 124l-13-10c-4-3-9 2-6 6l15 20c6 8 14 11 24 11h68c10 0 18-3 24-11l15-20c3-4-2-9-6-6l-13 10" fill="none" stroke="#d77a64" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+        <path d="M125 57v23m-9-11h18" stroke="#fff" stroke-linecap="round" stroke-width="3"/>
+      </svg>
+    </header>
+
+    {% if messages %}<div class="profile-messages">{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}</div>{% endif %}
+
+    <div class="profile-editor-layout">
+      <form id="profile-edit-form" method="post" class="profile-form" novalidate
+            data-location-picker
+            data-location-picker-mode="donor-profile"
+            data-google-maps-api-key="{{ google_maps_browser_api_key }}">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger profile-form-errors" role="alert" aria-labelledby="profile-error-heading">
+          <h2 id="profile-error-heading">Please review these profile details</h2>
+          <ul>
+            {% for field in form.visible_fields %}
+              {% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>{% endfor %}
+            {% endfor %}
+            {% if form.donation_area_label.errors or form.donation_area_latitude.errors or form.donation_area_longitude.errors or form.google_place_id.errors or form.location_source.errors or form.location_confirmed.errors %}
+              <li><a href="#donor-area-search">Donation area: Please review the selected area and its confirmation.</a></li>
+            {% endif %}
+            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <section class="profile-form-card" aria-labelledby="profile-personal-heading">
+          <div class="profile-card-heading">
+            <span class="profile-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></span>
+            <h2 id="profile-personal-heading">Your details</h2>
+          </div>
+          <div class="profile-fields-grid">
+            {% include "donors/_profile_field.html" with field=form.public_alias label_override="Public profile name" %}
+            {% include "donors/_profile_field.html" with field=form.thana_name %}
+          </div>
+        </section>
+
+        <section class="profile-form-card" aria-labelledby="profile-area-heading">
+          <div class="profile-card-heading">
+            <span class="profile-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 22s8-7.3 8-13a8 8 0 1 0-16 0c0 5.7 8 13 8 13Z"/><circle cx="12" cy="9" r="2.6"/></svg></span>
+            <h2 id="profile-area-heading">Blood &amp; location</h2>
+          </div>
+          {{ form.donation_area_label }}{{ form.donation_area_latitude }}{{ form.donation_area_longitude }}{{ form.google_place_id }}{{ form.location_source }}<input type="hidden" name="{{ form.location_confirmed.html_name }}" id="{{ form.location_confirmed.id_for_label }}" value="{{ form.location_confirmed.value|yesno:'true,false' }}">
+          <div class="profile-fields-grid profile-fields-grid--location">
+            {% include "donors/_profile_field.html" with field=form.blood_group %}
+            <div class="profile-location-field">
+              <label class="form-label" for="donor-area-search">Location</label>
+              <div class="profile-area-search-row">
+                <div class="profile-area-search-field">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.2"/></svg>
+                  <input id="donor-area-search" class="form-control" type="search" placeholder="Enter area, district or city" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="donor-area-suggestions" aria-describedby="donor-area-help donor-area-errors"{% if form.donation_area_label.errors or form.donation_area_latitude.errors or form.donation_area_longitude.errors or form.google_place_id.errors or form.location_source.errors or form.location_confirmed.errors %} aria-invalid="true"{% endif %} data-role="location-input">
+                  <ul id="donor-area-suggestions" class="location-picker__suggestions" role="listbox" aria-label="Donation area suggestions" data-role="place-suggestions" hidden></ul>
+                </div>
+                <button class="btn btn-outline-brand profile-area-search-button" type="button" data-role="search-address" aria-label="Search donation area"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4 4"/></svg><span>Search</span></button>
+              </div>
+              <p id="donor-area-help" class="profile-field-help">Choose a general area or landmark. Don’t enter a home address.</p>
+            </div>
+          </div>
+          <div class="profile-area-picker" aria-label="Donation area picker">
+            <p class="profile-area-provider" role="status" aria-live="polite" data-role="provider-status">{% if google_maps_browser_api_key %}Loading map search…{% else %}Map search is unavailable right now. You can continue without selecting a donation area.{% endif %}</p>
+            <div class="profile-area-map location-picker__map" role="region" aria-label="Donation area map" aria-describedby="donor-area-map-help donor-area-errors" data-role="map">
+              <p class="location-picker__map-fallback" data-role="map-fallback">Map preview is unavailable.</p>
+            </div>
+            <p id="donor-area-map-help" class="form-text">Select a general area, adjust the pin if needed, and confirm it before saving.</p>
+            <p class="profile-area-empty" data-role="empty-state" {% if form.location_confirmed.value %}hidden{% endif %}>No donation area selected. Search for a place or choose one on the map.</p>
+            <div class="location-picker__actions profile-area-actions">
+              <button class="btn btn-brand" type="button" disabled data-role="confirm-location">Confirm donation area</button>
+              <button class="btn btn-outline-secondary" type="button" data-role="clear-location">Change or clear area</button>
+            </div>
+            <p class="location-picker__status profile-area-status" role="status" aria-live="polite" data-role="action-status"></p>
+            <section class="location-picker__confirmed profile-area-confirmed" aria-label="Selected donation area" data-role="confirmed-location" {% if not form.location_confirmed.value %}hidden{% endif %}>
+              <h3 class="h6">Selected donation area</h3>
+              <p class="mb-0" data-role="confirmed-address">{{ form.donation_area_label.value|default_if_none:"" }}</p>
+            </section>
+            <div id="donor-area-errors" class="profile-location-errors"{% if not form.donation_area_label.errors and not form.donation_area_latitude.errors and not form.donation_area_longitude.errors and not form.google_place_id.errors and not form.location_source.errors and not form.location_confirmed.errors %} hidden{% endif %}>
+              {% for error in form.donation_area_label.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}
+              {% for error in form.donation_area_latitude.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}
+              {% for error in form.donation_area_longitude.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}
+              {% for error in form.google_place_id.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}
+              {% for error in form.location_source.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}
+              {% for error in form.location_confirmed.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="profile-area-consent">{% include "donors/_profile_field.html" with field=form.store_donation_area %}</div>
+            <p class="profile-section-help">Google receives your search and selected place. This page never requests GPS.</p>
+          </div>
+        </section>
+
+        {% if 'availability_status' in form.fields or 'visibility_enabled' in form.fields %}
+        <section class="profile-form-card profile-form-card--compact" aria-labelledby="profile-availability-heading">
+          <div class="profile-card-heading">
+            <span class="profile-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span>
+            <h2 id="profile-availability-heading">Availability</h2>
+          </div>
+          <div class="profile-fields-grid profile-fields-grid--controls">
+            {% if 'availability_status' in form.fields %}{% include "donors/_profile_field.html" with field=form.availability_status %}{% endif %}
+            {% if 'visibility_enabled' in form.fields %}<div class="profile-visibility-control"><input class="form-check-input" type="checkbox" name="{{ form.visibility_enabled.html_name }}" id="{{ form.visibility_enabled.id_for_label }}" aria-describedby="profile-visibility-help{% if form.visibility_enabled.errors %} profile-visibility-errors{% endif %}"{% if form.visibility_enabled.errors %} aria-invalid="true"{% endif %}{% if form.visibility_enabled.value %} checked{% endif %}><label for="{{ form.visibility_enabled.id_for_label }}">Show in search</label><span class="profile-info-mark" aria-hidden="true">i</span></div>{% if form.visibility_enabled.errors %}<div id="profile-visibility-errors" class="profile-field-errors">{% for error in form.visibility_enabled.errors %}<p class="profile-field-error">{{ error }}</p>{% endfor %}</div>{% endif %}{% endif %}
+          </div>
+          <p class="profile-section-help" id="profile-visibility-help">Availability is self-reported. Search listing also requires your discovery consent, an active account and profile, and available status.</p>
+        </section>
+        {% endif %}
+
+        <section class="profile-form-card profile-form-card--compact" aria-labelledby="profile-contact-heading">
+          <div class="profile-card-heading">
+            <span class="profile-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M21 16.5v3a2 2 0 0 1-2.2 2 19 19 0 0 1-8.3-3 18.7 18.7 0 0 1-5.8-5.8 19 19 0 0 1-3-8.3A2 2 0 0 1 3.7 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L7.6 10a15 15 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.1 1.6Z"/></svg></span>
+            <h2 id="profile-contact-heading">Contact preference</h2>
+          </div>
+          <div class="profile-fields-grid profile-fields-grid--controls">
+            {% include "donors/_profile_field.html" with field=form.preferred_contact_method %}
+            {% if 'share_phone_after_accept' in form.fields %}{% include "donors/_profile_field.html" with field=form.share_phone_after_accept label_override="Share my phone after I accept a request" described_by="profile-contact-help" %}{% endif %}
+            {% if 'share_email_after_accept' in form.fields %}{% include "donors/_profile_field.html" with field=form.share_email_after_accept label_override="Share my email after I accept a request" described_by="profile-contact-help" %}{% endif %}
+          </div>
+          <p class="profile-section-help" id="profile-contact-help">Your selected contact details are shared only after you accept a request and current consent remains active.</p>
+        </section>
+
+        <section class="profile-form-card profile-form-card--compact" aria-labelledby="profile-history-heading">
+          <div class="profile-card-heading">
+            <span class="profile-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg></span>
+            <h2 id="profile-history-heading">Donation history <span class="profile-optional">(optional)</span></h2>
+          </div>
+          <div class="profile-history-field">{% include "donors/_profile_field.html" with field=form.last_donation_date %}</div>
+          <p class="profile-section-help">This self-reported date is not a medical eligibility assessment and is not shown in donor search.</p>
+        </section>
+
+        <div class="profile-form-actions"><a class="btn btn-outline-secondary" href="{% url 'donors:profile' %}">Cancel</a><button class="btn btn-brand" type="submit" name="action" value="save"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 4 4L19 6"/></svg>Save Profile</button></div>
+      </form>
+
+      <aside class="profile-side-panel" aria-label="Profile tips and actions">
+        <section class="profile-quick-tips">
+          <span class="profile-quick-tips__icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3 20 6v5c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>
+          <h2>Quick tips</h2>
+          <ul>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Use your real information</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Keep availability up to date</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Your contact details are shared only after you accept a request</span></li>
+          </ul>
+        </section>
+
+        {% if profile %}
+        <details class="profile-extra-card">
+          <summary>Preview your public profile</summary>
+          <article class="donor-search__result card"><div class="card-body donor-search__result-card-body"><span class="donor-search__blood-mark" aria-hidden="true">{{ profile.get_blood_group_display }}</span><div class="donor-search__result-person"><h3>{{ profile.public_alias|default:"Blood donor" }}</h3><p class="donor-search__result-area">{% if profile.ward %}Ward {{ profile.ward.name_en }}{% if profile.city_zone %}, {{ profile.city_zone.name_en }}{% endif %}, {{ profile.city_corporation.name_en }}{% elif profile.city_corporation %}{{ profile.city_corporation.name_en }}{% elif profile.upazila %}{% if profile.union %}{{ profile.union.name_en }}, {% endif %}{{ profile.upazila.name_en }}{% endif %}{% if profile.district %}, {{ profile.district.name_en }}{% endif %}</p></div></div></article>
+          <p class="profile-preview-note">The preview excludes private contact details, exact location, coordinates and Place ID.</p>
+        </details>
+        <details class="profile-extra-card profile-lifecycle">
+          <summary>Profile controls</summary>
+          <p>Pausing changes availability. Deactivation hides the profile without deleting account data.</p>
+          <div class="profile-lifecycle-actions"><form method="post">{% csrf_token %}<button class="btn btn-outline-brand" type="submit" name="action" value="pause">Pause profile</button></form><form method="post">{% csrf_token %}<button class="btn btn-outline-danger" type="submit" name="action" value="deactivate">Deactivate profile</button></form></div>
+        </details>
+        {% endif %}
+      </aside>
+    </div>
   </div>
 </section>
 {% endblock %}
+{% block extra_scripts %}<script src="{% static 'js/location_picker.js' %}" defer></script>{% endblock %}

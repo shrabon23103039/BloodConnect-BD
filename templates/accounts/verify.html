@@ -1,12 +1,61 @@
 {% extends "base.html" %}
-{% block title %}Verify account · BloodConnect BD{% endblock %}
-{% block content %}<section class="section"><div class="container" style="max-width: 34rem">
-  <h1>Verify account</h1>
-  <p>Enter the same email or phone used to request a code, then enter the six-digit code. Codes expire after ten minutes and can be used once.</p>
-  {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
-  <form method="post">{% csrf_token %}
-    {% for field in form %}<div class="mb-3">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>{% endfor %}
-    <button class="btn btn-brand" type="submit">Verify account</button>
-  </form>
-  <p class="mt-3"><a href="{% url 'accounts:verification_start' %}">Request or resend a code</a></p>
-</div></section>{% endblock %}
+{% load static %}
+{% block title %}Verify your account · BloodConnect BD{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/account_signup_flow.css' %}">{% endblock %}
+{% block content %}
+<section class="signup-journey-page verification-page" aria-labelledby="verify-account-title">
+  <div class="container verification-page__container">
+    <article class="verification-card">
+      <div class="verification-card__icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M8 18h48v34H8z"></path><path d="m10 21 22 17 22-17"></path><path d="m23 12 7 7 13-14"></path></svg>
+      </div>
+      <p class="verification-step"><span aria-hidden="true">03</span> Verify your account</p>
+      <h1 id="verify-account-title">Verify your account</h1>
+      {% if form.identifier.value %}
+        <p class="verification-intro">Enter the six-digit code sent to the account below. It expires after ten minutes and can only be used once.</p>
+        <div class="verification-recipient">
+          <span class="verification-recipient__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path></svg>
+          </span>
+          <span><small>Verifying account</small><strong>{{ form.identifier.value }}</strong></span>
+          {% if not verification_code_only %}<a href="{% url 'accounts:verification_start' %}">Edit</a>{% endif %}
+        </div>
+      {% else %}
+        <p class="verification-intro">Enter the email or phone used to request a code, then enter the six-digit code. Codes expire after ten minutes and can only be used once.</p>
+      {% endif %}
+
+      {% if request_submitted %}
+        <div class="verification-message" role="status">If an eligible pending account matches, a code request was received. Check your inbox and spam folder. If no code arrives, delivery may be temporarily unavailable.</div>
+      {% endif %}
+      {% if form.non_field_errors %}
+        <div class="verification-error" role="alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <form method="post" class="verification-form" novalidate>
+        {% csrf_token %}
+        {% if verification_code_only %}
+          {{ form.identifier.as_hidden }}
+        {% else %}
+          <div class="verification-field">
+            {{ form.identifier.label_tag }}{{ form.identifier }}
+            {% for error in form.identifier.errors %}<p class="registration-field-error">{{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+        <div class="verification-field verification-field--code">
+          <label for="{{ form.code.id_for_label }}">Verification code</label>
+          {{ form.code }}
+          {% for error in form.code.errors %}<p class="registration-field-error">{{ error }}</p>{% endfor %}
+        </div>
+        <button class="btn btn-brand verification-submit" type="submit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"></path><circle cx="12" cy="12" r="10"></circle></svg>
+          Verify account
+        </button>
+      </form>
+      <a class="verification-resend" href="{% url 'accounts:verification_start' %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"></path><path d="M5.6 9A7 7 0 0 1 18 6l2 2M4 16l2 2a7 7 0 0 0 12.4-3"></path></svg>
+        Request or resend a code
+      </a>
+    </article>
+  </div>
+</section>
+{% endblock %}

@@ -1,7 +1,11 @@
-{% extends "base.html" %}
+{% extends "accounts/public_auth_base.html" %}
 {% block title %}Registration unavailable · BloodConnect BD{% endblock %}
-{% block content %}<section class="section"><div class="container" style="max-width: 38rem">
-  <h1>Registration is temporarily unavailable</h1>
-  <p>Account verification delivery is not enabled in this environment. No account was created.</p>
-  <p><a href="{% url 'home' %}">Return home</a></p>
-</div></section>{% endblock %}
+{% block public_auth_eyebrow %}Account status{% endblock %}
+{% block public_auth_title %}Registration is temporarily unavailable{% endblock %}
+{% block public_auth_intro %}<p class="public-auth-card__intro">Account verification delivery is not enabled in this environment. No account was created.</p>{% endblock %}
+{% block public_auth_content %}
+  <div class="public-auth-actions">
+    <a class="btn btn-brand" href="{% url 'accounts:login' %}">Continue to sign in</a>
+  </div>
+  <p class="public-auth-secondary"><a href="{% url 'accounts:register' %}">Return to registration</a> · <a href="{% url 'home' %}">Return home</a></p>
+{% endblock %}

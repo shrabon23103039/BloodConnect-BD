@@ -1,0 +1,9 @@
+{% extends "accounts/public_auth_base.html" %}
+{% block title %}Google sign-in unavailable · BloodConnect BD{% endblock %}
+{% block public_auth_eyebrow %}Account sign-in{% endblock %}
+{% block public_auth_title %}Google sign-in could not be completed{% endblock %}
+{% block public_auth_intro %}<p class="public-auth-card__intro">Please try Google sign-in again later, or use your email or phone and password.</p>{% endblock %}
+{% block public_auth_content %}
+  <div class="public-auth-actions"><a class="btn btn-brand" href="{% url 'accounts:login' %}">Continue to sign in</a></div>
+  <p class="public-auth-secondary"><a href="{% url 'accounts:register' %}">Create an account</a> · <a href="{% url 'home' %}">Return home</a></p>
+{% endblock %}

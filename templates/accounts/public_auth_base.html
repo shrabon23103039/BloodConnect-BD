@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="public-auth-page" aria-labelledby="public-auth-title">
+  <div class="container public-auth-page__container">
+    <article class="public-auth-card">
+      <div class="public-auth-icon" aria-hidden="true">
+        {% block public_auth_icon %}
+          <svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path></svg>
+        {% endblock %}
+      </div>
+      <p class="public-auth-eyebrow">{% block public_auth_eyebrow %}Account access{% endblock %}</p>
+      <h1 id="public-auth-title">{% block public_auth_title %}{% endblock %}</h1>
+      {% block public_auth_intro %}{% endblock %}
+      {% block public_auth_content %}{% endblock %}
+    </article>
+  </div>
+</section>
+{% endblock %}

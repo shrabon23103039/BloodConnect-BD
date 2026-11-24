@@ -1,9 +1,57 @@
 {% extends "base.html" %}
-{% block title %}Incoming contact requests · BloodConnect BD{% endblock %}
+{% load static %}
+{% block title %}Incoming requests · BloodConnect BD{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/requests.css' %}">{% endblock %}
+{% block extra_scripts %}<script src="{% static 'js/requests.js' %}" defer></script>{% endblock %}
 {% block content %}
-<section class="section"><div class="container">
-  <p class="eyebrow">Contact requests</p><h1>Requests sent to you</h1>
-  <nav class="nav nav-tabs mb-4"><a class="nav-link active" href="{% url 'connections:incoming' %}">Incoming</a><a class="nav-link" href="{% url 'connections:outgoing' %}">Outgoing</a></nav>
-  {% if contact_requests %}<div class="list-group">{% for item in contact_requests %}<a class="list-group-item list-group-item-action" href="{% url 'connections:incoming_detail' item.pk %}"><strong>{{ item.blood_request.blood_group }}</strong> request · {{ item.get_status_display }} · {{ item.created_at|date:"Y-m-d H:i" }}</a>{% endfor %}</div>{% else %}<div class="alert alert-info">You have no incoming contact requests.</div>{% endif %}
-</div></section>
+<div class="request-workspace-page">
+  {% include "requests/_workspace_hero.html" %}
+  {% include "requests/_workspace_tabs.html" %}
+  {% include "requests/_workspace_summary.html" %}
+  <section class="request-panel" aria-labelledby="incoming-heading">
+    <header class="request-panel-heading">
+      <div>
+        <p class="request-eyebrow">Contact requests</p>
+        <h2 id="incoming-heading">Incoming requests</h2>
+        <p>Review requests sent to you by people coordinating a donation.</p>
+      </div>
+      {% if contact_requests %}
+      <label class="request-status-control" for="request-status-filter">
+        <span>Filter by status</span>
+        <select id="request-status-filter" data-request-status-filter><option value="all">All statuses</option></select>
+      </label>
+      {% endif %}
+    </header>
+    {% if contact_requests %}
+    <p class="request-result-count" aria-live="polite">Showing <strong data-request-visible-count>{{ contact_requests|length }}</strong> of {{ contact_requests|length }} requests</p>
+    <div class="contact-request-list" data-request-list>
+      {% for item in contact_requests %}
+      <article class="contact-request-card" data-request-row data-request-status="{{ item.get_status_display|lower }}">
+        <span class="contact-request-mark" aria-hidden="true">{{ item.blood_request.get_blood_group_display }}</span>
+        <div class="contact-request-copy">
+          <h3>{{ item.blood_request.get_blood_group_display }} blood request</h3>
+          <p>
+            {% if item.blood_request.request_location_label %}{{ item.blood_request.request_location_label }}
+            {% elif item.blood_request.upazila %}{{ item.blood_request.upazila.name_en }}, {{ item.blood_request.district.name_en }}
+            {% elif item.blood_request.district %}{{ item.blood_request.district.name_en }}
+            {% else %}Location not selected{% endif %}
+            <span aria-hidden="true">·</span> Received {{ item.created_at|date:"M j, Y" }}
+          </p>
+          {% if item.blood_request.request_location_source == "MAP_PIN" %}<p class="contact-request-location-note">General area · pin adjusted, not a verified street address</p>{% endif %}
+        </div>
+        <span class="request-status-badge">{{ item.get_status_display }}</span>
+        <a class="request-action-link" aria-label="{{ item.blood_request.get_blood_group_display }} request · {{ item.get_status_display }}" href="{% url 'connections:incoming_detail' item.pk %}">View request</a>
+      </article>
+      {% endfor %}
+    </div>
+    <p class="request-filter-empty" data-request-filter-empty hidden>No requests match this status.</p>
+    {% else %}
+    <div class="request-empty-state">
+      <span class="request-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H8l-4 4V5Z"/><path d="M8 9h8m-8 4h5"/></svg></span>
+      <div><h3>No incoming requests</h3><p>Contact requests sent to you will appear here.</p></div>
+    </div>
+    {% endif %}
+  </section>
+  {% include "requests/_safety_reminder.html" %}
+</div>
 {% endblock %}

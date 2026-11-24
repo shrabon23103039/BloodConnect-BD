@@ -1,0 +1,15 @@
+{% with current=request.resolver_match %}
+<nav class="app-nav" aria-label="{% if mobile %}Mobile application{% else %}Application{% endif %} navigation">
+  <p class="app-nav-label">Workspace</p>
+  <a class="app-nav-link{% if current.url_name == 'home' %} is-active{% endif %}" href="{% url 'home' %}"{% if current.url_name == 'home' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Dashboard</a>
+  <a class="app-nav-link{% if current.namespace == 'donors' and current.url_name == 'search' %} is-active{% endif %}" href="{% url 'donors:search' %}"{% if current.namespace == 'donors' and current.url_name == 'search' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Find donors</a>
+  <a class="app-nav-link{% if current.namespace == 'requests' or current.namespace == 'connections' %} is-active{% endif %}" href="{% url 'requests:list' %}"{% if current.namespace == 'requests' or current.namespace == 'connections' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Requests</a>
+  <a class="app-nav-link{% if current.namespace == 'donors' and current.url_name == 'profile' %} is-active{% endif %}" href="{% url 'donors:profile' %}"{% if current.namespace == 'donors' and current.url_name == 'profile' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Donor profile</a>
+
+  <p class="app-nav-label app-nav-secondary-label">Settings</p>
+  <a class="app-nav-link{% if current.namespace == 'governance' %} is-active{% endif %}" href="{% url 'governance:privacy_settings' %}"{% if current.namespace == 'governance' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Privacy settings</a>
+  <a class="app-nav-link{% if current.url_name == 'google_link' %} is-active{% endif %}" href="{% url 'accounts:google_link' %}"{% if current.url_name == 'google_link' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Account access</a>
+  <a class="app-nav-link{% if current.url_name == 'safety' %} is-active{% endif %}" href="{% url 'safety' %}"{% if current.url_name == 'safety' %} aria-current="page"{% endif %}{% if mobile %} data-bs-dismiss="offcanvas"{% endif %}>Help &amp; safety</a>
+  <form method="post" action="{% url 'accounts:logout' %}" class="app-signout-form">{% csrf_token %}<button class="app-nav-link app-signout" type="submit">Sign out</button></form>
+</nav>
+{% endwith %}

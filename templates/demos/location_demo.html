@@ -1,0 +1,107 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#9f1d20">
+  <meta name="description" content="Standalone location selection demonstration for BloodConnect BD.">
+  <title>Location demo · BloodConnect BD</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'css/location_picker.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Demo navigation">
+      <div class="container location-picker__nav">
+        <a class="navbar-brand brand-mark" href="{% url 'home' %}">
+          <span class="brand-icon" aria-hidden="true">B</span>
+          <span>BloodConnect <span class="brand-country">BD</span></span>
+        </a>
+        <a class="btn btn-outline-brand btn-sm" href="{% url 'donors:search' %}">Back to donor search</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content" class="location-picker-page">
+    <section class="section">
+      <div class="container location-picker__container">
+        <p class="eyebrow">Standalone demonstration</p>
+        <h1>Choose a location</h1>
+        <p class="location-picker__intro">Search for a place or hospital, use your device location, or place a pin on the map. Nothing on this page is submitted to BloodConnect BD or saved.</p>
+
+        <div id="location-demo"
+             class="location-picker__panel card location-picker"
+             data-location-picker
+             data-location-picker-mode="demo"
+             data-google-maps-api-key="{{ google_maps_browser_api_key }}">
+          <div class="card-body">
+            <div class="location-picker__search">
+              <div>
+                <label class="form-label" for="place-search-mode">Search for</label>
+                <select id="place-search-mode" class="form-select" aria-describedby="place-search-help" data-role="search-mode">
+                  <option value="all">Any place</option>
+                  <option value="hospital">Hospitals only</option>
+                </select>
+                <div id="place-search-help" class="form-text">Hospital search is provided by Google Places and does not verify a facility or its services.</div>
+              </div>
+              <div>
+                <span id="place-search-label" class="form-label">Address, place, or hospital</span>
+                <div id="place-autocomplete" class="location-picker__autocomplete" aria-labelledby="place-search-label" data-role="location-autocomplete"></div>
+              </div>
+            </div>
+
+            <p id="provider-status" class="alert alert-info mt-3" role="status" aria-live="polite" data-role="provider-status">
+              {% if google_maps_browser_api_key %}Loading Google Maps and Places…{% else %}Google Maps is not configured. Set GOOGLE_MAPS_BROWSER_API_KEY to enable the map, Places search, and address lookup. Browser GPS may still be available.{% endif %}
+            </p>
+
+            <div class="location-picker__workspace">
+              <div id="location-map" class="location-picker__map" role="region" aria-label="Interactive location map" aria-describedby="map-help" data-role="map">
+                <p class="location-picker__map-fallback" data-role="map-fallback">Interactive map is unavailable. Use browser location or enter coordinates below.</p>
+              </div>
+              <div class="location-picker__controls">
+                <p id="map-help" class="form-text">Select a place, use your location, click the map, drag the pin, or enter coordinates below. Then confirm your selection.</p>
+                <div class="location-picker__actions">
+                  <button id="use-my-location" class="btn btn-outline-brand" type="button" data-role="use-my-location">Use my location</button>
+                  <button id="confirm-location" class="btn btn-brand" type="button" disabled data-role="confirm-location">Confirm this location</button>
+                  <button id="clear-location" class="btn btn-outline-secondary" type="button" data-role="clear-location">Clear selection</button>
+                </div>
+                <p id="action-status" class="location-picker__status" role="status" aria-live="polite" data-role="action-status"></p>
+
+                <fieldset class="location-picker__coordinates">
+                  <legend class="h6">Keyboard alternative: enter coordinates</legend>
+                  <div class="location-picker__coordinate-inputs">
+                    <div>
+                      <label class="form-label" for="latitude">Latitude</label>
+                      <input id="latitude" class="form-control" type="number" inputmode="decimal" step="any" min="-90" max="90" autocomplete="off" data-role="latitude">
+                    </div>
+                    <div>
+                      <label class="form-label" for="longitude">Longitude</label>
+                      <input id="longitude" class="form-control" type="number" inputmode="decimal" step="any" min="-180" max="180" autocomplete="off" data-role="longitude">
+                    </div>
+                  </div>
+                  <button id="set-coordinate-pin" class="btn btn-outline-brand mt-2" type="button" data-role="set-coordinate-pin">Place pin at these coordinates</button>
+                </fieldset>
+
+                <section id="confirmed-location" class="location-picker__confirmed" aria-labelledby="confirmed-heading" data-role="confirmed-location" hidden>
+                  <h2 id="confirmed-heading" class="h5">Your confirmed selection</h2>
+                  <p class="mb-1"><strong>Address:</strong> <span id="confirmed-address" data-role="confirmed-address"></span></p>
+                  <p class="mb-0"><strong>Coordinates:</strong> <span id="confirmed-coordinates" data-role="confirmed-coordinates"></span></p>
+                  <p class="form-text mt-2 mb-0">This is the location you selected. It is not independently verified.</p>
+                </section>
+              </div>
+            </div>
+            <noscript><p class="alert alert-warning mt-3 mb-0">JavaScript is required for this interactive location demo.</p></noscript>
+          </div>
+        </div>
+        <p class="location-picker__privacy">Demo only: coordinates remain in this page's JavaScript memory. Browser geolocation requires your permission. Google receives place-search and geocoding requests when those features are used.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}" defer></script>
+  <script src="{% static 'js/location_picker.js' %}" defer></script>
+</body>
+</html>

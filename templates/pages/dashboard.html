@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard | BloodConnect BD{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+  <div class="dashboard-content">
+    <section class="dashboard-hero" aria-labelledby="dashboard-heading">
+      <div class="dashboard-hero-copy">
+        <p class="dashboard-eyebrow"><span>BloodConnect BD</span><span aria-hidden="true"></span></p>
+        <h1 id="dashboard-heading">Welcome back, {{ user.display_name|default:user.get_username }}.</h1>
+        <p class="dashboard-intro">Help save lives by connecting with voluntary blood donors across Bangladesh.</p>
+        <div class="dashboard-hero-actions">
+          <a class="dashboard-primary-action" href="{% url 'donors:search' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.2 4.2"/></svg>
+            <span>Find donors</span><span class="dashboard-action-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="dashboard-secondary-action" href="{% url 'requests:create' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Create a blood request</span>
+          </a>
+        </div>
+      </div>
+      <div class="dashboard-hero-art" aria-hidden="true">
+        <svg viewBox="0 0 520 230" role="presentation" focusable="false">
+          <defs>
+            <linearGradient id="dashboard-sky" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff5f4"/><stop offset="1" stop-color="#f8d7d6"/></linearGradient>
+            <linearGradient id="dashboard-drop" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ee3239"/><stop offset="1" stop-color="#a50717"/></linearGradient>
+            <linearGradient id="dashboard-hand" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f7b19c"/><stop offset="1" stop-color="#d87566"/></linearGradient>
+          </defs>
+          <path fill="url(#dashboard-sky)" d="M0 0h520v230H0z"/>
+          <path fill="#f3b4b1" opacity=".45" d="M0 180c72-20 92-10 153-24 50-12 94-48 141-42 45 5 68 49 114 44 45-5 73-43 112-44v116H0z"/>
+          <path fill="#fff1ef" d="M0 200c74-34 124-12 176-33 42-17 73-44 112-39 44 6 59 44 105 40 51-4 74-44 127-47v109H0z"/>
+          <g fill="#eaa09d" opacity=".48">
+            <path d="M53 182h8v-22h5v22h8v-34h5v34h9v-14h5v14h8v-29h5v29h10v13H53z"/>
+            <path d="M393 176h8v-24h5v24h8v-39h5v39h8v-18h5v18h9v-31h5v31h8v18h-56z"/>
+            <path d="M242 191h5v-49h2v49h5v-64h2v64h7v10h-21z"/>
+          </g>
+          <path d="M239 157c-38-11-62-6-94 7-22 9-44 10-69 7 28 20 57 23 90 14 29-8 49-9 75 1M281 176c31-13 57-17 87-5 28 11 54 11 82 1-28 25-63 30-97 19-25-8-45-7-72 2" fill="none" stroke="#e98e8e" stroke-linecap="round" stroke-width="8" opacity=".55"/>
+          <g fill="url(#dashboard-hand)">
+            <path d="M164 222c-10-12-16-30-21-46l-17-44c-3-8-1-14 5-16 7-2 12 4 15 11l14 30-3-49c0-9 4-14 10-14 7 0 10 5 11 13l5 45 5-59c1-8 5-12 11-11 7 1 9 6 8 15l-1 51 9-46c2-9 6-12 12-10 6 2 7 7 5 16l-8 50c-3 22 2 38 14 64z"/>
+            <path d="M356 222c10-12 16-30 21-46l17-44c3-8 1-14-5-16-7-2-12 4-15 11l-14 30 3-49c0-9-4-14-10-14-7 0-10 5-11 13l-5 45-5-59c-1-8-5-12-11-11-7 1-9 6-8 15l1 51-9-46c-2-9-6-12-12-10-6 2-7 7-5 16l8 50c3 22-2 38-14 64z"/>
+          </g>
+          <path fill="url(#dashboard-drop)" d="M260 16c-17 36-39 62-39 92a39 39 0 0 0 78 0c0-30-22-56-39-92z"/>
+          <path d="M244 113h11l7-13 9 25 8-18h12" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+          <path d="M242 93c5-9 17-8 18 2 2-10 14-11 19-2 6 10-8 21-19 28-11-7-24-18-18-28z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </section>
+
+    {% if not has_reviewed_area_filters %}
+    <div class="dashboard-location-note" role="status">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>
+      <p><strong>Area filters are not available yet.</strong> You can still search for donors and create blood requests.</p>
+      <a href="{% url 'donors:search' %}">Find donors <span aria-hidden="true">→</span></a>
+    </div>
+    {% endif %}
+
+    <section class="dashboard-summary" aria-label="Your activity summary">
+      <a class="dashboard-stat-card dashboard-stat-card--requests" href="{% url 'requests:list' %}">
+        <span class="dashboard-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M16 3C12 10 7 15 7 21a9 9 0 0 0 18 0c0-6-5-11-9-18z"/></svg>
+        </span>
+        <span class="dashboard-stat-copy"><span class="dashboard-stat-label">Open blood requests</span><strong class="dashboard-stat-value">{{ open_request_count }}</strong></span>
+        <span class="dashboard-stat-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="dashboard-stat-card dashboard-stat-card--contacts" href="{% url 'connections:incoming' %}">
+        <span class="dashboard-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><circle cx="12" cy="10" r="4"/><path d="M4 25v-2a7 7 0 0 1 14 0v2M21 7a4 4 0 0 1 0 8m2 3a6 6 0 0 1 5 6v1"/></svg>
+        </span>
+        <span class="dashboard-stat-copy"><span class="dashboard-stat-label">Contact requests</span><strong class="dashboard-stat-value">{{ pending_contact_request_count }}</strong></span>
+        <span class="dashboard-stat-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="dashboard-stat-card dashboard-stat-card--notifications" href="{% url 'notifications:list' %}">
+        <span class="dashboard-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M24 13a8 8 0 0 0-16 0c0 9-4 9-4 12h24c0-3-4-3-4-12M13 29h6"/></svg>
+        </span>
+        <span class="dashboard-stat-copy"><span class="dashboard-stat-label">Unread notifications</span><strong class="dashboard-stat-value">{{ unread_notification_count }}</strong></span>
+        <span class="dashboard-stat-arrow" aria-hidden="true">›</span>
+      </a>
+    </section>
+
+    <section class="dashboard-activity" aria-labelledby="activity-heading">
+      <div class="dashboard-section-heading">
+        <span class="dashboard-activity-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg>
+        </span>
+        <div class="dashboard-section-copy">
+          <h2 id="activity-heading">Recent blood requests</h2>
+          <p>Your latest blood requests will appear here.</p>
+        </div>
+        <a class="dashboard-view-all" href="{% url 'requests:list' %}">View all requests <span aria-hidden="true">→</span></a>
+      </div>
+
+      {% if recent_requests %}
+      <ul class="request-activity-list">
+        {% for blood_request in recent_requests %}
+        <li>
+          <a class="request-activity-row" href="{% url 'requests:detail' public_id=blood_request.pk %}">
+            <span class="request-activity-mark" aria-hidden="true">{{ blood_request.blood_group }}</span>
+            <span class="request-activity-copy">
+              <strong>{{ blood_request.get_blood_group_display }} blood request</strong>
+              <span>
+                {% if blood_request.request_location_label %}
+                  {{ blood_request.request_location_label }}
+                {% elif blood_request.district %}
+                  {{ blood_request.district.name_en }}
+                {% elif blood_request.division %}
+                  {{ blood_request.division.name_en }}
+                {% else %}
+                  Area not specified
+                {% endif %}
+                <span aria-hidden="true">·</span> {{ blood_request.get_status_display }}
+              </span>
+            </span>
+            <time datetime="{{ blood_request.created_at|date:'c' }}">{{ blood_request.created_at|date:"M j, Y" }}</time>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="dashboard-empty-state">
+        <svg class="dashboard-empty-art" viewBox="0 0 240 170" aria-hidden="true" focusable="false">
+          <path d="M23 111c20-37 51-48 83-42 33-32 84-22 103 10 18 31-4 63-35 70H58c-35-3-52-16-35-38z" fill="#fde7e6"/>
+          <path d="m72 44 83-9 13 106-89 10z" fill="#fff" stroke="#dc7777" stroke-width="5" stroke-linejoin="round"/>
+          <path d="m84 54 63-7 9 78-64 7z" fill="#fff7f6"/>
+          <path d="M113 46a14 14 0 0 1 28-3" fill="none" stroke="#b4232a" stroke-linecap="round" stroke-width="5"/>
+          <circle cx="127" cy="39" r="6" fill="#b4232a"/>
+          <path d="M115 77c-5 8-9 13-9 18a10 10 0 0 0 20 0c0-5-5-10-11-18z" fill="#df676b"/>
+          <path d="M101 110h43m-41 13h47m-44 13h32" fill="none" stroke="#edb7b4" stroke-linecap="round" stroke-width="4"/>
+          <path d="M52 116c-14-9-19-20-19-32 15 4 24 14 28 29m131 12c12-12 16-25 12-38-14 7-21 19-23 35" fill="#efb2b0"/>
+          <path d="M55 115 34 85m150 37 21-31" fill="none" stroke="#dc7777" stroke-linecap="round" stroke-width="3"/>
+        </svg>
+        <div class="dashboard-empty-copy">
+          <h3>No blood requests yet</h3>
+          <p>You haven't created any blood requests. Create one when you need blood, and we'll help you connect with potential donors.</p>
+          <a class="dashboard-primary-action" href="{% url 'requests:create' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Create a request</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </section>
+
+    <aside class="dashboard-safety" aria-label="Safety reminder">
+      <span class="dashboard-safety-icon" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M16 3 27 7v8c0 7-4.5 11.5-11 14-6.5-2.5-11-7-11-14V7z"/><path d="m11 16 3.5 3.5L21 13"/></svg>
+      </span>
+      <span class="dashboard-safety-copy"><strong>Safety reminder</strong><span>Contact details are shared only through consent-based requests. BloodConnect BD is not a medical service.</span></span>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

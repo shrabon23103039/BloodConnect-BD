@@ -33,7 +33,7 @@ class ApiBaselineTests(SimpleTestCase):
     def test_serializers_have_explicit_private_field_free_allowlists(self):
         self.assertEqual(
             set(DonorSearchSerializer().fields),
-            {"id", "public_alias", "blood_group", "availability_status", "division", "district", "upazila"},
+            {"id", "public_alias", "blood_group", "availability_status", "division", "district", "upazila", "union", "city_corporation", "city_zone", "ward"},
         )
         self.assertFalse(
             {"user", "phone_e164", "email", "share_phone_after_accept", "share_email_after_accept"}
@@ -41,9 +41,19 @@ class ApiBaselineTests(SimpleTestCase):
         )
         self.assertEqual(
             set(BloodRequestReadSerializer().fields),
-            {"id", "blood_group", "units_requested", "required_at", "division", "district", "upazila", "urgency", "status", "expires_at", "created_at"},
+            {"id", "blood_group", "units_requested", "required_at", "division", "district", "upazila", "request_location_label", "urgency", "status", "expires_at", "created_at"},
         )
         self.assertFalse({"requester", "facility_name", "facility_address", "description"} & set(BloodRequestReadSerializer().fields))
+        self.assertFalse(
+            {
+                "request_location_latitude",
+                "request_location_longitude",
+                "request_location_place_id",
+                "request_location_source",
+                "request_location_confirmed_at",
+            }
+            & set(BloodRequestReadSerializer().fields)
+        )
         self.assertEqual(
             set(ContactRequestReadSerializer().fields),
             {"id", "status", "created_at", "expires_at"},

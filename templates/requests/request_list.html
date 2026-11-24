@@ -1,20 +1,101 @@
 {% extends "base.html" %}
-{% block title %}My blood requests · BloodConnect BD{% endblock %}
+{% load static %}
+{% block title %}Blood requests · BloodConnect BD{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/requests.css' %}">{% endblock %}
+{% block extra_scripts %}<script src="{% static 'js/requests.js' %}" defer></script>{% endblock %}
 {% block content %}
-<section class="section"><div class="container narrow-container">
-  <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
-    <div><p class="eyebrow">Coordination</p><h1>My blood requests</h1></div>
-    <a class="btn btn-brand" href="{% url 'requests:create' %}">Create request</a>
-  </div>
-  <p>Requests share self-reported coordination details. Units and urgency do not represent inventory or medical advice.</p>
+<div class="request-workspace-page">
+  {% include "requests/_workspace_hero.html" %}
+  {% include "requests/_workspace_tabs.html" %}
+  {% include "requests/_workspace_summary.html" %}
+
   {% if messages %}{% for message in messages %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}{% endif %}
-  {% if blood_requests %}<div class="list-group mt-4">
-    {% for item in blood_requests %}
-      <a class="list-group-item list-group-item-action" href="{% url 'requests:detail' item.pk %}">
-        <div class="d-flex justify-content-between gap-2"><strong>{{ item.get_blood_group_display }} · {{ item.district.name_en }}</strong><span>{{ item.get_status_display }}</span></div>
-        <small>Required {{ item.required_at|date:"M j, Y, H:i" }} · {{ item.get_urgency_display }} urgency</small>
-      </a>
-    {% endfor %}
-  </div>{% else %}<div class="alert alert-info mt-4">You have not created a request yet.</div>{% endif %}
-</div></section>
+
+  <section class="request-panel" aria-labelledby="request-list-heading">
+    <header class="request-panel-heading">
+      <div>
+        <p class="request-eyebrow">Your activity</p>
+        <h2 id="request-list-heading">My blood requests</h2>
+        <p>Review and manage requests you have created.</p>
+      </div>
+      {% if blood_requests %}
+      <label class="request-status-control" for="request-status-filter">
+        <span>Filter by status</span>
+        <select id="request-status-filter" data-request-status-filter>
+          <option value="all">All statuses</option>
+        </select>
+      </label>
+      {% endif %}
+    </header>
+
+    {% if blood_requests %}
+    <p class="request-result-count" aria-live="polite">
+      Showing <strong data-request-visible-count>{{ blood_requests|length }}</strong> of {{ blood_requests|length }} requests
+    </p>
+    <div class="request-table-wrap">
+      <table class="requests-table">
+        <thead>
+          <tr>
+            <th scope="col">Request</th>
+            <th scope="col">Location</th>
+            <th scope="col">Units</th>
+            <th scope="col">Urgency</th>
+            <th scope="col">Needed by</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody data-request-list>
+          {% for item in blood_requests %}
+          <tr data-request-row data-request-status="{{ item.get_status_display|lower }}">
+            <td data-label="Request">
+              <span class="request-primary-text">{{ item.get_blood_group_display }} request</span>
+              <span class="request-secondary-text">Created {{ item.created_at|date:"M j, Y" }}</span>
+            </td>
+            <td data-label="Location">
+              <span class="request-primary-text">
+                {% if item.request_location_label %}
+                  {{ item.request_location_label }}
+                {% elif item.upazila %}
+                  {{ item.upazila.name_en }}, {{ item.district.name_en }}{% if item.division %}, {{ item.division.name_en }}{% endif %}
+                {% elif item.district %}
+                  {{ item.district.name_en }}{% if item.division %}, {{ item.division.name_en }}{% endif %}
+                {% else %}
+                  Location not selected
+                {% endif %}
+              </span>
+              {% if item.request_location_source == "MAP_PIN" %}<span class="request-secondary-text">General area · pin adjusted</span>{% endif %}
+            </td>
+            <td data-label="Units"><span class="request-primary-text">{{ item.units_requested }}</span></td>
+            <td data-label="Urgency"><span class="request-urgency">{{ item.get_urgency_display }}</span></td>
+            <td data-label="Needed by"><span class="request-primary-text">{{ item.required_at|date:"M j, Y" }}</span><span class="request-secondary-text">{{ item.required_at|date:"H:i" }}</span></td>
+            <td data-label="Status"><span class="request-status-badge">{{ item.get_status_display }}</span></td>
+            <td data-label="Actions">
+              <div class="request-row-actions">
+                <a class="request-action-link" href="{% url 'requests:detail' item.pk %}">View</a>
+                {% if item.status == "DRAFT" or item.status == "OPEN" %}<a class="request-action-link request-action-link--quiet" href="{% url 'requests:edit' item.pk %}">Manage</a>{% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="request-filter-empty" data-request-filter-empty hidden>No requests match this status.</p>
+    {% else %}
+    <div class="request-empty-state">
+      <span class="request-empty-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-11a7 7 0 0 1 14 0c0 6.65-7 11-7 11Z"/><path d="M12 7v7m0 3h.01"/></svg>
+      </span>
+      <div>
+        <h3>No blood requests yet</h3>
+        <p>Your requests will appear here after you create one.</p>
+      </div>
+      <a class="request-primary-action" href="{% url 'requests:create' %}">Create a blood request</a>
+    </div>
+    {% endif %}
+  </section>
+
+  {% include "requests/_safety_reminder.html" %}
+</div>
 {% endblock %}
