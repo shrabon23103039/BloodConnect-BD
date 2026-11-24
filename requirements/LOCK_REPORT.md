@@ -45,3 +45,11 @@ Runtime lock (`base.lock`): 36 fully pinned distributions, including platform-sp
 - `python -m pip check` — passed: no broken requirements.
 - `pip-audit --strict` — passed: no known vulnerabilities found.
 - `uv pip compile` emitted compatibility normalization warnings for invalid trailing commas/starred comparisons in third-party package metadata; resolved constraints were normalized by uv. No project constraints were altered.
+
+## Google provider dependency restoration (2026-11-24)
+
+- Added the ADR-032-approved `django-allauth[socialaccount]==65.22.1` runtime input. The `socialaccount` extra is required for the Google provider's OAuth dependencies.
+- Regenerated both universal hash locks with uv 0.13.7 using the documented commands above. The updated locks resolve 47 runtime and 106 development/test distributions.
+- The GitHub Advisory Database reported no known vulnerabilities for django-allauth 65.22.1 or the additional resolved provider dependencies.
+- Installed the development lock into an isolated Python 3.14.10 environment with `uv pip install --python /tmp/bloodconnect-ci-venv/bin/python --require-hashes -r requirements/dev.lock`; installation succeeded. `python -m pip check` reported no broken requirements.
+- Django's system check and focused OAuth test collection still fail because the current settings do not register django-allauth's account/socialaccount apps. This dependency correction alone does not verify the full CI job.

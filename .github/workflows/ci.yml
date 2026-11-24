@@ -29,5 +29,5 @@ jobs:
       - run: python -m playwright install --with-deps chromium
       - run: python manage.py check --settings=config.settings.test
       - run: python -m pip check
-      - run: python -m bandit -c pyproject.toml -r apps config
+      - run: python -m bandit -q -r apps config
       - run: python -m pytest --ds=config.settings.test tests -q --tb=short -p no:cacheprovider
