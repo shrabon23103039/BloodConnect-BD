@@ -45,3 +45,11 @@ Runtime lock (`base.lock`): 36 fully pinned distributions, including platform-sp
 - `python -m pip check` — passed: no broken requirements.
 - `pip-audit --strict` — passed: no known vulnerabilities found.
 - `uv pip compile` emitted compatibility normalization warnings for invalid trailing commas/starred comparisons in third-party package metadata; resolved constraints were normalized by uv. No project constraints were altered.
+
+## Follow-up verification (2026-11-24)
+
+- Added the ADR-032-selected `django-allauth[socialaccount]==65.22.1` runtime dependency to `requirements/base.in`.
+- Regenerated both universal hash locks with uv `0.13.7`: `base.lock` resolves 47 packages and `dev.lock` resolves 106 packages.
+- A Python 3.14.10 environment installed `requirements/dev.lock` with `pip install --require-hashes`; `pip check` passed with no broken requirements.
+- The GitHub advisory database reported no known vulnerabilities for `django-allauth` 65.22.1.
+- The Django system check was attempted after installation but is blocked by an existing `ImportError` for `VerificationDeliveryError` in `apps/accounts/views.py`; this is not a dependency resolution failure.
