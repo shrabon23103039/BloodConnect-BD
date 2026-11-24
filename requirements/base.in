@@ -1,5 +1,6 @@
 # Production/runtime direct dependencies. Exact pins are reviewed in LOCK_REPORT.md.
 Django==5.2.19
+django-allauth==65.22.1
 djangorestframework==3.18.3
 psycopg[binary]==3.3.8
 celery[redis]==5.7.0
