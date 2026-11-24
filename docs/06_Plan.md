@@ -834,3 +834,12 @@ Do not fill in passing test results until commands have actually been run agains
   - JavaScript syntax and `git diff --check` passed.
   - Django test-settings system check passed.
   - Production `check --deploy` could not run because `DJANGO_SECRET_KEY` is not configured in the local shell; production secrets and hosted HTTPS remain environment-limited.
+
+## Execution update — 2026-11-24
+
+- Task reference: P8-01 CI test-job regression; related to the still `IMPLEMENTED_UNVERIFIED` P13-01 OAuth task.
+- Status: `IMPLEMENTED_UNVERIFIED`; dependency inputs and locks are corrected, but the CI job remains blocked by incomplete allauth integration.
+- Changed files: `.github/workflows/ci.yml`, `requirements/base.in`, `requirements/base.lock`, `requirements/dev.lock`, `requirements/LOCK_REPORT.md`, and this plan.
+- Evidence: Actions run `45443884930`, job `138622191785` failed during `manage.py check` with `ModuleNotFoundError: No module named 'allauth'`. Regenerated hash locks with uv 0.13.7 (47 runtime / 106 development distributions); the GitHub Advisory Database found no known vulnerabilities in django-allauth 65.22.1 and the added provider dependencies. Installing the lock into Python 3.14.10 succeeded and `python -m pip check` passed.
+- Verification results: `python -m pip check` passed and `python -m bandit -q -r apps config` passed (one existing `nosec` warning). The CI Bandit step now uses that documented command instead of the absent `pyproject.toml`. `manage.py check --settings=config.settings.test` and `tests/test_google_oauth.py` still fail because `config/settings/base.py` does not register django-allauth's models in `INSTALLED_APPS`.
+- Unresolved: P13-01's allauth app/middleware/backend and adapter integration is incomplete in the current source tree; `apps/accounts/social_auth.py` is absent although OAuth tests import it. The CI job cannot be marked fixed until this integration is addressed and the full suite passes. No allauth runtime behavior was enabled as part of this dependency correction.
