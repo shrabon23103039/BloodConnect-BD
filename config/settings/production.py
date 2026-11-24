@@ -60,6 +60,10 @@ if PROCESS_ROLE == "web":
         raise ImproperlyConfigured(
             "EMAIL_HOST, EMAIL_HOST_USER and EMAIL_HOST_PASSWORD must be set for the web service."
         )
+    if not DEFAULT_FROM_EMAIL:
+        raise ImproperlyConfigured(
+            "DEFAULT_FROM_EMAIL must be set to an authorized sender for the web service."
+        )
     if EMAIL_USE_TLS and EMAIL_USE_SSL:
         raise ImproperlyConfigured("Configure SMTP with TLS or SSL, not both.")
     if not EMAIL_USE_TLS and not EMAIL_USE_SSL:
@@ -67,8 +71,15 @@ if PROCESS_ROLE == "web":
 
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = "Lax"
 SECURE_HSTS_SECONDS = 31_536_000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
