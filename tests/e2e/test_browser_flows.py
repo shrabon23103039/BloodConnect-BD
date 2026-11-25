@@ -121,7 +121,10 @@ def test_registration_search_contact_request_accept_flow(live_server, settings):
         recipient_page.locator("input[name='username']").fill(RECIPIENT_EMAIL)
         recipient_page.locator("input[name='password']").fill(RECIPIENT_PASSWORD)
         recipient_page.get_by_role("button", name="Sign in").click()
-        assert recipient_page.get_by_role("button", name="Sign out").is_visible()
+        desktop_navigation = recipient_page.get_by_role(
+            "complementary", name="Application navigation"
+        )
+        assert desktop_navigation.get_by_role("button", name="Sign out").is_visible()
 
         recipient_state = recipient_context.storage_state()
         recipient_context.close()

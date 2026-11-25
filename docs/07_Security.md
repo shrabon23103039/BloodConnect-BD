@@ -65,13 +65,16 @@ Public donor search must never return:
 
 For the profile-only picker, donor-selected coordinates, general-area label, optional Place ID and source may be stored privately only after explicit confirmation and separate, revocable `donor_area_storage` consent. Do not request browser GPS or use these fields for matching. The browser sends the donor's place query and selected pin coordinates directly to Google Maps Platform only for the requested map/geocoding operation; disclose this provider data flow and do not send donor records, blood group or search results. Only the donor's own profile flow may read or update the saved fields. Public APIs, donor search results, public templates, admin exports, logs and errors never expose donor coordinates, Place IDs or exact addresses. The later PostGIS matching design remains a separate, unimplemented decision. Before donor acceptance, recipient sees only the donor's consented public profile. After acceptance, reveal only the contact method explicitly selected by the donor.
 
-For blood requests, store the requester's selected point and optional Place ID privately only after explicit area confirmation. Public request listings may expose the general-area label only; never include coordinates or Place ID in public serializers, templates, logs, analytics or errors. The request location is separate from optional facility name/address text. The browser sends only the user's place query and selected Places details directly to Google; do not request GPS or Geocoding.
+For blood requests, store the requester's selected point and optional Place ID privately only after explicit area confirmation. Treat the map label as user-controlled: public API serializers must not expose it because it may contain a precise address. Only legacy reviewed administrative labels may be public until an approved server-side generalization source exists. Never include coordinates or Place ID in public serializers, templates, logs, analytics or errors. The owner may see their own map label. The request location is separate from optional facility name/address text. The browser sends only the user's place query and selected Places details directly to Google; do not request GPS or Geocoding.
+
+Coordinate storage does not authorize coordinate-based donor matching. Matching remains disabled until an authoritative Bangladesh boundary dataset is reviewed and approved and server-side boundary-inclusive validation is implemented. Global latitude/longitude range checks are not a Bangladesh boundary check; client-side map limits are not security validation.
 
 ## 6. Sensitive action requirements
 
 - Contact-request accept/decline must be authenticated and authorized.
 - State transition and audit record must be atomic.
 - Sensitive profile changes require re-authentication where appropriate.
+- A successful password reset rotates the anonymous reset session before granting reset authority, preserves unrelated session state, and revokes all API access/refresh token families atomically with the password update.
 - Donor area updates require explicit confirmation and active storage consent; clearing the area immediately clears the point, label, Place ID, source and confirmation timestamp.
 - Deactivation immediately excludes the donor from every match type. Account deletion removes precise coordinates from the active database.
 - Admin exports must be permission-gated and audited.

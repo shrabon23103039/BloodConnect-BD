@@ -26,6 +26,8 @@ from apps.accounts.verification import (
     issue_challenge,
     mock_verification_provider,
 )
+from apps.api.models import ApiAccessToken, ApiRefreshToken
+from apps.api.token_services import digest_token, issue_token_pair
 
 User = get_user_model()
 PASSWORD = "Synthetic-Unique-Password!947"
@@ -452,18 +454,25 @@ class VerificationWebFlowTests(TestCase):
         user.account_status = AccountStatus.ACTIVE
         user.phone_verified_at = timezone.now()
         user.save(update_fields=["account_status", "phone_verified_at", "updated_at"])
+        token_pair = issue_token_pair(user=user)
 
         start_url = reverse("accounts:phone_password_reset")
         response = self.client.post(start_url, {"phone_e164": user.phone_e164})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "If an active account matches")
         code = mock_verification_provider.messages[-1].code
+        session = self.client.session
+        session["unrelated_session_data"] = "preserved"
+        session.save()
+        old_session_key = self.client.session.session_key
 
         verified = self.client.post(
             reverse("accounts:phone_password_reset_verify"),
             {"phone_e164": user.phone_e164, "code": code},
         )
         self.assertRedirects(verified, reverse("accounts:phone_password_reset_confirm"))
+        self.assertNotEqual(self.client.session.session_key, old_session_key)
+        self.assertEqual(self.client.session["unrelated_session_data"], "preserved")
         new_password = "New-Synthetic-Password!6284"
         changed = self.client.post(
             reverse("accounts:phone_password_reset_confirm"),
@@ -474,3 +483,13 @@ class VerificationWebFlowTests(TestCase):
         self.assertTrue(user.check_password(new_password))
         self.assertFalse(user.check_password(PASSWORD))
         self.assertNotIn("phone_password_reset_user_id", self.client.session)
+        self.assertIsNotNone(
+            ApiAccessToken.objects.get(
+                token_digest=digest_token(token_pair["access_token"])
+            ).revoked_at
+        )
+        self.assertIsNotNone(
+            ApiRefreshToken.objects.get(
+                token_digest=digest_token(token_pair["refresh_token"])
+            ).revoked_at
+        )

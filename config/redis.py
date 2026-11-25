@@ -5,14 +5,20 @@ from urllib.parse import urlsplit, urlunsplit
 from django.core.exceptions import ImproperlyConfigured
 
 
-def redis_database_url(value: str, database: int) -> str:
+def redis_database_url(value: str, database: int, *, require_tls: bool = False) -> str:
     """Return a Redis URL using the requested DB index without echoing secrets."""
     try:
         parsed = urlsplit(value)
-        if parsed.scheme not in {"redis", "rediss"} or not parsed.netloc:
+        allowed_schemes = {"rediss"} if require_tls else {"redis", "rediss"}
+        if parsed.scheme not in allowed_schemes or not parsed.netloc:
             raise ValueError
         if parsed.fragment:
             raise ValueError
         return urlunsplit(parsed._replace(path=f"/{database}"))
     except (TypeError, ValueError) as error:
-        raise ImproperlyConfigured("REDIS_URL must be a valid redis:// or rediss:// URL.") from error
+        message = (
+            "Production REDIS_URL must use rediss://."
+            if require_tls
+            else "REDIS_URL must be a valid redis:// or rediss:// URL."
+        )
+        raise ImproperlyConfigured(message) from error

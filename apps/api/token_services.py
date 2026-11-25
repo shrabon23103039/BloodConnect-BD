@@ -79,6 +79,34 @@ def _revoke_family(*, user_id, family_id, now):
 
 
 @transaction.atomic
+def revoke_user_tokens(*, user, now=None):
+    """Revoke every active API token family after a credential reset."""
+    now = now or timezone.now()
+    family_ids = set(
+        ApiAccessToken.objects.filter(
+            user_id=user.pk, revoked_at__isnull=True
+        ).values_list("family_id", flat=True)
+    )
+    family_ids.update(
+        ApiRefreshToken.objects.filter(
+            user_id=user.pk, revoked_at__isnull=True
+        ).values_list("family_id", flat=True)
+    )
+    ApiAccessToken.objects.filter(
+        user_id=user.pk, revoked_at__isnull=True
+    ).update(revoked_at=now)
+    ApiRefreshToken.objects.filter(
+        user_id=user.pk, revoked_at__isnull=True
+    ).update(revoked_at=now)
+    for family_id in family_ids:
+        record_audit_event(
+            actor=user,
+            action="api.token.revoked",
+            resource_type="api_token_family",
+            resource_id=family_id,
+            metadata={"to_status": "REVOKED", "reason_code": "PASSWORD_RESET"},
+        )
+@transaction.atomic
 def rotate_refresh_token(*, raw_token, now=None):
     """Consume one refresh token; reuse revokes every token in its family."""
     now = now or timezone.now()

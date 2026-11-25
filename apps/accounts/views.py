@@ -246,6 +246,7 @@ def phone_password_reset_verify(request):
                 form.cleaned_data["code"],
             )
         ):
+            request.session.cycle_key()
             request.session["phone_password_reset_user_id"] = str(user.pk)
             request.session.set_expiry(300)
             return redirect("accounts:phone_password_reset_confirm")
@@ -291,6 +292,22 @@ class ThrottledPasswordResetView(auth_views.PasswordResetView):
 
     @limited_by_ip(scope="password-reset", limit=5, window_seconds=3600)
     def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SecurePasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    """Rotate the anonymous session before granting reset-token authority."""
+
+    @limited_by_ip(scope="password-reset-confirm", limit=10, window_seconds=3600)
+    def dispatch(self, request, *args, **kwargs):
+        user = self.get_user(kwargs.get("uidb64", ""))
+        token = kwargs.get("token", "")
+        if (
+            user is not None
+            and token != self.reset_url_token
+            and self.token_generator.check_token(user, token)
+        ):
+            request.session.cycle_key()
         return super().dispatch(request, *args, **kwargs)
 
 

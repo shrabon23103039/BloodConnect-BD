@@ -103,7 +103,10 @@ def test_read_only_ui_baseline(live_server, settings):
         auth_page.locator("input[name='username']").fill(SYNTHETIC_EMAIL)
         auth_page.locator("input[name='password']").fill(SYNTHETIC_PASSWORD)
         auth_page.get_by_role("button", name="Sign in").click()
-        assert auth_page.get_by_role("button", name="Sign out").is_visible()
+        desktop_navigation = auth_page.get_by_role(
+            "complementary", name="Application navigation"
+        )
+        assert desktop_navigation.get_by_role("button", name="Sign out").is_visible()
 
         for item in PAGES:
             target_url = reverse(item.url_name)

@@ -50,7 +50,7 @@ The current API returns this envelope for DRF exceptions and includes the same r
 - `POST /auth/token/refresh/`
 - `POST /auth/token/revoke/`
 
-API-client token routes are available under `/api/v1/`. `POST /auth/token/` accepts `{ "identifier": "...", "password": "..." }`; successful authentication returns opaque `access_token` and `refresh_token` values, `token_type: "Bearer"` and `expires_in: 900`. Send access tokens in `Authorization: Bearer <access_token>`. `POST /auth/token/refresh/` accepts the current refresh token and rotates both values; clients must discard the old pair. Reuse of a rotated refresh token revokes that token family. `POST /auth/token/revoke/` revokes the family and is idempotent. Access expires after 15 minutes; refresh expires after 30 days. Token storage/retention and TLS requirements are detailed in ADR-029.
+API-client token routes are available under `/api/v1/`. `POST /auth/token/` accepts `{ "identifier": "...", "password": "..." }`; successful authentication returns opaque `access_token` and `refresh_token` values, `token_type: "Bearer"` and `expires_in: 900`. Send access tokens in `Authorization: Bearer <access_token>`. `POST /auth/token/refresh/` accepts the current refresh token and rotates both values; clients must discard the old pair. Reuse of a rotated refresh token revokes that token family. `POST /auth/token/revoke/` revokes the family and is idempotent. Access expires after 15 minutes; refresh expires after 30 days. A successful email-link or verified-phone password reset revokes every API token family for that user. Token storage/retention and TLS requirements are detailed in ADR-029 and ADR-036.
 
 ### Current user
 - `GET /me/`
@@ -99,7 +99,7 @@ On consent withdrawal, clear the point and its source/accuracy/timestamp and imm
 - `POST /blood-requests/{public_id}/cancel/`
 - `POST /blood-requests/{public_id}/close/`
 
-Public request read responses include nullable `request_location_label`. When a confirmed map area is saved, the public response uses that label and returns `division`, `district` and `upazila` as null; legacy requests continue to return their administrative labels. Neither public nor owner read serializers return request coordinates, Place ID, source or confirmation timestamp. Public responses continue to omit requester identity and facility/address/description fields. The server-rendered request form currently accepts the Places-selected location; API writes retain the existing administrative location contract.
+Public request read responses include nullable `request_location_label`, but it is null for map-selected requests because the label is user-controlled and could be a precise address. Public responses return legacy administrative labels only. The authenticated owner read serializer may return the owner's own map label. Neither public nor owner read serializers return request coordinates, Place ID, source or confirmation timestamp. Public responses continue to omit requester identity and facility/address/description fields. The server-rendered request form currently accepts the Places-selected location; API writes retain the existing administrative location contract.
 
 ### Contact requests
 - `GET /contact-requests/incoming/`

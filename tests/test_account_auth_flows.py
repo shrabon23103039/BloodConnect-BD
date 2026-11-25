@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.urls import reverse
+from rest_framework.test import APIRequestFactory
 
 from apps.accounts.forms import (
     PhoneResetCodeForm,
@@ -15,6 +16,10 @@ from apps.accounts.forms import (
     VerificationIdentifierForm,
 )
 from apps.accounts.models import AccountStatus
+from apps.api.authentication import BearerTokenAuthentication
+from apps.api.models import ApiAccessToken, ApiRefreshToken
+from apps.api.token_services import digest_token, issue_token_pair
+from rest_framework.exceptions import AuthenticationFailed
 
 User = get_user_model()
 PASSWORD = "Synthetic-Unique-Password!947"
@@ -234,6 +239,22 @@ class AccountAuthFlowTests(TestCase):
         self.assertContains(response, "Email or phone and password were not accepted")
         self.assertNotIn("_auth_user_id", self.client.session)
 
+    def test_login_rotates_existing_session_key(self):
+        user = self.create_active_user()
+        session = self.client.session
+        session["unrelated_session_data"] = "preserved"
+        session.save()
+        old_session_key = self.client.session.session_key
+
+        response = self.client.post(
+            reverse("accounts:login"),
+            {"username": user.email, "password": PASSWORD},
+        )
+
+        self.assertRedirects(response, reverse("home"))
+        self.assertNotEqual(self.client.session.session_key, old_session_key)
+        self.assertEqual(self.client.session["unrelated_session_data"], "preserved")
+
     def test_login_attempt_does_not_log_identifier_or_password(self):
         identifier = "private-identifier@example.test"
         with self.assertLogs("bloodconnect.request", level="INFO") as captured:
@@ -272,6 +293,14 @@ class AccountAuthFlowTests(TestCase):
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_reset_sends_one_time_link_and_updates_password(self):
         user = self.create_active_user()
+        token_pair = issue_token_pair(user=user)
+        other_session_client = self.client_class()
+        existing_login = other_session_client.post(
+            reverse("accounts:login"),
+            {"username": user.email, "password": PASSWORD},
+        )
+        self.assertRedirects(existing_login, reverse("home"))
+        self.assertIn("_auth_user_id", other_session_client.session)
 
         response = self.client.post(
             reverse("accounts:password_reset"), {"email": user.email}
@@ -284,9 +313,15 @@ class AccountAuthFlowTests(TestCase):
         )
         self.assertIsNotNone(path_match)
 
+        session = self.client.session
+        session["unrelated_session_data"] = "preserved"
+        session.save()
+        session_key_before_reset = self.client.session.session_key
         reset_path = path_match.group(1)
         reset_page = self.client.get(reset_path, follow=True)
         self.assertEqual(reset_page.status_code, 200)
+        self.assertNotEqual(self.client.session.session_key, session_key_before_reset)
+        self.assertEqual(self.client.session["unrelated_session_data"], "preserved")
         reset_form_path = reset_page.request["PATH_INFO"]
         new_password = "New-Synthetic-Password!6284"
         complete = self.client.post(
@@ -297,6 +332,24 @@ class AccountAuthFlowTests(TestCase):
         user.refresh_from_db()
         self.assertTrue(user.check_password(new_password))
         self.assertFalse(user.check_password(PASSWORD))
+        access = ApiAccessToken.objects.get(
+            token_digest=digest_token(token_pair["access_token"])
+        )
+        refresh = ApiRefreshToken.objects.get(
+            token_digest=digest_token(token_pair["refresh_token"])
+        )
+        self.assertIsNotNone(access.revoked_at)
+        self.assertIsNotNone(refresh.revoked_at)
+        with self.assertRaises(AuthenticationFailed):
+            BearerTokenAuthentication().authenticate(
+                APIRequestFactory().get(
+                    "/api/v1/protected/",
+                    HTTP_AUTHORIZATION=f"Bearer {token_pair['access_token']}",
+                )
+            )
+        protected = other_session_client.get(reverse("donors:profile"))
+        self.assertEqual(protected.status_code, 302)
+        self.assertNotIn("_auth_user_id", other_session_client.session)
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_reset_response_does_not_disclose_unknown_email(self):

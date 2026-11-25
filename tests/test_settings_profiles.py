@@ -110,7 +110,7 @@ def test_development_throttle_overrides_are_large_and_production_does_not_load_t
             "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
             "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect?sslmode=require",
             "DATABASE_SSLMODE": "require",
-            "REDIS_URL": "redis://cache:6379/0",
+            "REDIS_URL": "rediss://cache:6379/0",
             "BLOODCONNECT_PROCESS_ROLE": "worker",
         }
     )
@@ -171,7 +171,7 @@ def test_production_profile_accepts_synthetic_secure_environment():
             "EMAIL_HOST_PASSWORD": "synthetic-password",
             "DEFAULT_FROM_EMAIL": "verification@example.test",
             "EMAIL_USE_TLS": "true",
-            "REDIS_URL": "redis://cache:6379/0",
+            "REDIS_URL": "rediss://cache:6379/0",
             "DATABASE_SSLMODE": "require",
             "BLOODCONNECT_PROCESS_ROLE": "web",
         }
@@ -185,8 +185,8 @@ def test_production_profile_accepts_synthetic_secure_environment():
             "assert settings.DEBUG is False; "
             "assert settings.DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql'; "
             "assert settings.SESSION_COOKIE_SECURE; "
-            "assert settings.CACHES['default']['LOCATION'] == 'redis://cache:6379/0'; "
-            "assert settings.CELERY_BROKER_URL == 'redis://cache:6379/1'; "
+            "assert settings.CACHES['default']['LOCATION'] == 'rediss://cache:6379/0'; "
+            "assert settings.CELERY_BROKER_URL == 'rediss://cache:6379/1'; "
             "assert settings.CELERY_RESULT_BACKEND is None; "
             "assert settings.CELERY_TASK_ACKS_LATE; "
             "assert settings.NOTIFICATION_DELIVERY_MODE == 'disabled'",
@@ -215,7 +215,7 @@ def test_production_profile_rejects_plaintext_smtp():
             "DEFAULT_FROM_EMAIL": "verification@example.test",
             "EMAIL_USE_TLS": "false",
             "EMAIL_USE_SSL": "false",
-            "REDIS_URL": "redis://cache:6379/0",
+            "REDIS_URL": "rediss://cache:6379/0",
         }
     )
 
@@ -243,7 +243,7 @@ def test_production_worker_profile_does_not_require_web_smtp_credentials():
             "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
             "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect",
             "DATABASE_SSLMODE": "require",
-            "REDIS_URL": "redis://cache:6379/0",
+            "REDIS_URL": "rediss://cache:6379/0",
             "BLOODCONNECT_PROCESS_ROLE": "worker",
         }
     )
@@ -265,6 +265,33 @@ def test_production_worker_profile_does_not_require_web_smtp_credentials():
     assert result.returncode == 0, result.stderr
 
 
+def test_production_profile_rejects_plaintext_redis():
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "DJANGO_SETTINGS_MODULE": "config.settings.production",
+            "DJANGO_SECRET_KEY": "synthetic-test-only-secret-value",
+            "DJANGO_ALLOWED_HOSTS": "bloodconnect.example.test",
+            "DJANGO_CSRF_TRUSTED_ORIGINS": "https://bloodconnect.example.test",
+            "DATABASE_URL": "postgresql://test:test@db:5432/bloodconnect?sslmode=require",
+            "DATABASE_SSLMODE": "require",
+            "REDIS_URL": "redis://cache:6379/0",
+            "BLOODCONNECT_PROCESS_ROLE": "worker",
+        }
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-c", "import django; django.setup()"],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+
+    assert result.returncode != 0
+    assert "Production REDIS_URL must use rediss://." in result.stderr
+
+
 def test_production_profile_rejects_database_tls_disabled():
     environment = os.environ.copy()
     environment.update(
@@ -279,7 +306,7 @@ def test_production_profile_rejects_database_tls_disabled():
             "EMAIL_HOST_USER": "synthetic-user",
             "EMAIL_HOST_PASSWORD": "synthetic-password",
             "EMAIL_USE_TLS": "true",
-            "REDIS_URL": "redis://cache:6379/0",
+            "REDIS_URL": "rediss://cache:6379/0",
         }
     )
 
@@ -347,6 +374,11 @@ def test_redis_database_urls_validate_and_separate_consumers():
         "rediss://user:secret@cache.example.test:6380/0?ssl_cert_reqs=required"
     )
     assert redis_database_url("redis://cache:6379/0", 1) == "redis://cache:6379/1"
+    with pytest.raises(ImproperlyConfigured, match="Production REDIS_URL must use rediss"):
+        redis_database_url("redis://cache:6379/0", 1, require_tls=True)
+    assert redis_database_url(
+        "rediss://cache.example.test:6380/0", 1, require_tls=True
+    ) == "rediss://cache.example.test:6380/1"
     with pytest.raises(ImproperlyConfigured) as error:
         redis_database_url("postgresql://user:secret@db/name", 0)
     assert "secret" not in str(error.value)

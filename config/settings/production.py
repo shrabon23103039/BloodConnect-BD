@@ -46,8 +46,8 @@ DATABASES["default"]["OPTIONS"].setdefault("sslmode", database_sslmode)
 REDIS_URL = os.environ.get("REDIS_URL", "")
 if not REDIS_URL:
     raise ImproperlyConfigured("REDIS_URL must be set in production.")
-redis_database_url(REDIS_URL, 0)
-CELERY_BROKER_URL = redis_database_url(REDIS_URL, 1)
+redis_database_url(REDIS_URL, 0, require_tls=True)
+CELERY_BROKER_URL = redis_database_url(REDIS_URL, 1, require_tls=True)
 NOTIFICATION_DELIVERY_MODE = "disabled"
 if DATABASES["default"]["OPTIONS"].get("sslmode") not in {"require", "verify-ca", "verify-full"}:
     raise ImproperlyConfigured("Production DATABASE_URL must require PostgreSQL TLS with sslmode.")

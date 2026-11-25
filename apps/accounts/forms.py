@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, Set
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.db import transaction
 
 from apps.accounts.managers import UserManager
 from apps.accounts.models import AccountStatus, User, validate_phone_e164
@@ -246,7 +247,21 @@ class PhoneResetCodeForm(forms.Form):
         )
 
 
-class PhoneResetSetPasswordForm(SetPasswordForm):
+class RevokingSetPasswordForm(SetPasswordForm):
+    """Save a reset password and revoke all API credentials atomically."""
+
+    def save(self, commit=True):
+        if not commit:
+            return super().save(commit=False)
+        with transaction.atomic():
+            user = super().save(commit=True)
+            from apps.api.token_services import revoke_user_tokens
+
+            revoke_user_tokens(user=user)
+        return user
+
+
+class PhoneResetSetPasswordForm(RevokingSetPasswordForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():

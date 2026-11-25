@@ -67,7 +67,8 @@ def login(page, live_server, email):
     page.locator("input[name='username']").fill(email)
     page.locator("input[name='password']").fill(PASSWORD)
     page.get_by_role("button", name="Sign in").click()
-    expect(page.get_by_role("button", name="Sign out")).to_be_visible()
+    desktop_navigation = page.get_by_role("complementary", name="Application navigation")
+    expect(desktop_navigation.get_by_role("button", name="Sign out")).to_be_visible()
 
 
 @pytest.mark.django_db(transaction=True)

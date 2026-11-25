@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
@@ -122,7 +122,6 @@ class ApiResourceTests(TestCase):
         self.assertNotIn("phone_e164", donor)
         self.assertNotIn("user", donor)
         self.assertNotIn(self.donor_user.email, str(payload))
-
         private_user = self.make_user("no-consent@example.test")
         DonorProfile.objects.create(
             user=private_user,
@@ -134,6 +133,20 @@ class ApiResourceTests(TestCase):
             profile_status=DonorProfileStatus.ACTIVE,
         )
         self.assertEqual(self.client.get(reverse("api_v1:donor_list")).json()["count"], 1)
+
+    def test_coordinate_query_does_not_enable_donor_matching(self):
+        baseline = self.client.get(reverse("api_v1:donor_list"))
+        coordinate_query = self.client.get(
+            reverse("api_v1:donor_list"),
+            {"latitude": "23.7465", "longitude": "90.3760", "radius": "5"},
+        )
+
+        self.assertEqual(baseline.status_code, 200)
+        self.assertEqual(coordinate_query.status_code, 200)
+        self.assertEqual(
+            [row["id"] for row in coordinate_query.json()["results"]],
+            [row["id"] for row in baseline.json()["results"]],
+        )
 
     def test_guest_api_search_filters_city_locations_without_exposing_private_fields(self):
         corporation = self.location(
@@ -184,6 +197,7 @@ class ApiResourceTests(TestCase):
         self.assertNotIn(city_user.email, str(result))
 
     def test_blood_request_public_and_owner_serialization_and_permissions(self):
+        precise_address = "Unit 7, 123 Exact Example Street, Synthetic City, Building B"
         map_request = create_blood_request(
             user=self.recipient,
             values={
@@ -191,7 +205,7 @@ class ApiResourceTests(TestCase):
                 "division": None,
                 "district": None,
                 "upazila": None,
-                "request_location_label": "Synthetic Public Area",
+                "request_location_label": precise_address,
                 "request_location_latitude": Decimal("23.74650000"),
                 "request_location_longitude": Decimal("90.37600000"),
                 "request_location_place_id": "synthetic-private-place-id",
@@ -207,7 +221,8 @@ class ApiResourceTests(TestCase):
             for item in list_response.json()["results"]
             if item["id"] == str(map_request.pk)
         )
-        self.assertEqual(public_item["request_location_label"], "Synthetic Public Area")
+        self.assertIsNone(public_item["request_location_label"])
+        self.assertNotIn(precise_address, str(public_item))
         self.assertIsNone(public_item["division"])
         self.assertIsNone(public_item["district"])
         self.assertNotIn("request_location_latitude", public_item)
@@ -221,10 +236,17 @@ class ApiResourceTests(TestCase):
 
         map_detail_url = reverse("api_v1:blood_request_detail", args=[map_request.pk])
         public_detail = self.client.get(map_detail_url).json()
-        self.assertEqual(public_detail["request_location_label"], "Synthetic Public Area")
+        self.assertIsNone(public_detail["request_location_label"])
+        self.assertNotIn(precise_address, str(public_detail))
         self.assertNotIn("request_location_latitude", public_detail)
         self.assertNotIn("request_location_longitude", public_detail)
         self.assertNotIn("request_location_place_id", public_detail)
+
+        self.authenticate(self.recipient)
+        owner_map_detail = self.client.get(map_detail_url)
+        self.assertEqual(owner_map_detail.status_code, 200)
+        self.assertEqual(owner_map_detail.json()["request_location_label"], precise_address)
+        self.client.credentials()
 
         detail_url = reverse("api_v1:blood_request_detail", args=[self.blood_request.pk])
         self.assertNotIn("facility_address", self.client.get(detail_url).json())
@@ -259,6 +281,91 @@ class ApiResourceTests(TestCase):
             format="json",
         )
         self.assertEqual(forbidden_update.status_code, 403)
+
+    def test_direct_api_post_cannot_publish_precise_location_label(self):
+        precise_address = "Unit 7, 123 Exact Example Street, Synthetic City, Building B"
+        self.authenticate(self.recipient)
+        values = self.request_values()
+        values["division"] = str(self.division.pk)
+        values["district"] = str(self.district.pk)
+        values["upazila"] = str(self.upazila.pk)
+        values["required_at"] = values["required_at"].isoformat()
+        values["expires_at"] = values["expires_at"].isoformat()
+        values.update(
+            {
+                "request_location_label": precise_address,
+                "request_location_latitude": "23.74650000",
+                "request_location_longitude": "90.37600000",
+                "request_location_source": "GOOGLE_PLACE",
+                "request_location_confirmed": True,
+            }
+        )
+
+        created = self.client.post(
+            reverse("api_v1:blood_request_list"), values, format="json"
+        )
+
+        self.assertEqual(created.status_code, 201, created.data)
+        request_id = created.data["id"]
+        self.assertNotIn(precise_address, str(created.data))
+        stored = BloodRequest.objects.get(pk=request_id)
+        self.assertEqual(stored.request_location_label, "")
+        self.client.credentials()
+        public_detail = self.client.get(
+            reverse("api_v1:blood_request_detail", args=[request_id])
+        )
+        self.assertEqual(public_detail.status_code, 200)
+        self.assertIsNone(public_detail.json()["request_location_label"])
+        self.assertNotIn(precise_address, str(public_detail.json()))
+
+    def test_direct_web_post_precise_map_label_is_private_in_public_api(self):
+        precise_address = "Unit 7, 123 Exact Example Street, Synthetic City, Building B"
+        web_client = Client()
+        web_client.force_login(self.recipient)
+        required_at = timezone.localtime(timezone.now() + timedelta(days=2))
+        expires_at = timezone.localtime(timezone.now() + timedelta(days=3))
+
+        created = web_client.post(
+            reverse("requests:create"),
+            {
+                "blood_group": "O+",
+                "units_requested": "1",
+                "required_at": required_at.strftime("%Y-%m-%dT%H:%M"),
+                "expires_at": expires_at.strftime("%Y-%m-%dT%H:%M"),
+                "request_location_label": precise_address,
+                "request_location_latitude": "23.74650000",
+                "request_location_longitude": "90.37600000",
+                "request_location_source": "GOOGLE_PLACE",
+                "request_location_confirmed": "on",
+                "facility_name": "",
+                "facility_address": "",
+                "urgency": "NORMAL",
+                "description": "",
+                "public_listing_enabled": "on",
+                "action": "publish",
+            },
+        )
+
+        self.assertEqual(created.status_code, 302)
+        stored = BloodRequest.objects.get(
+            requester=self.recipient,
+            request_location_label=precise_address,
+        )
+        public_list = self.client.get(reverse("api_v1:blood_request_list"))
+        self.assertEqual(public_list.status_code, 200)
+        public_item = next(
+            item
+            for item in public_list.json()["results"]
+            if item["id"] == str(stored.pk)
+        )
+        self.assertIsNone(public_item["request_location_label"])
+        self.assertNotIn(precise_address, str(public_list.json()))
+        public_detail = self.client.get(
+            reverse("api_v1:blood_request_detail", args=[stored.pk])
+        )
+        self.assertEqual(public_detail.status_code, 200)
+        self.assertIsNone(public_detail.json()["request_location_label"])
+        self.assertNotIn(precise_address, str(public_detail.json()))
 
     def test_blood_request_create_update_and_close_use_domain_lifecycle(self):
         self.authenticate(self.recipient)

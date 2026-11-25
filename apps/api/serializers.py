@@ -134,7 +134,10 @@ class BloodRequestReadSerializer(serializers.ModelSerializer):
         return self._legacy_location_name(instance, "upazila")
 
     def get_request_location_label(self, instance) -> str | None:
-        return instance.request_location_label or None
+        # User-submitted map labels are not authoritative and may be exact
+        # addresses. Keep them out of public API responses until a reviewed
+        # server-side generalization source is available.
+        return None
 
 
 class BloodRequestOwnerReadSerializer(BloodRequestReadSerializer):
@@ -145,6 +148,9 @@ class BloodRequestOwnerReadSerializer(BloodRequestReadSerializer):
             "description",
             "public_listing_enabled",
         )
+
+    def get_request_location_label(self, instance) -> str | None:
+        return instance.request_location_label or None
 
 
 class ContactRequestReadSerializer(serializers.ModelSerializer):

@@ -46,6 +46,8 @@ service-account*.json
 .venv/
 venv/
 env/
+node_modules/
+tests/ui/diffs/
 __pycache__/
 *.py[cod]
 *$py.class

@@ -70,7 +70,7 @@ curl -X POST http://localhost:8000/api/v1/blood-requests/ \
 
 Replace the example UUIDs with IDs from the application's location data and use future times. The response ID is the `blood_request_id` for contact requests.
 
-Public blood-request list/detail responses include `request_location_label` for map-selected requests and return legacy administrative fields for older requests. They never return request coordinates or Place IDs. This API write example remains on the existing administrative-location contract; the Places picker is currently provided by the server-rendered request form.
+Public blood-request list/detail responses return a null `request_location_label` for map-selected requests because client-supplied labels may contain precise addresses. Legacy administrative fields remain available. Authenticated owners can read their own saved label. Public responses never return request coordinates or Place IDs. This API write example remains on the existing administrative-location contract; the Places picker is currently provided by the server-rendered request form.
 
 ## Contact requests and disclosure
 
