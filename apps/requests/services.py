@@ -15,6 +15,12 @@ EDITABLE_FIELDS = {
     "division",
     "district",
     "upazila",
+    "request_location_label",
+    "request_location_latitude",
+    "request_location_longitude",
+    "request_location_place_id",
+    "request_location_source",
+    "request_location_confirmed_at",
     "facility_name",
     "facility_address",
     "urgency",
@@ -22,6 +28,68 @@ EDITABLE_FIELDS = {
     "public_listing_enabled",
     "expires_at",
 }
+REQUEST_LOCATION_FIELDS = {
+    "request_location_label",
+    "request_location_latitude",
+    "request_location_longitude",
+    "request_location_place_id",
+    "request_location_source",
+}
+
+
+def _apply_location_confirmation(values, *, existing=None):
+    location_values = {key: values[key] for key in REQUEST_LOCATION_FIELDS if key in values}
+    if not location_values:
+        return values
+
+    confirmed = values.pop("request_location_confirmed", False)
+    latitude = values.get("request_location_latitude")
+    longitude = values.get("request_location_longitude")
+    label = values.get("request_location_label", "")
+    place_id = values.get("request_location_place_id", "")
+    source = values.get("request_location_source", "")
+
+    if confirmed:
+        if latitude is None or longitude is None or not label or not source:
+            raise ValidationError(
+                {"request_location_label": "Confirm a complete request area before publishing."}
+            )
+        values["request_location_confirmed_at"] = (
+            existing.request_location_confirmed_at
+            if existing
+            and (
+                latitude,
+                longitude,
+                label,
+                place_id,
+                source,
+            )
+            == (
+                existing.request_location_latitude,
+                existing.request_location_longitude,
+                existing.request_location_label,
+                existing.request_location_place_id,
+                existing.request_location_source,
+            )
+            else timezone.now()
+        )
+        values["division"] = None
+        values["district"] = None
+        values["upazila"] = None
+    else:
+        if any((latitude is not None, longitude is not None, label, place_id, source)):
+            raise ValidationError(
+                {"request_location_label": "Select and confirm the request area before saving it."}
+            )
+        values.update(
+            request_location_label="",
+            request_location_latitude=None,
+            request_location_longitude=None,
+            request_location_place_id="",
+            request_location_source="",
+            request_location_confirmed_at=None,
+        )
+    return values
 
 
 def _active_owner(user):
@@ -35,6 +103,9 @@ def create_blood_request(*, user, values, publish=False):
     """Create a draft or publish a request owned by an active account."""
     owner = _active_owner(user)
     request_values = {key: value for key, value in values.items() if key in EDITABLE_FIELDS}
+    request_values = _apply_location_confirmation(request_values | {
+        key: value for key, value in values.items() if key == "request_location_confirmed"
+    })
     if "required_at" in request_values:
         request_values.setdefault("expires_at", request_values["required_at"])
     blood_request = BloodRequest(requester=owner, **request_values)
@@ -54,6 +125,17 @@ def create_blood_request(*, user, values, publish=False):
 
 def _validate_publish(blood_request, now=None):
     now = now or timezone.now()
+    has_confirmed_map_area = (
+        blood_request.request_location_latitude is not None
+        and blood_request.request_location_longitude is not None
+        and bool(blood_request.request_location_label)
+        and blood_request.request_location_confirmed_at is not None
+    )
+    has_legacy_area = bool(blood_request.division_id and blood_request.district_id)
+    if not has_confirmed_map_area and not has_legacy_area:
+        raise ValidationError(
+            {"request_location_label": "Select and confirm a request area before publishing."}
+        )
     if blood_request.required_at <= now:
         raise ValidationError({"required_at": "Choose a future requested time to publish."})
     if blood_request.expires_at <= now:
@@ -75,7 +157,9 @@ def update_blood_request(*, user, blood_request_id, values):
         raise PermissionDenied("You may only update your own blood requests.") from error
     if request.status not in (BloodRequestStatus.DRAFT, BloodRequestStatus.OPEN):
         raise ValidationError("This request can no longer be edited.")
-    for field, value in values.items():
+    update_values = dict(values)
+    update_values = _apply_location_confirmation(update_values, existing=request)
+    for field, value in update_values.items():
         if field not in EDITABLE_FIELDS:
             raise ValidationError({field: "This field cannot be edited here."})
         setattr(request, field, value)

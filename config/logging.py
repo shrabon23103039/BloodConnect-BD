@@ -4,7 +4,12 @@ import json
 import logging
 from datetime import datetime, timezone
 
-_EVENTS = {"request_completed", "request_failed"}
+_EVENTS = {
+    "request_completed",
+    "request_failed",
+    "oauth_callback_failed",
+    "verification_delivery_failed",
+}
 _METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 
 
@@ -17,6 +22,7 @@ class JsonFormatter(logging.Formatter):
         status_code = getattr(record, "status_code", 0)
         duration_ms = getattr(record, "duration_ms", 0)
         request_id = getattr(record, "request_id", "")
+        error_type = getattr(record, "error_type", "")
 
         payload = {
             "timestamp": datetime.fromtimestamp(record.created, timezone.utc).isoformat(),
@@ -31,6 +37,20 @@ class JsonFormatter(logging.Formatter):
             payload["status_code"] = status_code
         if isinstance(duration_ms, (int, float)) and 0 <= duration_ms < 86_400_000:
             payload["duration_ms"] = round(duration_ms, 2)
+        if (
+            event == "oauth_callback_failed"
+            and isinstance(error_type, str)
+            and error_type.isidentifier()
+            and len(error_type) <= 80
+        ):
+            payload["error_type"] = error_type
+        if (
+            event == "verification_delivery_failed"
+            and isinstance(error_type, str)
+            and error_type.isidentifier()
+            and len(error_type) <= 80
+        ):
+            payload["error_type"] = error_type
         return json.dumps(payload, separators=(",", ":"), ensure_ascii=True)
 
 

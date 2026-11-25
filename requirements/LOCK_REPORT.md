@@ -27,11 +27,11 @@ uv pip compile --universal --generate-hashes --python-version 3.14 --output-file
 uv pip compile --universal --generate-hashes --python-version 3.14 --output-file requirements/dev.lock requirements/dev.in
 ```
 
-Results: base lock resolved 36 packages; dev lock resolved 101 packages. The initial pip-tools attempt timed out while downloading/hashing platform wheels; uv resolved metadata for all target platforms without downloading those artifacts.
+Results: base lock resolved 47 packages; dev lock resolved 106 packages after P13-01 added `django-allauth[socialaccount]` 65.22.1. The initial pip-tools attempt timed out while downloading/hashing platform wheels; uv resolved metadata for all target platforms without downloading those artifacts.
 
 ## Resolved packages
 
-Runtime lock (`base.lock`): 36 fully pinned distributions, including platform-specific Gunicorn marker for non-Windows targets. Development lock (`dev.lock`): 101 fully pinned distributions, including test, browser, load-test and audit tools. Both locks include artifact SHA-256 hashes.
+Runtime lock (`base.lock`): 47 fully pinned distributions, including platform-specific Gunicorn marker for non-Windows targets. Development lock (`dev.lock`): 106 fully pinned distributions, including test, browser, load-test and audit tools. Both locks include artifact SHA-256 hashes.
 
 ## Known limitations
 
@@ -40,7 +40,7 @@ Runtime lock (`base.lock`): 36 fully pinned distributions, including platform-sp
 
 ## Verification (2026-11-06)
 
-- `uv pip sync --python .venv/Scripts/python.exe requirements/dev.lock` — passed; installed 101 locked dev distributions (Windows omitted Gunicorn by marker).
+- `uv pip sync --python .venv/Scripts/python.exe requirements/dev.lock` — passed; installed 106 locked dev distributions (Windows omitted Gunicorn by marker).
 - `python -m pip install --dry-run --require-hashes -r requirements/dev.lock` — passed; pip accepted hashes and markers.
 - `python -m pip check` — passed: no broken requirements.
 - `pip-audit --strict` — passed: no known vulnerabilities found.

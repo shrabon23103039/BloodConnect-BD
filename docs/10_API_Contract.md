@@ -68,6 +68,29 @@ API-client token routes are available under `/api/v1/`. `POST /auth/token/` acce
 - `POST /donor-profile/me/availability/`
 - `POST /donor-profile/me/visibility/`
 
+#### Future donor-location API and matching contract (not implemented)
+
+The current profile-only Google Maps picker stores scalar location fields on the Django model through the server-rendered owner form. These fields are not accepted or returned by the current donor-profile API (no private profile API is implemented), are not included in public serializers, and are not used for matching. Any API support requires a separately reviewed contract and authorization tests.
+
+The following is a future matching/API proposal, not a contract for the current picker. If approved, the donor's authenticated `POST /donor-profile/` or `PATCH /donor-profile/me/` may accept a donor-selected point only after explicit confirmation and active `donor_location_matching` consent:
+
+```json
+{
+  "confirmed_location": {
+    "latitude": 23.0000,
+    "longitude": 90.0000
+  },
+  "location_source": "GPS",
+  "location_accuracy_m": 42.0
+}
+```
+
+These are synthetic values. `location_source` is `GPS` or `MAP_PIN`; GPS accuracy must be <=100 m, while a map pin requires an explicit donor confirmation. The server sets the confirmation/update timestamp; do not accept it from the client. Check the point against the approved Bangladesh boundary and reject it if outside. `GET /donor-profile/me/` may return the saved point, source, accuracy and timestamp only to its owner so they can review/edit it. The public `GET /donors/{public_id}/`, donor search response, other users' endpoints, admin exports, logs and notifications must never return the coordinates or exact address.
+
+`POST /me/consents/` records an explicit `donor_location_matching` grant or withdrawal. A generic map-display preference is not permission to store donor coordinates. Profile create/update must reject a coordinate pair unless the donor has confirmed it and the matching-consent grant is active.
+
+On consent withdrawal, clear the point and its source/accuracy/timestamp and immediately exclude it from matching. Donor deactivation excludes the profile from all match types. Account deletion clears the precise point from the active database.
+
 ### Blood requests
 - `GET /blood-requests/`
 - `POST /blood-requests/`
@@ -75,6 +98,8 @@ API-client token routes are available under `/api/v1/`. `POST /auth/token/` acce
 - `PATCH /blood-requests/{public_id}/`
 - `POST /blood-requests/{public_id}/cancel/`
 - `POST /blood-requests/{public_id}/close/`
+
+Public request read responses include nullable `request_location_label`. When a confirmed map area is saved, the public response uses that label and returns `division`, `district` and `upazila` as null; legacy requests continue to return their administrative labels. Neither public nor owner read serializers return request coordinates, Place ID, source or confirmation timestamp. Public responses continue to omit requester identity and facility/address/description fields. The server-rendered request form currently accepts the Places-selected location; API writes retain the existing administrative location contract.
 
 ### Contact requests
 - `GET /contact-requests/incoming/`
@@ -102,23 +127,72 @@ API-client token routes are available under `/api/v1/`. `POST /auth/token/` acce
 - `DELETE /users/{public_id}/block/`
 
 ### Locations
-- `GET /locations/divisions/`
-- `GET /locations/districts/?division={id}`
-- `GET /locations/upazilas/?district={id}`
 
-## 4. Donor search query
+The current browser selector uses `GET /app/location-options/options/{level}/?parent={uuid}` (outside `/api/v1/`) to return active child locations as `{"results":[{"id":"uuid","name_en":"..."}]}`. Supported child levels are district, upazila, union, city corporation, zone and ward, subject to valid parent levels. It supplies administrative choices only; it does not resolve text places, browser coordinates or map pins. The `/api/v1/locations/...` entries in the original target inventory are not the current browser selector endpoint.
+
+### Proposed coordinate-based donor search (not implemented)
+
+`POST /api/v1/donors/search/` is proposed for the revised location-first flow. The existing `GET /api/v1/donors/` query remains the current administrative-filter baseline until a separately reviewed implementation replaces or deprecates it.
+
+Request body (synthetic coordinate values):
+```json
+{
+  "location": {
+    "latitude": 23.0000,
+    "longitude": 90.0000
+  },
+  "blood_group": "O+",
+  "radius_km": 10,
+  "administrative_filters": {}
+}
+```
+
+`location.latitude` and `location.longitude` are the requester's required confirmed search point; validate numeric type and check with PostGIS `ST_Covers` against the approved Bangladesh boundary. Reject points outside that boundary; fail closed if no approved boundary is active. This point is transient input and must never be persisted in database records, analytics, URLs, logs or error messages. `blood_group` may be omitted for “Any blood group” pending product decision. `radius_km` is optional and, when present, must be one of 5, 10, 20 or 50. `include_area_matches` is optional and defaults to false; set it only when the client can clearly render the separate “Area matches — distance not verified” section. The optional hospital/place lookup is a client-side way to select the confirmed center; do not require or persist a provider place ID/name for donor matching unless separately approved. The omitted-radius behavior remains undecided.
+
+The backend uses PostGIS `ST_DWithin` against donor-confirmed geography points for radius eligibility; exact server-side distance determines inclusion (boundary inclusive). Administrative representative points never qualify a donor for the radius or receive a distance. If `include_area_matches=true`, return eligible area-only candidates separately and without distance; they must not be described as within the selected radius. If the client cannot separate them, omit them.
+
+Response shape (illustrative; not an implemented contract):
+```json
+{
+  "results": [
+    {
+      "id": "public-uuid",
+      "blood_group": "O+",
+      "area_label": "Generalized administrative area",
+      "approximate_distance_band": "2–5 km",
+      "availability": "AVAILABLE"
+    }
+  ],
+  "area_matches": [
+    {
+      "id": "public-uuid",
+      "blood_group": "O+",
+      "area_label": "Generalized administrative area",
+      "availability": "AVAILABLE"
+    }
+  ],
+  "next": null
+}
+```
+
+Only radius-qualified `results` may include an `approximate_distance_band`, selected from `<2 km`, `2–5 km`, `5–10 km`, `10–20 km`, `20–50 km`, `>50 km`. Use the exact PostGIS distance for radius filtering; bands are presentation only. The bands mean `<2, [2,5), [5,10), [10,20), [20,50], >50` km respectively. State in the UI that this is approximate straight-line distance, not road/travel distance. `area_matches` never contain a distance or radius-qualified flag and are shown only under the exact separate heading “Area matches — distance not verified.” Never return donor latitude/longitude, exact address or private contact channels. Availability is restricted to public discoverable states and defaults to available profiles only.
+
+## 4. Existing donor search query
 
 Example:
-`GET /api/v1/donors/?blood_group=O%2B&district={uuid}&availability=AVAILABLE&page=1`
+`GET /api/v1/donors/?blood_group=O%2B&district={uuid}&page=1`
 
-Allowed filters:
+Existing `GET` filters:
 - exact `blood_group`;
 - `division`;
 - `district`;
 - `upazila`;
-- `availability` (only public discoverable states).
+- `union`;
+- `city_corporation`;
+- `city_zone`;
+- `ward`.
 
-Do not accept arbitrary ordering fields or unbounded page sizes.
+The API always returns available, discoverable donors; availability is not a user-selectable API filter. This is the currently implemented administrative-filter baseline and does not provide coordinate or radius search. Do not accept arbitrary ordering fields or unbounded page sizes. The proposed POST search must apply equivalent privacy, authorization, pagination and rate-limit controls.
 
 ## 5. Contact request payload
 

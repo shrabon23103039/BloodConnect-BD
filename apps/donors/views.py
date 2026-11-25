@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -30,12 +31,21 @@ def donor_search(request):
         )
         if form.is_bound:
             filters = form.cleaned_data
-            for field in ("blood_group", "division", "district", "upazila"):
+            for field in (
+                "blood_group", "division", "district", "upazila", "union",
+                "city_corporation", "city_zone", "ward",
+            ):
                 value = filters.get(field)
                 if value:
                     profiles = profiles.filter(**{field: value})
+            availability = filters.get("availability")
+            if availability:
+                profiles = profiles.filter(availability_status=availability)
         profiles = (
-            profiles.select_related("division", "district", "upazila")
+            profiles.select_related(
+                "division", "district", "upazila", "union",
+                "city_corporation", "city_zone", "ward",
+            )
             .only(
                 "id",
                 "public_alias",
@@ -44,6 +54,10 @@ def donor_search(request):
                 "division__name_en",
                 "district__name_en",
                 "upazila__name_en",
+                "union__name_en",
+                "city_corporation__name_en",
+                "city_zone__name_en",
+                "ward__name_en",
             )
             .order_by("district__name_en", "public_alias", "id")
         )
@@ -59,6 +73,11 @@ def donor_search(request):
             "page_obj": page_obj,
             "query_string": urlencode(query_params),
             "invalid_filters": form.is_bound and not form.is_valid(),
+            "google_maps_browser_api_key": (
+                getattr(settings, "GOOGLE_MAPS_BROWSER_API_KEY", "")
+                if settings.DEBUG
+                else ""
+            ),
         },
     )
 
@@ -94,6 +113,7 @@ def donor_profile_editor(request):
                 profile=form.save(commit=False),
                 values=form.cleaned_data,
                 consent_fields=form.share_fields
+                | form.consent_fields
                 | ({"visibility_enabled"} if "visibility_enabled" in form.fields else set()),
             )
             messages.success(request, "Your donor profile has been saved as a self-reported profile.")
@@ -104,5 +124,18 @@ def donor_profile_editor(request):
     return render(
         request,
         "donors/profile_form.html",
-        {"form": form, "profile": profile},
+        {
+            "form": form,
+            "profile": profile,
+            "profile_is_discoverable": (
+                DonorProfile.objects.discoverable().filter(pk=profile.pk).exists()
+                if profile
+                else False
+            ),
+            "google_maps_browser_api_key": (
+                getattr(settings, "GOOGLE_MAPS_BROWSER_API_KEY", "")
+                if settings.DEBUG
+                else ""
+            ),
+        },
     )

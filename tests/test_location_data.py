@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import resolve, reverse
 from django.utils import timezone
 
 from apps.accounts.models import AccountStatus, User
@@ -312,6 +312,46 @@ class LocationDropdownEndpointTests(TestCase):
             {"parent": str(self.upazila.pk)},
         )
         self.assertEqual([item["id"] for item in response.json()["results"]], [str(union.pk)])
+
+    def test_location_options_route_is_public_and_returns_only_active_public_fields(self):
+        inactive_district = Location.objects.create(
+            name_en="Inactive Synthetic District",
+            level=LocationLevel.DISTRICT,
+            parent=self.division,
+            source_name="Synthetic",
+            source_version="test",
+            is_active=False,
+        )
+        url = reverse("locations:child_options", args=[LocationLevel.DISTRICT])
+        self.assertEqual(resolve(url).view_name, "locations:child_options")
+
+        anonymous_response = self.client.get(url, {"parent": str(self.division.pk)})
+        self.assertEqual(anonymous_response.status_code, 200)
+        public_rows = anonymous_response.json()["results"]
+        self.assertEqual(public_rows, [{"id": str(self.district.pk), "name_en": self.district.name_en}])
+        self.assertNotIn(str(inactive_district.pk), {row["id"] for row in public_rows})
+        self.assertEqual(set(public_rows[0]), {"id", "name_en"})
+        self.assertFalse(
+            {"latitude", "longitude", "coordinates", "place_id", "source_id", "corporation_scope"}
+            & set(public_rows[0])
+        )
+
+        authenticated_user = User.objects.create_user(
+            email="location-options@example.test",
+            password="safe-test-pass",
+            display_name="Synthetic Location User",
+        )
+        self.client.force_login(authenticated_user)
+        authenticated_response = self.client.get(url, {"parent": str(self.division.pk)})
+        self.assertEqual(authenticated_response.status_code, 200)
+        self.assertEqual(authenticated_response.json(), anonymous_response.json())
+
+        mismatched_parent = self.client.get(url, {"parent": str(self.district.pk)})
+        self.assertEqual(mismatched_parent.status_code, 200)
+        self.assertEqual(mismatched_parent.json(), {"results": []})
+        malformed_parent = self.client.get(url, {"parent": "not-a-uuid"})
+        self.assertEqual(malformed_parent.status_code, 200)
+        self.assertEqual(malformed_parent.json(), {"results": []})
 
     def test_options_endpoint_supports_city_corporation_zone_and_ward(self):
         north = Location.objects.create(

@@ -88,11 +88,17 @@ class DonorSearchApiView(APIView):
             availability_status=AvailabilityStatus.AVAILABLE
         )
         if form.is_bound:
-            for field in ("blood_group", "division", "district", "upazila"):
+            for field in (
+                "blood_group", "division", "district", "upazila", "union",
+                "city_corporation", "city_zone", "ward",
+            ):
                 value = form.cleaned_data.get(field)
                 if value:
                     profiles = profiles.filter(**{field: value})
-        profiles = profiles.select_related("division", "district", "upazila").order_by(
+        profiles = profiles.select_related(
+            "division", "district", "upazila", "union",
+            "city_corporation", "city_zone", "ward",
+        ).order_by(
             "district__name_en", "public_alias", "id"
         )
         paginator = self.pagination_class()
@@ -106,7 +112,10 @@ class DonorDetailApiView(APIView):
     @extend_schema(operation_id="donor_search_detail", responses=DonorSearchSerializer)
     def get(self, request, donor_id):
         profile = get_object_or_404(
-            DonorProfile.objects.discoverable().select_related("division", "district", "upazila"),
+            DonorProfile.objects.discoverable().select_related(
+                "division", "district", "upazila", "union",
+                "city_corporation", "city_zone", "ward",
+            ),
             pk=donor_id,
             availability_status=AvailabilityStatus.AVAILABLE,
         )

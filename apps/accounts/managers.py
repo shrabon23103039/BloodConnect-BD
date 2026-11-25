@@ -1,5 +1,8 @@
 """User creation helpers enforcing the one-identifier account policy."""
 
+import re
+import unicodedata
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ValidationError
 
@@ -18,7 +21,20 @@ class UserManager(BaseUserManager):
     def normalize_phone_identifier(phone_e164: str | None) -> str | None:
         if not phone_e164:
             return None
-        return phone_e164.strip()
+        phone = "".join(
+            str(unicodedata.digit(character)) if character.isdecimal() else character
+            for character in phone_e164.strip()
+        )
+        phone = re.sub(r"[\s().-]", "", phone)
+        if phone.startswith("00"):
+            phone = "+" + phone[2:]
+        if phone.startswith("+8801") and len(phone) == 14:
+            return phone
+        if phone.startswith("8801") and len(phone) == 13:
+            return "+" + phone
+        if phone.startswith("01") and len(phone) == 11:
+            return "+880" + phone[1:]
+        return phone
 
     def create_user(
         self,

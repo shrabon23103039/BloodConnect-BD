@@ -2,12 +2,14 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.test import TestCase
+from django.utils import timezone
 
 from apps.accounts.models import AccountStatus
 from apps.accounts.permissions import AccountRole, has_role
 from apps.donors.models import (
     AvailabilityStatus,
     BloodGroup,
+    DonorAreaLocationSource,
     DonorProfile,
     DonorProfileStatus,
     PreferredContactMethod,
@@ -74,6 +76,44 @@ class DonorProfileModelTests(TestCase):
         with self.assertRaisesMessage(ValidationError, "division-level"):
             self.profile(division=self.district)
 
+    def test_map_only_donation_area_is_valid_and_coordinates_are_bounded(self):
+        map_profile = self.profile(
+            division=None,
+            district=None,
+            donation_area_label="Synthetic general area",
+            donation_area_latitude="23.74650000",
+            donation_area_longitude="90.37600000",
+            google_place_id="synthetic-place-id",
+            location_source=DonorAreaLocationSource.GOOGLE_PLACE,
+            location_confirmed_at=timezone.now(),
+        )
+        self.assertIsNone(map_profile.division_id)
+        self.assertIsNone(map_profile.district_id)
+        self.assertEqual(map_profile.donation_area_label, "Synthetic general area")
+
+        invalid_user = User.objects.create_user(
+            email="invalid-donation-area@example.test",
+            password="Synthetic-Unique-Password!947",
+            display_name="Invalid donor",
+        )
+        with self.assertRaises(ValidationError):
+            DonorProfile(
+                user=invalid_user,
+                blood_group=BloodGroup.O_POSITIVE,
+                donation_area_label="Synthetic general area",
+                donation_area_latitude="91.00000000",
+                donation_area_longitude="90.37600000",
+                location_source=DonorAreaLocationSource.MAP_PIN,
+                location_confirmed_at=timezone.now(),
+            ).full_clean()
+
+        with self.assertRaises(ValidationError):
+            DonorProfile(
+                user=invalid_user,
+                blood_group=BloodGroup.O_POSITIVE,
+                donation_area_label="Location without point",
+            ).full_clean()
+
     def test_one_profile_per_user_and_reference_rows_are_protected(self):
         self.profile()
         with self.assertRaises(IntegrityError):
@@ -119,6 +159,7 @@ class DonorProfileModelTests(TestCase):
                 ("blood_group", "availability_status", "profile_status"),
                 ("district", "blood_group", "availability_status"),
                 ("upazila", "blood_group", "availability_status"),
+                ("city_corporation", "ward", "blood_group"),
                 ("visibility_enabled", "profile_status"),
             },
         )

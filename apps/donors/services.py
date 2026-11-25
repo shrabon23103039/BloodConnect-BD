@@ -73,14 +73,40 @@ def save_donor_profile(*, user, profile, values, consent_fields):
 
     for field in (
         "blood_group",
-        "division",
-        "district",
-        "upazila",
         "public_alias",
         "preferred_contact_method",
         "last_donation_date",
     ):
         setattr(profile, field, values[field])
+
+    has_donation_area = (
+        values.get("donation_area_latitude") is not None
+        and values.get("donation_area_longitude") is not None
+    )
+    if has_donation_area and (
+        not values.get("location_confirmed")
+        or "store_donation_area" not in consent_fields
+        or not values.get("store_donation_area")
+    ):
+        raise ValidationError(
+            {"donation_area_label": "Confirm and consent to store the selected donation area."}
+        )
+
+    if has_donation_area:
+        profile.division = None
+        profile.district = None
+        profile.upazila = None
+        profile.union = None
+        profile.city_corporation = None
+        profile.city_zone = None
+        profile.ward = None
+    profile.thana_name = values.get("thana_name") or ""
+    profile.donation_area_label = values.get("donation_area_label") or ""
+    profile.donation_area_latitude = values.get("donation_area_latitude")
+    profile.donation_area_longitude = values.get("donation_area_longitude")
+    profile.google_place_id = values.get("google_place_id") or ""
+    profile.location_source = values.get("location_source") or ""
+    profile.location_confirmed_at = timezone.now() if has_donation_area else None
 
     previous_availability = profile.availability_status
     if "availability_status" in values:
@@ -127,13 +153,17 @@ def save_donor_profile(*, user, profile, values, consent_fields):
         ("share_phone_after_accept", ConsentType.PHONE_SHARE_AFTER_ACCEPT),
         ("share_email_after_accept", ConsentType.EMAIL_SHARE_AFTER_ACCEPT),
         ("visibility_enabled", ConsentType.DONOR_DISCOVERY),
+        ("store_donation_area", ConsentType.DONOR_AREA_STORAGE),
     ):
         if field in consent_fields:
+            granted = bool(values.get(field))
+            if field == "store_donation_area":
+                granted = has_donation_area and granted
             record_consent(
                 user=locked_user,
                 consent_type=consent_type,
                 policy_version=settings.PRIVACY_POLICY_VERSION,
-                granted=bool(values.get(field)),
+                granted=granted,
                 source=ConsentSource.WEB,
             )
     return profile

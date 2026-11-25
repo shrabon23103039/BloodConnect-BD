@@ -12,10 +12,14 @@ from django.db import transaction
 from apps.locations.models import Location, LocationLevel
 
 
-LEVEL_ORDER = {
-    LocationLevel.DIVISION: 0,
-    LocationLevel.DISTRICT: 1,
-    LocationLevel.UPAZILA: 2,
+ALLOWED_PARENT_LEVELS = {
+    LocationLevel.DIVISION: set(),
+    LocationLevel.DISTRICT: {LocationLevel.DIVISION},
+    LocationLevel.UPAZILA: {LocationLevel.DISTRICT},
+    LocationLevel.UNION: {LocationLevel.UPAZILA},
+    LocationLevel.CITY_CORPORATION: {LocationLevel.DISTRICT},
+    LocationLevel.ZONE: {LocationLevel.CITY_CORPORATION},
+    LocationLevel.WARD: {LocationLevel.CITY_CORPORATION, LocationLevel.ZONE},
 }
 
 
@@ -48,6 +52,7 @@ def validate_dataset(document, *, reviewed):
         raise CommandError("At least one location record is required.")
 
     normalized = {}
+    source_ids = set()
     validated = []
     for index, record in enumerate(records):
         if not isinstance(record, dict):
@@ -57,12 +62,14 @@ def validate_dataset(document, *, reviewed):
             name_en = record["name_en"].strip()
             name_bn = record.get("name_bn")
             parent_path = record.get("parent_path", [])
+            source_id = record.get("source_id")
         except (KeyError, AttributeError) as error:
             raise CommandError(f"Record {index + 1} is missing a valid name or level.") from error
         if level not in LocationLevel.values:
             raise CommandError(f"Record {index + 1} has an unknown level.")
-        expected_parent_depth = LEVEL_ORDER[level]
-        if not isinstance(parent_path, list) or len(parent_path) != expected_parent_depth:
+        if not isinstance(parent_path, list):
+            raise CommandError(f"Record {index + 1} has an invalid parent path for {level}.")
+        if bool(ALLOWED_PARENT_LEVELS[level]) != bool(parent_path):
             raise CommandError(f"Record {index + 1} has an invalid parent path for {level}.")
         if any(not isinstance(name, str) or not name.strip() for name in parent_path):
             raise CommandError(f"Record {index + 1} has an invalid parent path.")
@@ -70,25 +77,29 @@ def validate_dataset(document, *, reviewed):
             raise CommandError(f"Record {index + 1} has an invalid English name.")
         if name_bn is not None and (not isinstance(name_bn, str) or len(name_bn) > 120):
             raise CommandError(f"Record {index + 1} has an invalid Bengali name.")
+        if source_id is not None:
+            if not isinstance(source_id, str) or not source_id.strip() or len(source_id) > 32:
+                raise CommandError(f"Record {index + 1} has an invalid source ID.")
+            source_id = source_id.strip()
+            if source_id in source_ids:
+                raise CommandError(f"Duplicate source ID at record {index + 1}.")
+            source_ids.add(source_id)
 
         path = tuple(_key(part) for part in [*parent_path, name_en])
         if path in normalized:
             raise CommandError(f"Duplicate normalized location path at record {index + 1}.")
-        if expected_parent_depth:
+        if parent_path:
             parent_path_key = path[:-1]
             if parent_path_key not in normalized:
                 raise CommandError(f"Record {index + 1} references a parent that is missing or appears later.")
-            expected_parent = (
-                LocationLevel.DIVISION if level == LocationLevel.DISTRICT
-                else LocationLevel.DISTRICT
-            )
-            if normalized[parent_path_key]["level"] != expected_parent:
+            if normalized[parent_path_key]["level"] not in ALLOWED_PARENT_LEVELS[level]:
                 raise CommandError(f"Record {index + 1} has a parent at the wrong level.")
 
         item = {
             "level": level,
             "name_en": name_en,
             "name_bn": name_bn.strip() if name_bn else None,
+            "source_id": source_id,
             "path": path,
             "parent_path": path[:-1],
         }
@@ -107,6 +118,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Confirm a human reviewed the source, version, names and hierarchy.",
         )
+        parser.add_argument(
+            "--activate",
+            action="store_true",
+            help="Reactivate matching inactive rows after current-source review.",
+        )
 
     def handle(self, *args, **options):
         file_path = options["file"]
@@ -124,19 +140,77 @@ class Command(BaseCommand):
         with transaction.atomic():
             for item in records:
                 parent = by_path.get(item["parent_path"])
-                existing = Location.objects.filter(
-                    level=item["level"],
-                    parent=parent,
-                    name_en__iexact=item["name_en"],
-                ).first()
+                named_matches = list(
+                    Location.objects.filter(
+                        level=item["level"],
+                        parent=parent,
+                        name_en__iexact=item["name_en"],
+                    )[:2]
+                )
+                if len(named_matches) > 1:
+                    raise CommandError(
+                        f"Location path {' > '.join(part.title() for part in item['path'])!r} "
+                        "matches multiple existing rows; resolve the duplicate rows before importing."
+                    )
+
+                existing = None
+                if item["source_id"]:
+                    existing = Location.objects.filter(
+                        source_name=source["name"], source_id=item["source_id"]
+                    ).first()
+                    if existing and (
+                        existing.level != item["level"]
+                        or existing.name_en.casefold() != item["name_en"].casefold()
+                        or existing.parent_id != (parent.id if parent else None)
+                    ):
+                        raise CommandError(
+                            f"Source ID {item['source_id']} conflicts with an existing location; refusing to remap it."
+                        )
+                    if existing and named_matches and named_matches[0].pk != existing.pk:
+                        raise CommandError(
+                            f"Source ID {item['source_id']} and location name match different existing rows; "
+                            "reconcile the source identity before importing."
+                        )
+                    if existing is None and named_matches:
+                        matched = named_matches[0]
+                        raise CommandError(
+                            f"Location {' > '.join(part.title() for part in item['path'])!r} already exists "
+                            f"as source {matched.source_name!r} with source ID {matched.source_id!r}; "
+                            f"incoming source {source['name']!r} ID {item['source_id']!r} cannot be matched by name. "
+                            "Reconcile the source ID or explicitly resolve the existing row before importing."
+                        )
+                elif named_matches:
+                    matched = named_matches[0]
+                    if matched.source_name != source["name"]:
+                        raise CommandError(
+                            f"Location {' > '.join(part.title() for part in item['path'])!r} already belongs "
+                            f"to source {matched.source_name!r}; incoming source {source['name']!r} cannot reuse "
+                            "it by name. Reconcile the source identity before importing."
+                        )
+                    if matched.source_id is not None:
+                        raise CommandError(
+                            f"Location {' > '.join(part.title() for part in item['path'])!r} already has source ID "
+                            f"{matched.source_id!r}, but the incoming record has no source ID. Reconcile the "
+                            "source identity before importing."
+                        )
+                    existing = matched
+
                 if existing is None:
+                    corporation_scope = None
+                    if item["level"] == LocationLevel.WARD:
+                        corporation_scope = (
+                            parent if parent.level == LocationLevel.CITY_CORPORATION else parent.parent
+                        )
                     location = Location.objects.create(
                         name_en=item["name_en"],
                         name_bn=item["name_bn"],
                         level=item["level"],
                         parent=parent,
+                        corporation_scope=corporation_scope,
                         source_name=source["name"],
                         source_version=source["version"],
+                        source_id=item["source_id"],
+                        is_active=options["activate"],
                     )
                     created += 1
                 else:
@@ -144,18 +218,26 @@ class Command(BaseCommand):
                         existing.name_bn,
                         existing.source_name,
                         existing.source_version,
+                        existing.source_id,
                         existing.is_active,
+                        existing.corporation_scope_id,
                     )
                     existing.name_bn = item["name_bn"]
-                    existing.source_name = source["name"]
                     existing.source_version = source["version"]
-                    existing.is_active = True
+                    if item["level"] == LocationLevel.WARD:
+                        existing.corporation_scope = (
+                            parent if parent.level == LocationLevel.CITY_CORPORATION else parent.parent
+                        )
+                    if options["activate"]:
+                        existing.is_active = True
                     existing.save()
                     after = (
                         existing.name_bn,
                         existing.source_name,
                         existing.source_version,
+                        existing.source_id,
                         existing.is_active,
+                        existing.corporation_scope_id,
                     )
                     location = existing
                     if before == after:

@@ -8,13 +8,25 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 from apps.accounts.managers import UserManager
-from apps.accounts.models import AccountStatus, User, phone_e164_validator
+from apps.accounts.models import AccountStatus, User, validate_phone_e164
 
 
 class RegistrationForm(forms.Form):
     display_name = forms.CharField(max_length=120, label="Display name")
+    identifier_type = forms.ChoiceField(
+        required=False,
+        choices=(("email", "Email"), ("phone", "Phone")),
+        initial="email",
+        widget=forms.HiddenInput,
+    )
     email = forms.EmailField(required=False, max_length=254)
-    phone_e164 = forms.CharField(required=False, max_length=16, label="Phone (E.164)")
+    phone_e164 = forms.CharField(
+        required=False,
+        max_length=24,
+        label="Phone number",
+        help_text="Bangladesh numbers may be entered as 01XXXXXXXXX or +8801XXXXXXXXX.",
+        widget=forms.TextInput(attrs={"inputmode": "tel", "autocomplete": "tel", "placeholder": "+880"}),
+    )
     password1 = forms.CharField(
         label="Password", strip=False, max_length=128, widget=forms.PasswordInput
     )
@@ -36,6 +48,26 @@ class RegistrationForm(forms.Form):
             field.widget.attrs["class"] = (
                 "form-check-input" if name in {"accept_terms", "accept_privacy"} else "form-control"
             )
+        self.fields["display_name"].widget.attrs.update({
+            "autocomplete": "name",
+            "placeholder": "How you want to be identified",
+        })
+        self.fields["email"].widget.attrs.update({
+            "autocomplete": "email",
+            "inputmode": "email",
+            "placeholder": "name@example.com",
+        })
+        self.fields["phone_e164"].widget.attrs.update({
+            "autocomplete": "tel",
+            "inputmode": "tel",
+            "placeholder": "+8801XXXXXXXXX",
+        })
+        self.fields["password1"].widget.attrs.update({
+            "autocomplete": "new-password",
+        })
+        self.fields["password2"].widget.attrs.update({
+            "autocomplete": "new-password",
+        })
 
     def clean_email(self):
         return UserManager.normalize_email_identifier(self.cleaned_data.get("email"))
@@ -43,14 +75,36 @@ class RegistrationForm(forms.Form):
     def clean_phone_e164(self):
         phone = UserManager.normalize_phone_identifier(self.cleaned_data.get("phone_e164"))
         if phone:
-            phone_e164_validator(phone)
+            validate_phone_e164(phone)
         return phone
 
     def clean(self):
         cleaned_data = super().clean()
+        identifier_type = cleaned_data.get("identifier_type")
         email = cleaned_data.get("email")
         phone = cleaned_data.get("phone_e164")
-        if bool(email) == bool(phone):
+        if not identifier_type:
+            if email and not phone:
+                identifier_type = "email"
+            elif phone and not email:
+                identifier_type = "phone"
+        if identifier_type == "email":
+            if phone:
+                self.add_error("phone_e164", "Use only the selected Email identifier.")
+            if not email:
+                self.add_error("email", "Enter an email address.")
+        elif identifier_type == "phone":
+            if email:
+                self.add_error("email", "Use only the selected Phone identifier.")
+            if not phone:
+                self.add_error("phone_e164", "Enter a phone number.")
+        else:
+            if not identifier_type:
+                if not email and not phone:
+                    self.add_error("email", "Enter an email address.")
+                else:
+                    self.add_error("identifier_type", "Choose Email or Phone.")
+        if not identifier_type and bool(email) == bool(phone):
             raise ValidationError("Enter one email address or one E.164 phone number.")
 
         password1 = cleaned_data.get("password1")
@@ -114,8 +168,9 @@ def normalize_verification_identifier(identifier: str) -> str:
     if "@" in identifier:
         validate_email(identifier)
         return UserManager.normalize_email_identifier(identifier)
-    phone_e164_validator(identifier)
-    return UserManager.normalize_phone_identifier(identifier)
+    phone = UserManager.normalize_phone_identifier(identifier)
+    validate_phone_e164(phone)
+    return phone
 
 
 class VerificationIdentifierForm(forms.Form):
@@ -126,11 +181,18 @@ class VerificationIdentifierForm(forms.Form):
 
 
 class PhoneResetIdentifierForm(forms.Form):
-    phone_e164 = forms.CharField(max_length=16, label="Phone (E.164)")
+    phone_e164 = forms.CharField(
+        max_length=24,
+        label="Phone number",
+        help_text=(
+            "Enter a Bangladesh mobile as 01XXXXXXXXX or +8801XXXXXXXXX. "
+            "Spaces, parentheses, periods and hyphens are allowed."
+        ),
+    )
 
     def clean_phone_e164(self):
         phone = UserManager.normalize_phone_identifier(self.cleaned_data["phone_e164"])
-        phone_e164_validator(phone)
+        validate_phone_e164(phone)
         return phone
 
 
@@ -155,7 +217,14 @@ class VerificationCodeForm(forms.Form):
 
 
 class PhoneResetCodeForm(forms.Form):
-    phone_e164 = forms.CharField(max_length=16, label="Phone (E.164)")
+    phone_e164 = forms.CharField(
+        max_length=24,
+        label="Phone number",
+        help_text=(
+            "Enter a Bangladesh mobile as 01XXXXXXXXX or +8801XXXXXXXXX. "
+            "Spaces, parentheses, periods and hyphens are allowed."
+        ),
+    )
     code = forms.RegexField(
         regex=r"^[0-9]{6}$",
         max_length=6,
@@ -165,7 +234,7 @@ class PhoneResetCodeForm(forms.Form):
 
     def clean_phone_e164(self):
         phone = UserManager.normalize_phone_identifier(self.cleaned_data["phone_e164"])
-        phone_e164_validator(phone)
+        validate_phone_e164(phone)
         return phone
 
     def __init__(self, *args, **kwargs):

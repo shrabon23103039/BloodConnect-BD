@@ -1,5 +1,6 @@
 """Custom account model. Donor and health profiles live in separate apps."""
 
+import re
 import uuid
 
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -35,6 +36,19 @@ phone_e164_validator = RegexValidator(
     regex=r"^\+[1-9][0-9]{1,14}$",
     message="Enter a phone number in E.164 format, including the leading + and country code.",
 )
+
+
+def validate_phone_e164(value):
+    """Validate E.164; enforce the mobile pattern for Bangladesh +8801 numbers.
+
+    Valid E.164 values outside the +8801 mobile namespace, including +880 fixed-line
+    numbers, remain accepted for compatibility.
+    """
+    phone_e164_validator(value)
+    if value.startswith("+8801") and not re.fullmatch(r"\+8801[3-9][0-9]{8}", value):
+        raise ValidationError(
+            "Enter a valid Bangladesh mobile number in +8801XXXXXXXXX format."
+        )
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -87,6 +101,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.email = UserManager.normalize_email_identifier(self.email)
         self.phone_e164 = UserManager.normalize_phone_identifier(self.phone_e164)
         self.display_name = self.display_name.strip()
+        if self.phone_e164:
+            validate_phone_e164(self.phone_e164)
         if bool(self.email) == bool(self.phone_e164):
             raise ValidationError("Provide exactly one login identifier: email or phone_e164.")
 
@@ -94,6 +110,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.email = UserManager.normalize_email_identifier(self.email)
         self.phone_e164 = UserManager.normalize_phone_identifier(self.phone_e164)
         self.display_name = self.display_name.strip()
+        if self.phone_e164:
+            validate_phone_e164(self.phone_e164)
         return super().save(*args, **kwargs)
 
     @property

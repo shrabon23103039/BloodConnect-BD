@@ -3,6 +3,14 @@
 **Version:** 1.0  
 **Architecture:** Modular monolith with versioned REST API.
 
+## Google OAuth authentication
+
+P13-01 uses django-allauth 65.22.1's Google provider for server-side Authorization Code Flow with state and PKCE, integrated with Django sessions while retaining `IdentifierBackend`. Scopes are `openid email profile`; social token persistence is disabled. Client ID and secret are backend-only environment settings. Confirmed callback route: `/accounts/google/login/callback/`; the actual local browser URL `http://127.0.0.1:8000/` produces `http://127.0.0.1:8000/accounts/google/login/callback/`. Accessing via `localhost` produces a different host and requires its own authorized redirect URI. The production URL depends on the verified deployment origin. Explicit linking requires a CSRF-protected POST by an authenticated ACTIVE account; matching email alone never links.
+
+After a consented Google signup creates a pending user and its `SocialAccount`, the existing inactive-account/session policy redirects to the email verification form. The Google-verified email is placed in the session, and the existing challenge service sends the code; Google claims do not set BloodConnect `email_verified_at` or activate the account. The verification service can reuse a live unexpired challenge while holding its existing per-user row lock, preventing repeat callback sends. The verify-page GET only renders the form. Active linked accounts continue through normal login without another verification challenge.
+
+Successful allauth login uses `LOGIN_REDIRECT_URL = "home"`, resolving to the existing `/` route. Do not rely on Django's default `/accounts/profile/`, which is not mounted, and do not use `/accounts/google/link/` as a login destination; that route is reserved for explicit authenticated account linking.
+
 ## 1. Locked architecture decisions
 
 | Area | Decision |
@@ -11,7 +19,7 @@
 | Web framework | Django 5.2 LTS line; proposed pin `5.2.19` |
 | API | Django REST Framework proposed pin `3.18.3` |
 | Web UI | Django Templates + locally served Bootstrap 5.3.8 (MIT) |
-| Database | PostgreSQL 16+ |
+| Database | PostgreSQL 16+ with PostGIS extension required by the accepted location-search design; not currently configured |
 | Database driver | psycopg 3.3.8 (binary extra for the local academic environment; production packaging review remains required) |
 | Cache/broker | Redis 7.x |
 | Background jobs | Celery 5.7.0 |
@@ -20,7 +28,7 @@
 | Web server | Nginx |
 | WSGI server | Gunicorn 26.2.0 (see ADR-010; 23.x is no longer security-supported upstream) |
 | Static files | Project-local assets collected and served with WhiteNoise 6.12.0 |
-| Maps | Leaflet 1.9.4 + OpenStreetMap tiles under provider terms |
+| Maps/location search | Find Donor provider remains unselected: proposed options are Google Maps JavaScript API and Places API (New), or Leaflet with an approved OSM-derived tile provider. P12-02 and P12-03 use a development-only browser picker on `/app/` and `/location-demo/`; it is UI only, not donor matching or a production provider decision. Browser geolocation is native and provider-independent. |
 | Tests | pytest, pytest-django, Django TestCase, Playwright |
 | Load tests | Locust |
 | Containers | Docker Compose for local development |
@@ -182,6 +190,25 @@ All adapters require:
 - Structured logs with sensitive fields redacted.
 - Provider sandbox/mock for development.
 - Documentation of authorization and data-sharing basis.
+
+### Find Donor location flow (picker UI implemented; matching not implemented)
+
+- Browser geolocation uses the browser Geolocation API after an explicit user gesture and permission; it does not require a Google API. Require a secure context in deployed environments and provide manual place/pin selection if permission is denied or unavailable.
+- Google Maps JavaScript API may render the interactive map. Places API (New) may provide location and optional hospital autocomplete; the JavaScript Place Autocomplete Widget/Data API or the Places web service are alternatives. Place Details is needed only if selection requires additional place fields. Google Places Legacy must not be selected for a new project.
+- Geocoding API is optional, only for converting a text address to coordinates or reverse-geocoding a pin for a human-readable label. It is not required when the selected place, browser or map already supplies coordinates.
+- Current donor-profile picker scope (ADR-033): explicitly confirm a general area and grant separate `donor_area_storage` consent before storing private decimal coordinates, general-area label, optional Google Place ID, source (`GOOGLE_PLACE`, `GOOGLE_GEOCODE`, or `MAP_PIN`) and server-set timestamp. Do not request GPS or use these fields for matching. Only the authenticated owner's profile form may read/update the fields; public serializers and donor search do not include them. Map-only profiles remain excluded by the current administrative discovery requirements.
+- A later, separately approved matching implementation may use PostGIS geography, a reviewed Bangladesh boundary, `ST_DWithin`, donor-location consent and coarse public distance bands as specified below. The profile-only scalar fields do not authorize matching, boundary imports, or migration/application of PostGIS changes.
+- A future approved matching endpoint may accept requester-selected coordinates in a POST body, check them against the approved Bangladesh boundary, use them for that request only and never persist them in database records, logs, analytics, URLs or errors. The current donor-profile picker sends only the donor-entered place query and selected pin coordinates directly from the browser to Google Maps Platform for the requested map/geocoding operation; disclose this provider data flow. Do not send donor records, blood group or search results to map providers.
+- Use PostGIS `geography(Point, 4326)` and server-side `ST_DWithin` for radius eligibility against donor-confirmed points; use `ST_Distance` only to select the public display band. Radius options are 5, 10, 20 and 50 km. Donor-confirmed coordinates are the only points that qualify a result for a selected radius.
+- An administrative representative point may be used only for a donor with no confirmed point, and only for a separate, non-radius section labelled “Area matches — distance not verified.” Do not assign those donors a distance or imply that they are inside the selected radius. If the UI cannot clearly separate the section, omit them from radius results.
+- Public results expose a generalized area and, for radius-qualified results only, one coarse approximate straight-line band: `<2 km`, `2–5 km`, `5–10 km`, `10–20 km`, `20–50 km`, or `>50 km`. This is not road/travel distance. Never return donor coordinates or exact address.
+- Validate both requester and donor points against a reviewed Bangladesh `MultiPolygon` using PostGIS `ST_Covers`; reject outside points and fail closed if no approved boundary is active. Prefer a versioned, licensed boundary dataset; do not substitute a hand-written bounding box.
+- `ST_DWithin` must define radius inclusion on exact server-side geography distance (boundary inclusive). Public bands are presentation only and must never affect eligibility.
+- The client-side `/app/` picker and `/location-demo/` reuse the Google Maps/Places browser integration when `GOOGLE_MAPS_BROWSER_API_KEY` is configured in development. This does not implement a matching adapter or approve Google as a production provider. Provider failure leaves browser GPS and the existing administrative search available. PostGIS is not configured; no coordinate matching, production key or production provider is approved.
+- An optional hospital lookup is a location-selection aid, not hospital verification, affiliation, inventory or a clinical filter. Do not send donor records or donor locations to a Places provider.
+- Google billing is required for a Maps Platform project setup. Pricing is pay-as-you-go with per-SKU monthly free usage; verify current price, quotas, terms, attribution, caching/storage restrictions, regional terms and privacy disclosures before selection. Restrict browser keys by referrer and API; keep any server-side key in protected environment configuration, limit APIs/quotas and set budget alerts. Do not enable billing or APIs without owner approval.
+- Lower-cost alternative: Leaflet with an approved OSM-derived tile provider or a separately operated tile service. OSM data licensing and tile-service terms are distinct; the public OSM tile servers are capacity-limited, best-effort, and impose attribution, caching and usage requirements. The provider must be switchable and must not be assumed to provide unlimited production capacity.
+- Before implementation, confirm that the selected PostgreSQL deployment supports the required PostGIS extension and that a reviewed, licensed, versioned Bangladesh boundary dataset has explicit import/use approval. Do not substitute a hand-written bounding box or activate an unreviewed boundary.
 
 ## 10. Security constraints
 

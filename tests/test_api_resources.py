@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -66,13 +67,14 @@ class ApiResourceTests(TestCase):
         )
 
     @staticmethod
-    def location(name, level, parent=None):
+    def location(name, level, parent=None, **extra):
         return Location.objects.create(
             name_en=name,
             level=level,
             parent=parent,
             source_name="Synthetic API fixture",
             source_version="synthetic-v1",
+            **extra,
         )
 
     @staticmethod
@@ -133,13 +135,96 @@ class ApiResourceTests(TestCase):
         )
         self.assertEqual(self.client.get(reverse("api_v1:donor_list")).json()["count"], 1)
 
+    def test_guest_api_search_filters_city_locations_without_exposing_private_fields(self):
+        corporation = self.location(
+            "Synthetic DNCC", LocationLevel.CITY_CORPORATION, self.district
+        )
+        zone = self.location("Synthetic Zone", LocationLevel.ZONE, corporation)
+        ward = self.location(
+            "Ward 1", LocationLevel.WARD, zone, corporation_scope=corporation
+        )
+        city_user = self.make_user("city-donor@example.test", verified_email=True)
+        city_profile = DonorProfile.objects.create(
+            user=city_user,
+            blood_group=BloodGroup.A_POSITIVE,
+            division=self.division,
+            district=self.district,
+            city_corporation=corporation,
+            city_zone=zone,
+            ward=ward,
+            availability_status=AvailabilityStatus.AVAILABLE,
+            visibility_enabled=True,
+            profile_status=DonorProfileStatus.ACTIVE,
+            public_alias="Synthetic City Donor",
+        )
+        record_consent(
+            user=city_user,
+            consent_type=ConsentType.DONOR_DISCOVERY,
+            policy_version="draft-1",
+            granted=True,
+        )
+        response = self.client.get(
+            reverse("api_v1:donor_list"),
+            {
+                "division": str(self.division.pk),
+                "district": str(self.district.pk),
+                "city_corporation": str(corporation.pk),
+                "city_zone": str(zone.pk),
+                "ward": str(ward.pk),
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 1)
+        result = response.json()["results"][0]
+        self.assertEqual(result["id"], str(city_profile.pk))
+        self.assertEqual(result["city_corporation"], "Synthetic DNCC")
+        self.assertEqual(result["city_zone"], "Synthetic Zone")
+        self.assertEqual(result["ward"], "Ward 1")
+        self.assertNotIn("thana_name", result)
+        self.assertNotIn(city_user.email, str(result))
+
     def test_blood_request_public_and_owner_serialization_and_permissions(self):
+        map_request = create_blood_request(
+            user=self.recipient,
+            values={
+                **self.request_values(),
+                "division": None,
+                "district": None,
+                "upazila": None,
+                "request_location_label": "Synthetic Public Area",
+                "request_location_latitude": Decimal("23.74650000"),
+                "request_location_longitude": Decimal("90.37600000"),
+                "request_location_place_id": "synthetic-private-place-id",
+                "request_location_source": "GOOGLE_PLACE",
+                "request_location_confirmed": True,
+            },
+            publish=True,
+        )
         list_response = self.client.get(reverse("api_v1:blood_request_list"))
         self.assertEqual(list_response.status_code, 200)
-        public_item = list_response.json()["results"][0]
+        public_item = next(
+            item
+            for item in list_response.json()["results"]
+            if item["id"] == str(map_request.pk)
+        )
+        self.assertEqual(public_item["request_location_label"], "Synthetic Public Area")
+        self.assertIsNone(public_item["division"])
+        self.assertIsNone(public_item["district"])
+        self.assertNotIn("request_location_latitude", public_item)
+        self.assertNotIn("request_location_longitude", public_item)
+        self.assertNotIn("request_location_place_id", public_item)
+        self.assertNotIn("23.74650000", str(public_item))
+        self.assertNotIn("synthetic-private-place-id", str(public_item))
         self.assertNotIn("facility_address", public_item)
         self.assertNotIn("description", public_item)
         self.assertNotIn(self.recipient.email, str(public_item))
+
+        map_detail_url = reverse("api_v1:blood_request_detail", args=[map_request.pk])
+        public_detail = self.client.get(map_detail_url).json()
+        self.assertEqual(public_detail["request_location_label"], "Synthetic Public Area")
+        self.assertNotIn("request_location_latitude", public_detail)
+        self.assertNotIn("request_location_longitude", public_detail)
+        self.assertNotIn("request_location_place_id", public_detail)
 
         detail_url = reverse("api_v1:blood_request_detail", args=[self.blood_request.pk])
         self.assertNotIn("facility_address", self.client.get(detail_url).json())

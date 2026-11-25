@@ -36,19 +36,25 @@ DEVELOPMENT_THROTTLE_OVERRIDES = {
 }
 DEVELOPMENT_VERIFICATION_SEND_COOLDOWN_SECONDS = 0
 DEVELOPMENT_VERIFICATION_MAX_SENDS_PER_HOUR = 1000
+_DEVELOPMENT_PER_USER_RATE_LIMIT = "1000/h/user"
+_DEVELOPMENT_PER_IP_RATE_LIMIT = "1000/h/ip"
+_DEVELOPMENT_PER_KEY_RATE_LIMIT = "1000/h/key"
+_DEVELOPMENT_PER_IP_AND_KEY_RATE_LIMIT = "1000/h/ip,1000/h/key"
 ACCOUNT_RATE_LIMITS = {
-    "change_password": "1000/h/user",
-    "change_phone": "1000/h/user",
-    "manage_email": "1000/h/user",
-    "reset_password": "1000/h/ip,1000/h/key",
-    "reauthenticate": "1000/h/user",
-    "reset_password_from_key": "1000/h/ip",
-    "signup": "1000/h/ip",
-    "login": "1000/h/ip",
-    "request_login_code": "1000/h/ip,1000/h/key",
-    "login_failed": "1000/h/ip,1000/h/key",
-    "confirm_email": "1000/h/key",
-    "verify_phone": "1000/h/key,1000/h/ip",
+    # Keep policy values separate from password-action names so secret scanners
+    # do not mistake allauth's rate-limit strings for credentials.
+    "change_password": _DEVELOPMENT_PER_USER_RATE_LIMIT,
+    "change_phone": _DEVELOPMENT_PER_USER_RATE_LIMIT,
+    "manage_email": _DEVELOPMENT_PER_USER_RATE_LIMIT,
+    "reset_password": _DEVELOPMENT_PER_IP_AND_KEY_RATE_LIMIT,
+    "reauthenticate": _DEVELOPMENT_PER_USER_RATE_LIMIT,
+    "reset_password_from_key": _DEVELOPMENT_PER_IP_RATE_LIMIT,
+    "signup": _DEVELOPMENT_PER_IP_RATE_LIMIT,
+    "login": _DEVELOPMENT_PER_IP_RATE_LIMIT,
+    "request_login_code": _DEVELOPMENT_PER_IP_AND_KEY_RATE_LIMIT,
+    "login_failed": _DEVELOPMENT_PER_IP_AND_KEY_RATE_LIMIT,
+    "confirm_email": _DEVELOPMENT_PER_KEY_RATE_LIMIT,
+    "verify_phone": _DEVELOPMENT_PER_IP_AND_KEY_RATE_LIMIT,
 }
 GOOGLE_MAPS_BROWSER_API_KEY = os.environ.get("GOOGLE_MAPS_BROWSER_API_KEY", "").strip()
 ALLOW_MOCK_VERIFICATION = True

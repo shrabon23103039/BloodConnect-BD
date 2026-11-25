@@ -18,6 +18,7 @@ class ConsentType(models.TextChoices):
     EMAIL_SHARE_AFTER_ACCEPT = "email_share_after_accept", "Email sharing after donor acceptance"
     OPTIONAL_NOTIFICATIONS = "optional_notifications", "Optional notifications"
     LOCATION_DISPLAY = "location_display", "Optional generalized location display"
+    DONOR_AREA_STORAGE = "donor_area_storage", "Private donor donation-area storage"
     ORGANIZATION_SHARING = "organization_sharing", "Future organization sharing"
 
 

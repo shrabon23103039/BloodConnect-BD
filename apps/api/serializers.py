@@ -71,6 +71,10 @@ class DonorSearchSerializer(serializers.ModelSerializer):
     division = serializers.CharField(source="division.name_en", read_only=True)
     district = serializers.CharField(source="district.name_en", read_only=True)
     upazila = serializers.CharField(source="upazila.name_en", read_only=True, allow_null=True)
+    union = serializers.CharField(source="union.name_en", read_only=True, allow_null=True)
+    city_corporation = serializers.CharField(source="city_corporation.name_en", read_only=True, allow_null=True)
+    city_zone = serializers.CharField(source="city_zone.name_en", read_only=True, allow_null=True)
+    ward = serializers.CharField(source="ward.name_en", read_only=True, allow_null=True)
 
     class Meta:
         model = DonorProfile
@@ -82,14 +86,19 @@ class DonorSearchSerializer(serializers.ModelSerializer):
             "division",
             "district",
             "upazila",
+            "union",
+            "city_corporation",
+            "city_zone",
+            "ward",
         )
         read_only_fields = fields
 
 
 class BloodRequestReadSerializer(serializers.ModelSerializer):
-    division = serializers.CharField(source="division.name_en", read_only=True)
-    district = serializers.CharField(source="district.name_en", read_only=True)
-    upazila = serializers.CharField(source="upazila.name_en", read_only=True, allow_null=True)
+    division = serializers.SerializerMethodField()
+    district = serializers.SerializerMethodField()
+    upazila = serializers.SerializerMethodField()
+    request_location_label = serializers.SerializerMethodField()
 
     class Meta:
         model = BloodRequest
@@ -101,12 +110,31 @@ class BloodRequestReadSerializer(serializers.ModelSerializer):
             "division",
             "district",
             "upazila",
+            "request_location_label",
             "urgency",
             "status",
             "expires_at",
             "created_at",
         )
         read_only_fields = fields
+
+    def _legacy_location_name(self, instance, field_name):
+        if instance.request_location_latitude is not None:
+            return None
+        location = getattr(instance, field_name)
+        return location.name_en if location else None
+
+    def get_division(self, instance) -> str | None:
+        return self._legacy_location_name(instance, "division")
+
+    def get_district(self, instance) -> str | None:
+        return self._legacy_location_name(instance, "district")
+
+    def get_upazila(self, instance) -> str | None:
+        return self._legacy_location_name(instance, "upazila")
+
+    def get_request_location_label(self, instance) -> str | None:
+        return instance.request_location_label or None
 
 
 class BloodRequestOwnerReadSerializer(BloodRequestReadSerializer):

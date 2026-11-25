@@ -72,12 +72,18 @@ services:
         sync: false
       - key: EMAIL_HOST_PASSWORD
         sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
       - key: EMAIL_PORT
         value: "587"
       - key: EMAIL_USE_TLS
         value: "true"
       - key: EMAIL_USE_SSL
         value: "false"
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
 
   - type: worker
     name: bloodconnect-bd-staging-worker

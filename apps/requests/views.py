@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
@@ -17,6 +18,18 @@ def _require_active(user):
 
 def _owned_request(user, public_id):
     return get_object_or_404(BloodRequest, pk=public_id, requester=user)
+
+
+def _request_form_context(form, *, creating):
+    return {
+        "form": form,
+        "creating": creating,
+        "google_maps_browser_api_key": (
+            getattr(settings, "GOOGLE_MAPS_BROWSER_API_KEY", "")
+            if settings.DEBUG
+            else ""
+        ),
+    }
 
 
 @login_required
@@ -40,7 +53,9 @@ def request_create(request):
         else:
             messages.success(request, "Request published." if publish else "Draft saved.")
             return redirect("requests:detail", public_id=item.pk)
-    return render(request, "requests/request_form.html", {"form": form, "creating": True})
+    return render(
+        request, "requests/request_form.html", _request_form_context(form, creating=True)
+    )
 
 
 @login_required
@@ -72,7 +87,9 @@ def request_edit(request, public_id):
         else:
             messages.success(request, "Request updated.")
             return redirect("requests:detail", public_id=item.pk)
-    return render(request, "requests/request_form.html", {"form": form, "creating": False})
+    return render(
+        request, "requests/request_form.html", _request_form_context(form, creating=False)
+    )
 
 
 @login_required

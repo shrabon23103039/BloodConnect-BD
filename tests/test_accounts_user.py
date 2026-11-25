@@ -54,13 +54,51 @@ class UserIdentityTests(TestCase):
                 account_status=AccountStatus.ACTIVE,
             )
 
-    def test_phone_identifier_rejects_non_e164_input(self):
+    def test_phone_identifier_normalizes_bangladesh_local_input_and_rejects_invalid(self):
+        user = User.objects.create_user(
+            phone_e164="01700000000",
+            display_name="Local Phone",
+            password="Synthetic-Password-Only-For-Test!",
+        )
+        self.assertEqual(user.phone_e164, "+8801700000000")
         with self.assertRaises(ValidationError):
             User.objects.create_user(
-                phone_e164="01700000000",
+                phone_e164="0170000000",
                 display_name="Invalid Phone",
                 password="Synthetic-Password-Only-For-Test!",
             )
+
+    def test_phone_manager_normalizes_common_bangladesh_mobile_formats(self):
+        from apps.accounts.managers import UserManager
+
+        expected = "+8801700000000"
+        for phone in (
+            "01700000000",
+            "+880 170 000 0000",
+            "8801700000000",
+            "008801700000000",
+            "০১৭০০০০০০০০",
+        ):
+            with self.subTest(phone_format=phone):
+                self.assertEqual(UserManager.normalize_phone_identifier(phone), expected)
+
+    def test_direct_model_save_rejects_invalid_bangladesh_mobile(self):
+        user = User(
+            phone_e164="+8801100000000",
+            display_name="Invalid Direct Save",
+        )
+
+        with self.assertRaises(ValidationError):
+            user.save()
+
+    def test_non_mobile_bangladesh_e164_remains_valid_for_legacy_compatibility(self):
+        user = User.objects.create_user(
+            phone_e164="+880212345678",
+            display_name="Legacy E164 Example",
+            password="Synthetic-Password-Only-For-Test!",
+        )
+
+        self.assertEqual(user.phone_e164, "+880212345678")
 
     def test_casefolded_email_and_phone_duplicates_are_rejected(self):
         User.objects.create_user(

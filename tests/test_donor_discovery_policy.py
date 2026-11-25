@@ -121,6 +121,29 @@ class DonorDiscoveryPolicyTests(TestCase):
         self.assertTrue(self.profile.visibility_enabled)
         self.assertFalse(DonorProfile.objects.discoverable().exists())
 
+    def test_discovery_excludes_profile_under_inactive_higher_ancestor(self):
+        self.grant_discovery(self.user)
+        Location.objects.filter(pk=self.division.pk).update(is_active=False)
+
+        self.assertFalse(DonorProfile.objects.discoverable().exists())
+
+    def test_discovery_excludes_inconsistent_location_parent_references(self):
+        self.grant_discovery(self.user)
+        other_division = self.location("Other Division", LocationLevel.DIVISION)
+        other_district = self.location("Other District", LocationLevel.DISTRICT, other_division)
+        other_upazila = self.location("Other Upazila", LocationLevel.UPAZILA, other_district)
+
+        Location.objects.filter(pk=self.district.pk).update(parent_id=other_division.pk)
+        self.assertFalse(DonorProfile.objects.discoverable().exists())
+
+        Location.objects.filter(pk=self.district.pk).update(parent_id=self.division.pk)
+        DonorProfile.objects.filter(pk=self.profile.pk).update(upazila_id=other_upazila.pk)
+        self.assertFalse(DonorProfile.objects.discoverable().exists())
+
+        DonorProfile.objects.filter(pk=self.profile.pk).update(upazila_id=self.upazila.pk)
+        Location.objects.filter(pk=self.upazila.pk).update(level=LocationLevel.DISTRICT)
+        self.assertFalse(DonorProfile.objects.discoverable().exists())
+
     def test_owner_visibility_and_availability_controls_record_current_consent(self):
         client = self.client
         client.force_login(self.user)

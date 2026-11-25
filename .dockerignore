@@ -68,3 +68,4 @@ media
 staticfiles
 *.log
 *.tmp
+/data/locations/
