@@ -101,6 +101,9 @@ def test_registration_status_verification_request_and_code_flow(live_server):
         assert page.wait_for_url(f"**{reverse('accounts:verify')}") is None
         assert page.get_by_role("heading", name="Verify your account").is_visible()
         assert page.locator("input[name='code']").count() == 1
+        assert page.locator("input[name='code']").get_attribute("maxlength") == "6"
+        assert page.locator("input[name='code']").get_attribute("inputmode") == "numeric"
+        assert page.locator("input[name='code']").get_attribute("autocomplete") == "one-time-code"
         assert page.locator("input[name='identifier']").input_value() == "status-flow@example.test"
         page.set_viewport_size({"width": 390, "height": 844})
         _assert_axe_clean(page, axe_script, "verify-code/mobile")
@@ -112,12 +115,41 @@ def test_registration_status_verification_request_and_code_flow(live_server):
 
         code = mock_verification_provider.messages[-1].code
         wrong_code = "999999" if code != "999999" else "000000"
-        page.locator("input[name='code']").fill(wrong_code)
+        page.locator("input[name='code']").click()
+        page.locator("input[name='code']").press_sequentially(wrong_code)
         page.get_by_role("button", name="Verify account").click()
         assert page.get_by_role("alert").get_by_text(
             "The code is invalid, expired, or already used."
         ).is_visible()
-        page.locator("input[name='code']").fill(code)
+        ambiguous_paste_prevented = page.locator("input[name='code']").evaluate(
+            """(input) => {
+              const clipboard = new DataTransfer();
+              clipboard.setData('text/plain', 'Codes: 111111 and 222222');
+              const event = new ClipboardEvent('paste', {
+                clipboardData: clipboard, bubbles: true, cancelable: true
+              });
+              input.dispatchEvent(event);
+              return event.defaultPrevented;
+            }"""
+        )
+        assert ambiguous_paste_prevented
+        assert page.locator("input[name='code']").input_value() == ""
+        assert page.get_by_text("This message contains more than one six-digit code.").is_visible()
+        paste_prevented = page.locator("input[name='code']").evaluate(
+            """(input, code) => {
+              const clipboard = new DataTransfer();
+              clipboard.setData('text/plain', `Your BloodConnect verification code is (${code}).\n`);
+              const event = new ClipboardEvent('paste', {
+                clipboardData: clipboard, bubbles: true, cancelable: true
+              });
+              input.dispatchEvent(event);
+              return event.defaultPrevented;
+            }""",
+            code,
+        )
+        assert paste_prevented
+        assert page.locator("input[name='code']").input_value() == code
+        assert page.get_by_text("One six-digit code was filled.").is_visible()
         page.get_by_role("button", name="Verify account").click()
         assert page.wait_for_url(f"**{reverse('accounts:login')}") is None
         assert page.get_by_role("status").get_by_text("Your email has been verified.").is_visible()

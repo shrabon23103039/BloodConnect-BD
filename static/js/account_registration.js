@@ -102,8 +102,11 @@
   });
   confirmInput?.addEventListener("input", setMatch);
 
-  form.addEventListener("submit", () => {
-    if (submitted) return;
+  form.addEventListener("submit", (event) => {
+    if (submitted) {
+      event.preventDefault();
+      return;
+    }
     submitted = true;
     if (submitButton) {
       submitButton.disabled = true;
@@ -113,19 +116,24 @@
     if (submitLabel) submitLabel.textContent = "Creating account…";
   });
 
-  const summary = form.querySelector("[data-registration-error-summary]");
+  const summary = document.querySelector("[data-registration-error-summary]");
   if (summary) {
     form.querySelectorAll(".registration-field-error").forEach((error) => {
-      const field = error.closest(".registration-field")?.querySelector("input, select");
+      const field = (error.id
+        ? document.getElementById(`id_${error.id.replace(/_error$/, "")}`)
+        : null)
+        || error.closest(".registration-field")?.querySelector("input, select");
       if (field) {
         field.setAttribute("aria-invalid", "true");
-        field.setAttribute("aria-describedby", error.id || "");
+        if (error.id) {
+          const describedBy = new Set(
+            (field.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean)
+          );
+          describedBy.add(error.id);
+          field.setAttribute("aria-describedby", Array.from(describedBy).join(" "));
+        }
       }
     });
-    const firstError = form.querySelector(".registration-field-error");
-    const firstInvalid = firstError
-      ? firstError.closest(".registration-field")?.querySelector("input, select")
-      : null;
-    if (firstInvalid) firstInvalid.focus();
+    summary.focus();
   }
 })();
