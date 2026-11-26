@@ -55,8 +55,8 @@ class PublicPageTests(TestCase):
             "Community-led donor discovery",
             "Make it easier",
             "potential donor.",
+            "Create an account",
             "See how it works",
-            "Read the safety guidance",
             "Reviewed Bangladesh location data is not yet loaded.",
             "Consent comes first",
             "Your details stay private until you choose to connect.",
@@ -78,6 +78,11 @@ class PublicPageTests(TestCase):
             "accounts:register",
         ):
             self.assertContains(response, f'href="{reverse(route_name)}"')
+
+        self.assertContains(
+            response,
+            f'class="btn btn-brand landing-button landing-button--primary" href="{reverse("accounts:register")}"',
+        )
 
         self.assertContains(response, 'class="landing-page"')
         self.assertContains(response, "Skip to main content")

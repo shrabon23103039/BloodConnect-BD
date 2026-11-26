@@ -22,7 +22,18 @@ def test_landing_responsive_navigation_and_routes(live_server):
         response = page.goto(f"{live_server.url}{reverse('home')}", wait_until="domcontentloaded")
         assert response and response.status == 200
         assert page.get_by_role("heading", name="Make it easier to reach a potential donor.").is_visible()
-        assert page.get_by_role("link", name="See how it works").is_visible()
+        assert page.get_by_role("link", name="Create an account").get_attribute(
+            "href"
+        ) == reverse("accounts:register")
+        assert page.get_by_role("link", name="See how it works").get_attribute(
+            "href"
+        ) == reverse("how_it_works")
+        assert page.locator(
+            f"#site-navigation a[href='{reverse('accounts:login')}']"
+        ).is_visible()
+        assert page.locator(
+            f"#site-navigation a[href='{reverse('accounts:register')}']"
+        ).is_visible()
 
         route_names = (
             "how_it_works",
@@ -61,12 +72,17 @@ def test_landing_responsive_navigation_and_routes(live_server):
         page.set_viewport_size({"width": 390, "height": 844})
         toggler = page.get_by_role("button", name="Toggle navigation")
         assert toggler.is_visible()
-        toggler.click()
+        toggler.focus()
+        page.keyboard.press("Enter")
         navigation = page.locator("#site-navigation")
         assert navigation.is_visible()
+        assert toggler.get_attribute("aria-expanded") == "true"
         assert navigation.get_by_role("link", name="How it works").is_visible()
-        navigation.get_by_role("link", name="How it works").click()
+        navigation.get_by_role("link", name="How it works").focus()
+        with page.expect_navigation(wait_until="domcontentloaded"):
+            page.keyboard.press("Enter")
         assert page.url.endswith(reverse("how_it_works"))
+        assert toggler.get_attribute("aria-expanded") == "false"
 
         page.goto(f"{live_server.url}{reverse('home')}", wait_until="domcontentloaded")
         page.keyboard.press("Tab")

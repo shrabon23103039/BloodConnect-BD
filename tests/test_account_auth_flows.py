@@ -3,11 +3,14 @@
 import re
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.core import mail
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework.test import APIRequestFactory
 
 from apps.accounts.forms import (
@@ -132,6 +135,19 @@ class AccountAuthFlowTests(TestCase):
         self.assertContains(response, "E.164 format")
         self.assertFalse(User.objects.filter(display_name="Invalid Phone").exists())
 
+    def test_phone_registration_validation_response_preserves_selected_identifier(self):
+        response = self.post_registration(
+            email="",
+            phone_e164="0170000000",
+            identifier_type="phone",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="identifier_mode_ui" value="phone" checked')
+        self.assertContains(response, 'data-registration-phone-group >')
+        self.assertContains(response, "E.164 format")
+        self.assertFalse(User.objects.exists())
+
     def test_verification_form_normalizes_local_bangladesh_phone_before_validation(self):
         form = VerificationIdentifierForm({"identifier": "01700000000"})
 
@@ -212,6 +228,29 @@ class AccountAuthFlowTests(TestCase):
         )
         self.assertRedirects(response, reverse("home"))
         self.assertEqual(self.client.session["_auth_user_id"], str(email_user.pk))
+
+    def test_login_honors_local_next_and_rejects_external_next(self):
+        user = self.create_active_user()
+        local_path = reverse("donors:profile")
+
+        local_response = self.client.post(
+            f"{reverse('accounts:login')}?next={local_path}",
+            {"username": user.email, "password": PASSWORD, "next": local_path},
+        )
+        self.assertRedirects(local_response, local_path, fetch_redirect_response=False)
+
+        self.client.logout()
+        external_response = self.client.post(
+            f"{reverse('accounts:login')}?next=https://attacker.example/collect",
+            {
+                "username": user.email,
+                "password": PASSWORD,
+                "next": "https://attacker.example/collect",
+            },
+        )
+        self.assertRedirects(
+            external_response, reverse("home"), fetch_redirect_response=False
+        )
 
         self.client.post(reverse("accounts:logout"))
         phone_user = self.create_active_user(
@@ -329,6 +368,10 @@ class AccountAuthFlowTests(TestCase):
             {"new_password1": new_password, "new_password2": new_password},
         )
         self.assertRedirects(complete, reverse("accounts:password_reset_complete"))
+        reused_link = self.client.get(reset_form_path)
+        self.assertContains(
+            reused_link, "This reset link is invalid or has already been used."
+        )
         user.refresh_from_db()
         self.assertTrue(user.check_password(new_password))
         self.assertFalse(user.check_password(PASSWORD))
@@ -350,6 +393,48 @@ class AccountAuthFlowTests(TestCase):
         protected = other_session_client.get(reverse("donors:profile"))
         self.assertEqual(protected.status_code, 302)
         self.assertNotIn("_auth_user_id", other_session_client.session)
+
+    @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+    def test_password_reset_delivery_failure_is_generic_and_redacted(self):
+        from unittest.mock import patch
+
+        user = self.create_active_user()
+        with patch(
+            "django.core.mail.message.EmailMultiAlternatives.send",
+            side_effect=OSError("synthetic SMTP failure"),
+        ):
+            with self.assertLogs("bloodconnect.password_reset", level="WARNING") as logs:
+                failed = self.client.post(
+                    reverse("accounts:password_reset"), {"email": user.email}
+                )
+        unknown = self.client.post(
+            reverse("accounts:password_reset"), {"email": "unknown@example.test"}
+        )
+
+        self.assertRedirects(failed, reverse("accounts:password_reset_done"))
+        self.assertRedirects(unknown, reverse("accounts:password_reset_done"))
+        self.assertNotIn(user.email, "\n".join(logs.output))
+        self.assertNotIn("synthetic SMTP failure", "\n".join(logs.output))
+        self.assertNotIn("Traceback", "\n".join(logs.output))
+
+    @override_settings(PASSWORD_RESET_TIMEOUT=-1)
+    def test_expired_email_reset_link_is_rejected(self):
+        user = self.create_active_user()
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        response = self.client.get(
+            reverse(
+                "accounts:password_reset_confirm",
+                kwargs={"uidb64": uidb64, "token": token},
+            ),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, "This reset link is invalid or has already been used."
+        )
 
     @override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
     def test_password_reset_response_does_not_disclose_unknown_email(self):

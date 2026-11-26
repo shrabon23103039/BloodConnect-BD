@@ -44,7 +44,9 @@
         <div class="verification-field verification-field--code">
           <label for="{{ form.code.id_for_label }}">Verification code</label>
           {{ form.code }}
-          {% for error in form.code.errors %}<p class="registration-field-error">{{ error }}</p>{% endfor %}
+          {% for error in form.code.errors %}<p class="registration-field-error" id="verification-code-error">{{ error }}</p>{% endfor %}
+          <p class="verification-code-help" id="verification-code-help">Enter six digits. You can paste the code or a message containing one unambiguous six-digit code.</p>
+          <p class="verification-code-paste-status" data-otp-paste-status role="status" aria-live="polite" aria-atomic="true"></p>
         </div>
         <button class="btn btn-brand verification-submit" type="submit">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"></path><circle cx="12" cy="12" r="10"></circle></svg>
@@ -59,3 +61,4 @@
   </div>
 </section>
 {% endblock %}
+{% block extra_scripts %}<script src="{% static 'js/otp_code.js' %}" defer></script>{% endblock %}

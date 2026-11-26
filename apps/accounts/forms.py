@@ -1,12 +1,16 @@
 """Forms for account creation and identifier-based sign-in."""
 
+import logging
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.db import transaction
+from django.template import loader
 
 from apps.accounts.managers import UserManager
 from apps.accounts.models import AccountStatus, User, validate_phone_e164
@@ -154,6 +158,36 @@ class IdentifierAuthenticationForm(AuthenticationForm):
 class AccountPasswordResetForm(PasswordResetForm):
     """Find only active email accounts without relying on a DB `is_active` field."""
 
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+        try:
+            subject = loader.render_to_string(subject_template_name, context)
+            subject = "".join(subject.splitlines())
+            body = loader.render_to_string(email_template_name, context)
+            message = EmailMultiAlternatives(subject, body, from_email, [to_email])
+            if html_email_template_name is not None:
+                html_body = loader.render_to_string(html_email_template_name, context)
+                message.attach_alternative(html_body, "text/html")
+            return message.send(fail_silently=False)
+        except Exception as error:
+            # Keep the response enumeration-resistant and avoid logging the
+            # recipient, reset URL, token, message body, or provider details.
+            logging.getLogger("bloodconnect.password_reset").warning(
+                "Password reset email delivery failed",
+                extra={
+                    "event": "password_reset_delivery_failed",
+                    "error_type": type(error).__name__,
+                },
+            )
+            return None
+
     def get_users(self, email):
         normalized_email = UserManager.normalize_email_identifier(email)
         users = User.objects.filter(
@@ -213,7 +247,14 @@ class VerificationCodeForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["identifier"].widget.attrs["class"] = "form-control"
         self.fields["code"].widget.attrs.update(
-            {"class": "form-control", "inputmode": "numeric", "autocomplete": "one-time-code"}
+            {
+                "class": "form-control",
+                "inputmode": "numeric",
+                "autocomplete": "one-time-code",
+                "pattern": "[0-9]{6}",
+                "autofocus": True,
+                "data-one-time-code": "",
+            }
         )
 
 
@@ -243,7 +284,13 @@ class PhoneResetCodeForm(forms.Form):
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-control"
         self.fields["code"].widget.attrs.update(
-            {"inputmode": "numeric", "autocomplete": "one-time-code"}
+            {
+                "inputmode": "numeric",
+                "autocomplete": "one-time-code",
+                "pattern": "[0-9]{6}",
+                "autofocus": True,
+                "data-one-time-code": "",
+            }
         )
 
 

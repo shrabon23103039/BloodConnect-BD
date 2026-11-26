@@ -59,22 +59,22 @@
           <legend>Choose one identifier</legend>
           <div class="registration-mode" role="radiogroup" aria-label="Account identifier type">
             <label class="registration-mode__option">
-              <input type="radio" name="identifier_mode_ui" value="email" checked>
+              <input type="radio" name="identifier_mode_ui" value="email" {% if form.identifier_type.value != 'phone' %}checked{% endif %}>
               <span>Email</span>
             </label>
             <label class="registration-mode__option">
-              <input type="radio" name="identifier_mode_ui" value="phone">
+              <input type="radio" name="identifier_mode_ui" value="phone" {% if form.identifier_type.value == 'phone' %}checked{% endif %}>
               <span>Phone</span>
             </label>
           </div>
 
-          <div class="registration-field" data-registration-email-group>
+          <div class="registration-field" data-registration-email-group {% if form.identifier_type.value == 'phone' %}hidden{% endif %}>
             <label for="{{ form.email.id_for_label }}">Email address</label>
             {{ form.email }}
             {% for error in form.email.errors %}<p class="registration-field-error" id="email_error">{{ error }}</p>{% endfor %}
           </div>
 
-          <div class="registration-field" data-registration-phone-group hidden>
+          <div class="registration-field" data-registration-phone-group {% if form.identifier_type.value != 'phone' %}hidden{% endif %}>
             <label for="{{ form.phone_e164.id_for_label }}">Phone number</label>
             {{ form.phone_e164 }}
             <p class="registration-field-help">Bangladesh number: 01XXXXXXXXX or +8801XXXXXXXXX.</p>
@@ -122,13 +122,13 @@
             {{ form.accept_terms }}
             <span>I accept the <a href="{% url 'terms' %}">Terms of Service</a>.</span>
           </label>
-          {% for error in form.accept_terms.errors %}<p class="registration-field-error">{{ error }}</p>{% endfor %}
+          {% for error in form.accept_terms.errors %}<p class="registration-field-error" id="accept_terms_error">{{ error }}</p>{% endfor %}
 
           <label class="registration-check">
             {{ form.accept_privacy }}
             <span>I acknowledge the <a href="{% url 'privacy' %}">Privacy Notice</a>.</span>
           </label>
-          {% for error in form.accept_privacy.errors %}<p class="registration-field-error">{{ error }}</p>{% endfor %}
+          {% for error in form.accept_privacy.errors %}<p class="registration-field-error" id="accept_privacy_error">{{ error }}</p>{% endfor %}
         </div>
 
         <button class="btn btn-brand registration-submit" type="submit" data-registration-submit>

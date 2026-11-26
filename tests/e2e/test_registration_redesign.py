@@ -39,9 +39,61 @@ def test_registration_redesign_is_responsive_and_retains_controls(live_server, s
                     path=str(Path(tempfile.gettempdir()) / f"bloodconnect-create-account-{label}.png"),
                     full_page=True,
                 )
+        submission_state = page.locator("form[data-registration-form]").evaluate(
+            """form => {
+              const events = [];
+              form.addEventListener('submit', event => {
+                events.push(event.defaultPrevented);
+                event.preventDefault();
+              });
+              form.requestSubmit();
+              const busy = form.querySelector('[data-registration-submit]');
+              const firstState = {
+                disabled: busy.disabled,
+                ariaBusy: busy.getAttribute('aria-busy'),
+                label: form.querySelector('[data-registration-submit-label]').textContent
+              };
+              form.requestSubmit();
+              return {events, secondPrevented: events[1], firstState};
+            }"""
+        )
+        assert submission_state["firstState"] == {
+            "disabled": True,
+            "ariaBusy": "true",
+            "label": "Creating account…",
+        }
+        assert submission_state["secondPrevented"] is True
+        page.reload()
+        cache.clear()
         page.locator(".registration-mode__option").filter(has_text="Phone").click()
         assert page.locator("input[name='phone_e164']").is_visible()
         assert page.locator("input[name='email']").is_disabled()
+        assert page.locator("input[name='phone_e164']").is_enabled()
+        page.locator("input[name='phone_e164']").fill("0170000000")
+        page.locator("[data-registration-submit]").click()
+        page.wait_for_function(
+            """() => {
+              const summary = document.querySelector('[data-registration-error-summary]');
+              return summary && summary === document.activeElement;
+            }"""
+        )
+        assert page.locator("input[name='identifier_mode_ui'][value='phone']").is_checked()
+        assert page.locator("input[name='phone_e164']").is_visible()
+        assert page.locator("input[name='phone_e164']").is_enabled()
+        assert page.locator("input[name='email']").is_disabled()
+        assert page.locator("input[name='phone_e164']").get_attribute("aria-invalid") == "true"
+        assert "phone_error" in page.locator("input[name='phone_e164']").get_attribute(
+            "aria-describedby"
+        )
+        assert page.get_by_text("E.164 format", exact=False).is_visible()
+        page.set_viewport_size({"width": 390, "height": 844})
+        page.screenshot(
+            path=str(
+                Path(tempfile.gettempdir())
+                / "bloodconnect-phone-signup-validation-390.png"
+            ),
+            full_page=True,
+        )
         page.locator("[data-password-toggle='id_password1']").click()
         assert page.locator("input[name='password1']").get_attribute("type") == "text"
         assert not console_errors

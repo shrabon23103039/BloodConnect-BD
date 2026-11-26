@@ -222,6 +222,17 @@ def phone_password_reset(request):
         if user:
             try:
                 issue_challenge(user, VerificationPurpose.PASSWORD_RESET)
+            except VerificationDeliveryError as error:
+                logging.getLogger("bloodconnect.verification").warning(
+                    "Verification delivery failed",
+                    extra={
+                        "event": "verification_delivery_failed",
+                        "request_id": getattr(request, "request_id", ""),
+                        "error_type": type(error.__cause__).__name__
+                        if error.__cause__
+                        else type(error).__name__,
+                    },
+                )
             except (VerificationRateLimited, VerificationUnavailable):
                 pass
         sent = True

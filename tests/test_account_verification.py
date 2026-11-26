@@ -384,6 +384,42 @@ class VerificationWebFlowTests(TestCase):
             )
         self.assertNotIn(code, "\n".join(verify_logs.output))
 
+    def test_phone_reset_delivery_failure_keeps_generic_response_and_redacted_log(self):
+        from unittest.mock import patch
+
+        user = User.objects.create_user(
+            phone_e164="+8801700000812",
+            display_name="Synthetic Delivery Failure",
+            password=PASSWORD,
+        )
+        user.account_status = AccountStatus.ACTIVE
+        user.phone_verified_at = timezone.now()
+        user.save(update_fields=["account_status", "phone_verified_at", "updated_at"])
+
+        with patch(
+            "apps.accounts.verification.mock_verification_provider.deliver",
+            side_effect=VerificationDeliveryError("synthetic delivery failure"),
+        ):
+            with self.assertLogs("bloodconnect.verification", level="WARNING") as logs:
+                failed = self.client.post(
+                    reverse("accounts:phone_password_reset"),
+                    {"phone_e164": "01700000812"},
+                )
+        unknown = self.client.post(
+            reverse("accounts:phone_password_reset"),
+            {"phone_e164": "01700000813"},
+        )
+
+        self.assertEqual(failed.status_code, 200)
+        self.assertEqual(unknown.status_code, 200)
+        self.assertContains(failed, "If an active account matches")
+        self.assertContains(unknown, "If an active account matches")
+        self.assertNotContains(failed, "synthetic delivery failure")
+        self.assertNotIn("synthetic delivery failure", "\n".join(logs.output))
+        self.assertNotIn("Traceback", "\n".join(logs.output))
+        challenge = VerificationChallenge.objects.get(user=user)
+        self.assertIsNotNone(challenge.consumed_at)
+
     @override_settings(
         ALLOW_MOCK_VERIFICATION=False,
         EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
